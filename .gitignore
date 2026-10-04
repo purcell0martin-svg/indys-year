@@ -3,3 +3,5 @@ indys-year.zip
 
 .vercel
 .env*
+supabase/.temp
+.env*

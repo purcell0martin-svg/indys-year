@@ -193,6 +193,10 @@ details[open] summary::after{content:"−"}
 .pf-dots button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:80}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+body.ro [data-start],body.ro [data-quick],body.ro #pfBtn,body.ro #copyCtx{display:none!important}
+body.ro [data-walk],body.ro [data-prot]{pointer-events:none}
+.otp{letter-spacing:.4em;text-align:center;font-size:1.4rem}
+.linkbtn{background:none;border:0;color:var(--accent);padding:8px 0;font-weight:700;min-height:40px}
 </style>
 </head>
 <body>
@@ -203,6 +207,9 @@ details[open] summary::after{content:"−"}
 <div class="flash" id="flash"></div>
 <canvas class="confetti" id="confetti"></canvas>
 <script>
+/* ============ Cloud sync config (anon/publishable key only: safe client-side, data is protected by RLS) ============ */
+const SUPABASE_URL="https://rexnqtgodowbwjdvmudm.supabase.co";
+const SUPABASE_KEY="sb_publishable_JJIUsbSMkASPPVLJta-QvA_7nnf0SBN";
 /* ============ Exercise library ============ */
 const EX = {
   squat:{n:"Squats",cue:"Feet hip-width, sit back like into a chair, chest up, drive through heels.",m:"Legs"},
@@ -369,7 +376,7 @@ function flash(){const f=$("#flash");f.classList.add("on");setTimeout(()=>f.clas
 
 /* ============ State & storage (IndexedDB primary, localStorage mirror) ============ */
 const LS_KEY="indy-tracker-v1";
-const blank=()=>({v:2,updatedAt:0,profile:null,weights:[],measures:[],glucose:[],hba1c:[],activity:[],pf:{},protein:{},sessions:[],lastBackup:null});
+const blank=()=>({v:2,updatedAt:0,profile:null,weights:[],measures:[],glucose:[],hba1c:[],activity:[],pf:{},protein:{},sessions:[],lastBackup:null,deleted:{},profileCleared:0});
 let S=blank();
 const idb={
   db:null,
@@ -385,8 +392,14 @@ function migrate(o){
     if(!p.theme)p.theme="volt"; if(!p.mode)p.mode="auto";
   }
   s.protein=s.protein||{};s.pf=s.pf||{};delete s.chat;
+  s.deleted=s.deleted&&typeof s.deleted==="object"?s.deleted:{};
+  // records without an id (very old backups) get a deterministic one so two devices don't duplicate them
+  ["weights","measures","glucose","hba1c","activity","sessions"].forEach(k=>{s[k]=Array.isArray(s[k])?s[k]:[];s[k].forEach(x=>{if(!x.id)x.id="L"+hashStr(JSON.stringify(x))})});
   return s;
 }
+function hashStr(t){let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return (h>>>0).toString(36)}
+// delete records matching f from S[a] and leave tombstones so a sync never resurrects them
+function dropWhere(a,f){const now=Date.now(),keep=[];S[a].forEach(x=>{if(f(x)){if(x.id)S.deleted[x.id]=now}else keep.push(x)});S[a]=keep}
 async function loadState(){
   await idb.open();
   let a=await idb.get("state"),b=null;
@@ -395,8 +408,8 @@ async function loadState(){
   if(pick)S=migrate(pick);
 }
 let saveT=null;
-function commit(){S.updatedAt=Date.now();clearTimeout(saveT);saveT=setTimeout(persistNow,250)}
-function persistNow(){const snap=JSON.parse(JSON.stringify(S));idb.set("state",snap);try{localStorage.setItem(LS_KEY,JSON.stringify(snap))}catch(e){}}
+function commit(){if(RO)return;S.updatedAt=Date.now();clearTimeout(saveT);saveT=setTimeout(persistNow,250);scheduleSync()}
+function persistNow(){if(RO)return;const snap=JSON.parse(JSON.stringify(S));idb.set("state",snap);try{localStorage.setItem(LS_KEY,JSON.stringify(snap))}catch(e){}}
 let persisted=null;
 async function askPersist(){try{if(navigator.storage&&navigator.storage.persist){persisted=await navigator.storage.persisted();if(!persisted)persisted=await navigator.storage.persist()}}catch(e){}}
 
@@ -668,15 +681,18 @@ const TABS=[["home","Home"],["train","Train"],["log","Log"],["insights","Insight
 let TAB="home",W=null;
 function renderTabs(){
   const t=$("#tabs");t.style.display=S.profile&&!W?"flex":"none";
-  t.innerHTML=TABS.map(([k,l])=>`<button data-tab="${k}" ${TAB===k?'aria-current="page"':""}><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>${l}</button>`).join("");
+  t.innerHTML=TABS.filter(([k])=>!RO||RO_TABS.includes(k)).map(([k,l])=>`<button data-tab="${k}" ${TAB===k?'aria-current="page"':""}><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>${l}</button>`).join("");
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){TAB=b.dataset.tab;render();scrollTo(0,0)}});
 function render(){
+  if(RO&&!RO_TABS.includes(TAB))TAB="home";
   renderTabs();
-  if(!S.profile){$("#app").innerHTML=viewSetup(true);bindSetup(true);animateFigs();return}
+  if(!S.profile){
+    if(SYNC.booting){$("#app").innerHTML=`<section class="card" style="margin-top:40vh;text-align:center"><p class="dim">Checking your account…</p></section>`;return}
+    $("#app").innerHTML=viewSetup(true);bindSetup(true);animateFigs();return}
   if(W){$("#app").innerHTML=viewWorkout();bindWorkout();animateFigs();return}
-  const V={home:[viewHome,bindHome],train:[viewTrain,bindTrain],log:[viewLog,bindLog],insights:[viewInsights,bindInsights],you:[viewYou,bindYou]}[TAB];
-  $("#app").innerHTML=V[0]();V[1]();animateFigs();
+  const V={home:[viewHome,bindHome],train:[viewTrain,bindTrain],log:[viewLog,bindLog],insights:[viewInsights,bindInsights],you:[RO?viewYouRO:viewYou,RO?bindYouRO:bindYou]}[TAB];
+  $("#app").innerHTML=(RO?roBanner():"")+V[0]();V[1]();animateFigs();
 }
 const on=(id,f)=>{const el=document.getElementById(id);if(el)el.onclick=f};
 function sheet(html){$("#sheetInner").innerHTML=html;$("#sheet").classList.add("on");animateFigs()}
@@ -776,7 +792,7 @@ function openWalk(meal){
   on("wSave",()=>{const m=num($("#wMin").value);if(m)saveWalk(meal,m)});
   on("wClose",()=>{clearInterval(walkTimer);walkTimer=null;wake(false);closeSheet()});
 }
-function saveWalk(meal,min){const t=iso();S.activity=S.activity.filter(a=>!(a.d===t&&a.kind==="postmeal"&&a.meal===meal));S.activity.push({id:uid(),d:t,kind:"postmeal",meal,min,src:"app"});commit();closeSheet();toast("Walk saved: "+min+" min");if(S.activity.filter(a=>a.d===t&&a.kind==="postmeal").length===3)confetti();render()}
+function saveWalk(meal,min){const t=iso();dropWhere("activity",a=>a.d===t&&a.kind==="postmeal"&&a.meal===meal);S.activity.push({id:uid(),d:t,kind:"postmeal",meal,min,src:"app"});commit();closeSheet();toast("Walk saved: "+min+" min");if(S.activity.filter(a=>a.d===t&&a.kind==="postmeal").length===3)confetti();render()}
 
 /* ============ TRAIN ============ */
 let SELDAY=null;
@@ -915,7 +931,7 @@ function saveSession(){
   const s={id:uid(),d:iso(),day:W.day,focus:W.focus,cycle:cycleNo(),dur:W.dur,rpe:+$("#rpe").value,sets:W.sets,note:$("#wNote").value.trim(),sym,low:W.forceLow||lowImpactOn()};
   const g=num($("#gPost").value);if(g)S.glucose.push({id:uid(),d:iso(),t:nowHM(),mmol:g,ctx:"post-exercise"});
   S.sessions.push(s);
-  if(sym&&P_().lowImpact!=="on"){S.profile.lowImpact="on";toast("Saved. Low-impact swaps switched on. Worth seeing a pelvic health physio.")}else toast("Session saved");
+  if(sym&&P_().lowImpact!=="on"){S.profile.lowImpact="on";S.profile.updatedAt=Date.now();toast("Saved. Low-impact swaps switched on. Worth seeing a pelvic health physio.")}else toast("Session saved");
   commit();W=null;wake(false);cancelAnimationFrame(wRAF);TAB="home";render();scrollTo(0,0);confetti();
 }
 /* ============ LOG ============ */
@@ -960,7 +976,7 @@ function bindLog(){
   on("addG",()=>{const v=num($("#gV").value);if(!v||v>40)return toast("Enter a reading in mmol/L");const ctx=$("#gC").value;const g={id:uid(),d:$("#gD").value,t:$("#gT").value,mmol:v,ctx};if(/meal/.test(ctx))g.meal=$("#gM").value;S.glucose.push(g);commit();toast(v<3.9?"Saved. Under 3.9 is a low: treat it now.":"Reading saved");render()});
   on("addH",()=>{const v=num($("#hV").value);if(!v||v<20||v>150)return toast("Enter HbA1c in mmol/mol, e.g. 52");S.hba1c.push({id:uid(),d:$("#hD").value,v});commit();toast("HbA1c saved");render()});
   on("addA",()=>{const m=num($("#aM").value),s=num($("#aS").value);if(!m&&!s)return toast("Enter minutes or steps");S.activity.push({id:uid(),d:$("#aD").value,kind:$("#aK").value,min:m,steps:s,src:"app"});commit();toast("Activity saved");render()});
-  $$("[data-del]").forEach(b=>b.onclick=()=>{const[a,id]=b.dataset.del.split(":");S[a]=S[a].filter(x=>x.id!==id);commit();render()});
+  $$("[data-del]").forEach(b=>b.onclick=()=>{const[a,id]=b.dataset.del.split(":");dropWhere(a,x=>x.id===id);commit();render()});
   bindImport();
 }
 
@@ -987,8 +1003,8 @@ function importView(){return `<section class="card"><h3>Apple Health and Apple W
 function parseKV(text){const o={};text.split(/[\n&;]+/).forEach(l=>{const m=l.match(/^\s*([a-z %]+?)\s*[:=]\s*([-\d.,]+)/i);if(m){const v=num(m[2]);if(v!=null)o[m[1].trim().toLowerCase()]=v}});return o}
 function applyKV(o,date=iso()){
   let n=0;const w=o.weight??o.kg;
-  if(w&&w>30&&w<250){S.weights=S.weights.filter(x=>!(x.d===date&&x.src==="Apple Health"));S.weights.push({id:uid(),d:date,kg:r1(w),fat:o.fat??o["body fat"]??null,src:"Apple Health"});n++}
-  if(o.steps||o.exercise){S.activity=S.activity.filter(x=>!(x.d===date&&x.src==="Apple Health"));S.activity.push({id:uid(),d:date,kind:"other",min:o.exercise?Math.round(o.exercise):null,steps:o.steps?Math.round(o.steps):null,src:"Apple Health"});n++}
+  if(w&&w>30&&w<250){dropWhere("weights",x=>x.d===date&&x.src==="Apple Health");S.weights.push({id:uid(),d:date,kg:r1(w),fat:o.fat??o["body fat"]??null,src:"Apple Health"});n++}
+  if(o.steps||o.exercise){dropWhere("activity",x=>x.d===date&&x.src==="Apple Health");S.activity.push({id:uid(),d:date,kind:"other",min:o.exercise?Math.round(o.exercise):null,steps:o.steps?Math.round(o.steps):null,src:"Apple Health"});n++}
   if(o.glucose&&o.glucose<40){S.glucose.push({id:uid(),d:date,t:nowHM(),mmol:r1(o.glucose),ctx:"other"});n++}
   return n;
 }
@@ -1022,7 +1038,9 @@ function bindImport(){
   const wf=$("#wiFile");if(wf)wf.onchange=async()=>{const f=wf.files[0];if(!f)return;const n=importWithings(await f.text());commit();toast(n?"Imported "+n+" weigh-ins":"No new weigh-ins found");render()};
   on("exportJ",async()=>{if(await saveFile("indys-year-backup-"+iso()+".json",JSON.stringify(S),"application/json")){S.lastBackup=iso();commit();render()}});
   on("exportC",()=>saveFile("indys-year-"+iso()+".csv",toCSV(),"text/csv"));
-  const jf=$("#impFile");if(jf)jf.onchange=async()=>{try{const o=JSON.parse(await jf.files[0].text());if(!o.profile)throw 0;if(!confirm("Replace everything in the app with this backup?"))return;S=migrate(o);commit();applyTheme();toast("Backup restored");render()}catch(e){toast("That file isn't a backup from this app")}};
+  const jf=$("#impFile");if(jf)jf.onchange=async()=>{try{const o=JSON.parse(await jf.files[0].text());if(!o.profile)throw 0;if(!confirm("Replace everything in the app with this backup?"))return;const old=S,nb=migrate(o);const inBk=new Set(["weights","measures","glucose","hba1c","activity","sessions"].flatMap(k=>nb[k].map(x=>x.id)));
+    nb.deleted=Object.assign({},old.deleted,nb.deleted);["weights","measures","glucose","hba1c","activity","sessions"].forEach(k=>old[k].forEach(x=>{if(!inBk.has(x.id))nb.deleted[x.id]=Date.now()}));
+    S=nb;S.profile.updatedAt=Date.now();commit();applyTheme();toast("Backup restored");render()}catch(e){toast("That file isn't a backup from this app")}};
 }
 
 /* ============ INSIGHTS ============ */
@@ -1148,17 +1166,22 @@ function viewYou(){
     <p class="dim" style="font-size:.82rem;margin-top:6px">Contrast ${th.ratio}:1 ${th.ratio>=4.5?"passes":th.ratio>=3?"OK for big things only":"is too low, pick a stronger colour"}.</p>
     <label>Light or dark</label><div class="seg">${[["auto","Match phone"],["dark","Dark"],["light","Light"]].map(([k,l])=>`<button data-mode="${k}" aria-pressed="${(p.mode||"auto")===k}">${l}</button>`).join("")}</div></section>
   ${viewSetup(false)}
+  <section class="card" id="syncCard"></section>
+  <section class="card" id="shareCard"></section>
   <section class="card"><h3>Storage</h3><p class="dim" style="font-size:.88rem">${persisted?"Protected: iOS won't clear this app's data.":"Not protected yet. Open the app from your Home Screen icon and save a backup weekly."} ${S.lastBackup?"Last backup "+fmtD(S.lastBackup)+".":""}</p>
     <button class="btn alt block" data-gobackup="1" style="margin-top:8px">Backup, import and export</button></section>
   <section class="card"><h3>About</h3><p class="dim" style="font-size:.86rem">Built for one mum and her goals. Thresholds from NZSSD, ADA Standards of Care 2026, the 2025 Canadian postpartum activity guideline and the DiRECT trial. Exercise figures are original animations. Not medical advice.</p>
     <button class="btn danger block" id="wipe" style="margin-top:10px">Erase all data</button></section>`;
 }
 function bindYou(){
-  $$("[data-theme]").forEach(b=>b.onclick=()=>{S.profile.theme=b.dataset.theme;commit();applyTheme();render()});
-  on("useCustom",()=>{S.profile.custom=$("#custom").value;S.profile.theme="custom";commit();applyTheme();render()});
-  $$("[data-mode]").forEach(b=>b.onclick=()=>{S.profile.mode=b.dataset.mode;commit();applyTheme();render()});
+  $$("[data-theme]").forEach(b=>b.onclick=()=>{S.profile.theme=b.dataset.theme;S.profile.updatedAt=Date.now();commit();applyTheme();render()});
+  on("useCustom",()=>{S.profile.custom=$("#custom").value;S.profile.theme="custom";S.profile.updatedAt=Date.now();commit();applyTheme();render()});
+  $$("[data-mode]").forEach(b=>b.onclick=()=>{S.profile.mode=b.dataset.mode;S.profile.updatedAt=Date.now();commit();applyTheme();render()});
   $$("[data-gobackup]").forEach(b=>b.onclick=()=>{TAB="log";LOGSEG="import";render()});
-  on("wipe",()=>{if(!confirm("Erase every entry? Save a backup first if unsure."))return;S=blank();persistNow();applyTheme();render()});
+  on("wipe",()=>{if(!confirm("Erase every entry"+(SYNC.user?" here and in your cloud backup":"")+"? Save a backup first if unsure."))return;
+    const old=S;S=blank();S.deleted=Object.assign({},old.deleted);["weights","measures","glucose","hba1c","activity","sessions"].forEach(k=>old[k].forEach(x=>{S.deleted[x.id]=Date.now()}));S.profileCleared=Date.now();
+    persistNow();scheduleSync();applyTheme();render()});
+  renderSyncCard();renderShareCard();loadViewers();
   bindSetup(false);
 }
 
@@ -1183,16 +1206,18 @@ function viewSetup(first){
     <label>Low-impact swaps</label><select id="sLow">${[["auto","Automatic"],["on","Always on"],["off","Off"]].map(([k,l])=>`<option value="${k}" ${(p.lowImpact||"auto")===k?"selected":""}>${l}</option>`).join("")}</select>
     <p class="dim" style="font-size:.82rem;margin-top:10px">Automatic swaps to low-impact moves before 12 weeks postpartum or when you report symptoms. Check with your GP or midwife first if you've had a caesarean with ongoing symptoms or any pregnancy complications.</p></section>
   <button class="btn xl" id="saveSetup">${first?"Start tracking":"Save goals and safety"}</button>
-  ${first?`<p class="dim" style="text-align:center;font-size:.84rem;margin-top:12px">Moving from the old version? Save a backup there, then restore it here from Log, Import.</p>`:""}`;
+  ${first?`<p class="dim" style="text-align:center;font-size:.84rem;margin-top:12px">Moving from the old version? Save a backup there, then restore it here from Log, Import.</p>
+  <section class="card" id="syncCard"></section>`:""}`;
 }
 function bindSetup(first){
+  if(first)renderSyncCard();
   on("saveSetup",()=>{
     const sw=num($("#sW").value);if(!sw||sw<30||sw>250)return toast("Enter your starting weight in kg");
     const isFirst=!S.profile;
     S.profile=Object.assign(S.profile||{theme:"volt",mode:"auto"},{
       name:$("#sName").value.trim(),startDate:$("#sStart").value||iso(),indyBday:$("#sBday").value||null,height:num($("#sH").value),startWeight:sw,
       goal1:num($("#sG1").value)||5,goal1Months:num($("#sG1m").value)||3,goal2:num($("#sG2").value)||15,minTarget:+$("#sMin").value,
-      meds:$("#sMeds").value,breastfeeding:!!$("#sBf").value,diastasis:!!$("#sDia").value,lowImpact:$("#sLow").value});
+      meds:$("#sMeds").value,breastfeeding:!!$("#sBf").value,diastasis:!!$("#sDia").value,lowImpact:$("#sLow").value,updatedAt:Date.now()});
     if(isFirst){
       S.weights.push({id:uid(),d:S.profile.startDate,kg:sw,src:"app"});
       const wa=num($("#sWaist")?.value),hi=num($("#sHips")?.value);if(wa||hi)S.measures.push({id:uid(),d:S.profile.startDate,waist:wa,hips:hi});
@@ -1203,9 +1228,187 @@ function bindSetup(first){
   });
 }
 
+/* ============ Cloud sync (Supabase): IndexedDB stays primary, the cloud is backup + merge ============ */
+const SB_SRC="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js";
+const SB_SRI="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok";
+const META_KEY="indy-sync-meta",ARR_KEYS=["weights","measures","glucose","hba1c","activity","sessions"],RO_TABS=["home","insights","you"];
+let RO=false,sb=null;
+const SYNC={user:null,known:false,email:"",step:"email",last:0,busy:false,again:false,err:"",booting:false,initing:false,viewers:null,verr:"",t:null};
+try{const m=JSON.parse(localStorage.getItem(META_KEY)||"null");if(m&&m.email){SYNC.email=m.email;SYNC.last=m.last||0;SYNC.known=true;SYNC.booting=true}}catch(e){}
+const saveMeta=()=>{try{if(SYNC.known)localStorage.setItem(META_KEY,JSON.stringify({email:SYNC.email,last:SYNC.last}));else localStorage.removeItem(META_KEY)}catch(e){}};
+const errMsg=e=>{const m=String(e&&e.message||e||"");return /fetch|network|offline|reach|load failed/i.test(m)?"Can't reach the cloud right now":m||"Something went wrong"};
+const typing=()=>/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||"");
+const hasData=()=>ARR_KEYS.some(k=>S[k].length)||Object.keys(S.pf).length>0||Object.keys(S.protein).length>0;
+function canon(o){if(Array.isArray(o))return "["+o.map(canon).join(",")+"]";if(o&&typeof o==="object")return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+canon(o[k])).join(",")+"}";return JSON.stringify(o)}
+
+// Merge two states without losing either side. Records union by id minus tombstones; pf/protein union (max); newer profile wins.
+function mergeStates(a,b){
+  const m=blank(),cutoff=Date.now()-400*864e5,del={};
+  [a.deleted,b.deleted].forEach(d=>Object.entries(d||{}).forEach(([id,ts])=>{if(ts>cutoff&&!(del[id]>=ts))del[id]=ts}));
+  m.deleted=del;
+  ARR_KEYS.forEach(k=>{
+    const out=new Map();
+    [...(a[k]||[]),...(b[k]||[])].forEach(x=>{if(x&&x.id&&!del[x.id]&&!out.has(x.id))out.set(x.id,x)});
+    const c=(p,q)=>p<q?-1:p>q?1:0;
+    m[k]=[...out.values()].sort((x,y)=>c(x.d||"",y.d||"")||c(x.t||"",y.t||"")||c(x.id,y.id));
+  });
+  [a.pf,b.pf].forEach(p=>Object.keys(p||{}).forEach(d=>{if(p[d])m.pf[d]=true}));
+  [a.protein,b.protein].forEach(p=>Object.keys(p||{}).forEach(d=>{m.protein[d]=Math.max(m.protein[d]||0,p[d]||0)}));
+  const st=s=>(s.profile&&s.profile.updatedAt)||s.profileCleared||0,pa=st(a),pb=st(b);
+  m.profile=pb>pa?b.profile:pa>pb?a.profile:(a.profile||b.profile);
+  m.profile=m.profile||null;
+  m.profileCleared=Math.max(a.profileCleared||0,b.profileCleared||0);
+  m.lastBackup=[a.lastBackup,b.lastBackup].filter(Boolean).sort().pop()||null;
+  m.updatedAt=Math.max(a.updatedAt||0,b.updatedAt||0);
+  return m;
+}
+const normState=x=>canon(mergeStates(x,x));
+
+function sbLoad(){return new Promise((res,rej)=>{if(window.supabase)return res();const s=document.createElement("script");s.src=SB_SRC;s.integrity=SB_SRI;s.crossOrigin="anonymous";s.onload=res;s.onerror=()=>{s.remove();rej(new Error("Can't reach the cloud right now"))};document.head.appendChild(s)})}
+async function sbClient(){
+  if(sb)return sb;
+  if(!SUPABASE_URL||!SUPABASE_KEY)throw new Error("Cloud sync isn't set up in this build");
+  await sbLoad();
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:"indy-sb-auth"}});
+  sb.auth.onAuthStateChange((ev,sess)=>{setTimeout(()=>{if(ev==="SIGNED_OUT")signedOutLocal();else if(sess&&sess.user)SYNC.user=sess.user},0)});
+  return sb;
+}
+async function initSync(){
+  if(!SYNC.known||SYNC.initing){SYNC.booting=false;return}
+  SYNC.initing=true;
+  try{
+    const c=await sbClient(),{data,error}=await c.auth.getSession();
+    if(data&&data.session){SYNC.user=data.session.user;SYNC.email=data.session.user.email||SYNC.email;SYNC.initing=false;await syncNow()}
+    else if(!error){SYNC.known=false;saveMeta()}   // session really gone; a network error keeps us "known" and retries on 'online'
+  }catch(e){SYNC.err=errMsg(e)}
+  finally{SYNC.initing=false;if(SYNC.booting){SYNC.booting=false;render()}else renderSyncCard()}
+}
+function scheduleSync(){if(RO||!(SYNC.user||SYNC.known))return;clearTimeout(SYNC.t);SYNC.t=setTimeout(()=>{SYNC.user?syncNow():initSync()},2000)}
+function kickSync(){if(SYNC.user)syncNow();else if(SYNC.known)initSync()}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")kickSync()});
+addEventListener("online",kickSync);
+
+async function syncNow(){
+  if(!SYNC.user)return;
+  if(SYNC.busy){SYNC.again=true;return}
+  if(!navigator.onLine){SYNC.err="Offline. It will sync when you're back online.";uiSync();return}
+  SYNC.busy=true;SYNC.err="";uiSync();
+  try{
+    const c=await sbClient(),me=SYNC.user.id;let ok=false;
+    for(let n=0;n<4&&!ok;n++){
+      const {data:mine,error:e1}=await c.from("app_state").select("state,updated_at").eq("user_id",me).maybeSingle();
+      if(e1)throw e1;
+      if(!mine&&(RO||(!S.profile&&!hasData()))){    // no data of our own: is someone sharing theirs?
+        const {data:sh,error:e2}=await c.from("app_state").select("state").neq("user_id",me).order("updated_at",{ascending:false}).limit(1);
+        if(e2)throw e2;
+        if(sh&&sh.length)enterViewer(migrate(sh[0].state));else if(RO){await leaveViewer();render()}
+        ok=true;break;
+      }
+      if(RO){await leaveViewer();if(!typing()&&!W)render()}
+      let changed=false,remote=null;
+      if(mine){
+        remote=migrate(mine.state);
+        const merged=mergeStates(S,remote);
+        changed=normState(S)!==canon(merged);
+        if(changed){S=merged;persistNow();applyTheme()}
+      }
+      if(!(remote&&normState(remote)===normState(S))){   // push only when the cloud copy differs
+        const body=JSON.parse(JSON.stringify(S));
+        if(mine){
+          const {data:u,error:e3}=await c.from("app_state").update({state:body,updated_at:new Date().toISOString()}).eq("user_id",me).eq("updated_at",mine.updated_at).select("user_id");
+          if(e3)throw e3;
+          if(!u||!u.length){if(changed&&!typing()&&!W)render();continue}   // someone else wrote first: merge again
+        }else{
+          const {error:e4}=await c.from("app_state").insert({user_id:me,state:body});
+          if(e4){if(e4.code==="23505")continue;throw e4}
+        }
+      }
+      if(changed&&!typing()&&!W)render();
+      ok=true;
+    }
+    if(!ok)throw new Error("Cloud was busy. Will retry shortly.");
+    SYNC.last=Date.now();saveMeta();
+  }catch(e){SYNC.err=errMsg(e)}
+  finally{SYNC.busy=false;uiSync();if(SYNC.again){SYNC.again=false;setTimeout(syncNow,300)}}
+}
+function enterViewer(st){RO=true;S=st;document.body.classList.add("ro");applyTheme();if(!typing()&&!W)render()}
+async function leaveViewer(){RO=false;document.body.classList.remove("ro");S=blank();await loadState();applyTheme()}
+function signedOutLocal(){
+  if(!SYNC.user&&!SYNC.known)return;
+  SYNC.user=null;SYNC.known=false;SYNC.step="email";SYNC.err="";SYNC.viewers=null;saveMeta();
+  if(RO)leaveViewer().then(render);else{renderSyncCard();renderShareCard()}
+}
+async function signOut(){try{if(sb)await sb.auth.signOut()}catch(e){}signedOutLocal()}
+
+function syncStatusText(){
+  if(SYNC.busy)return "Syncing…";
+  if(SYNC.err)return SYNC.err;
+  return SYNC.last?"Last synced "+new Date(SYNC.last).toLocaleString("en-NZ",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"}):"Not synced yet";
+}
+function uiSync(){const s=$("#syncStatus");if(s)s.textContent=syncStatusText();const b=$("#sbSync");if(b)b.disabled=SYNC.busy}
+function renderSyncCard(){
+  const el=$("#syncCard");if(!el)return;
+  const signed=!!(SYNC.user||SYNC.known);let h;
+  if(!SUPABASE_URL)h=`<h3>Cloud sync</h3><p class="dim" style="font-size:.88rem">Not set up in this build.</p>`;
+  else if(signed)h=`<h3>Cloud sync</h3><p style="overflow-wrap:anywhere;margin:6px 0 0"><b>${esc(SYNC.email)}</b></p><p class="dim" style="font-size:.86rem;margin:2px 0 10px" id="syncStatus">${esc(syncStatusText())}</p>
+    ${RO?"":`<button class="btn block" id="sbSync" ${SYNC.busy?"disabled":""}>Sync now</button>`}<button class="btn alt block" id="sbOut" style="margin-top:8px">Sign out</button>`;
+  else if(SYNC.step==="code")h=`<h3>Cloud sync</h3><p class="dim" style="font-size:.88rem">We emailed a 6-digit code to <b>${esc(SYNC.email)}</b>.</p>
+    <label for="sbCode">Code from the email</label><input id="sbCode" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" pattern="[0-9]*">
+    <button class="btn xl" id="sbVerify" style="margin-top:10px">Sign in</button><button class="linkbtn" id="sbBack">Use a different email</button>`;
+  else h=`<h3>Cloud sync</h3><p class="dim" style="font-size:.88rem">Back up your data and keep your devices in step. No password: we email you a code. Everything still works offline.</p>
+    <label for="sbEmail">Email</label><input id="sbEmail" type="email" inputmode="email" autocomplete="email" value="${esc(SYNC.email)}">
+    <button class="btn xl" id="sbSend" style="margin-top:10px">Send code</button>`;
+  el.innerHTML=h;
+  on("sbSync",()=>{syncNow();loadViewers()});
+  on("sbOut",signOut);
+  on("sbBack",()=>{SYNC.step="email";renderSyncCard()});
+  on("sbSend",async()=>{
+    const email=($("#sbEmail").value||"").trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(email))return toast("Enter a valid email");
+    const b=$("#sbSend");b.disabled=true;
+    try{const c=await sbClient();const {error}=await c.auth.signInWithOtp({email,options:{shouldCreateUser:true}});if(error)throw error;
+      SYNC.email=email;SYNC.step="code";toast("Code sent. Check your email.");renderSyncCard()}
+    catch(e){toast(errMsg(e));b.disabled=false}});
+  on("sbVerify",async()=>{
+    const token=($("#sbCode").value||"").replace(/\D/g,"");if(token.length<6)return toast("Enter the code from the email");
+    const b=$("#sbVerify");b.disabled=true;
+    try{const c=await sbClient();const {data,error}=await c.auth.verifyOtp({email:SYNC.email,token,type:"email"});if(error)throw error;
+      SYNC.user=data.user||(data.session&&data.session.user);SYNC.known=true;SYNC.step="email";SYNC.err="";saveMeta();renderSyncCard();toast("Signed in");
+      loadViewers();await syncNow();renderSyncCard()}
+    catch(e){toast(errMsg(e));b.disabled=false}});
+}
+
+// Share progress: the owner lists emails that may read her state (read-only, enforced by RLS)
+async function loadViewers(){
+  if(!SYNC.user||RO)return;
+  try{const c=await sbClient();const {data,error}=await c.from("viewers").select("viewer_email").eq("owner_id",SYNC.user.id).order("viewer_email");if(error)throw error;SYNC.viewers=data.map(x=>x.viewer_email);SYNC.verr=""}
+  catch(e){SYNC.verr=errMsg(e)}
+  renderShareCard();
+}
+function renderShareCard(){
+  const el=$("#shareCard");if(!el)return;
+  if(!SUPABASE_URL||!(SYNC.user||SYNC.known)){el.innerHTML=`<h3>Share progress</h3><p class="dim" style="font-size:.88rem">Sign in to Cloud sync first, then you can let someone follow your progress (read-only).</p>`;return}
+  const list=SYNC.viewers;
+  el.innerHTML=`<h3>Share progress</h3><p class="dim" style="font-size:.88rem">People you add can see your Home and Insights, read-only, when they sign in with that email. They can't change anything.</p>
+    ${SYNC.verr?`<p class="dim" style="font-size:.84rem">${esc(SYNC.verr)}</p>`:""}
+    <ul class="list">${(list||[]).map(v=>`<li><span class="grow" style="overflow-wrap:anywhere">${esc(v)}</span><button class="x" data-unshare="${esc(v)}" aria-label="Stop sharing with ${esc(v)}">×</button></li>`).join("")||`<li class="dim">${list?"Not shared with anyone":SYNC.verr?"Can't load the list right now":"Loading…"}</li>`}</ul>
+    <label for="shEmail">Add a viewer's email</label><input id="shEmail" type="email" inputmode="email" autocomplete="off"><button class="btn xl" id="shAdd" style="margin-top:10px">Share</button>`;
+  on("shAdd",async()=>{
+    const email=($("#shEmail").value||"").trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(email))return toast("Enter a valid email");
+    try{const c=await sbClient();const {error}=await c.from("viewers").insert({owner_id:SYNC.user.id,viewer_email:email});if(error&&error.code!=="23505")throw error;toast("Shared with "+email);syncNow();loadViewers()}
+    catch(e){toast(errMsg(e))}});
+  $$("[data-unshare]").forEach(b=>b.onclick=async()=>{
+    try{const c=await sbClient();const {error}=await c.from("viewers").delete().eq("owner_id",SYNC.user.id).eq("viewer_email",b.dataset.unshare);if(error)throw error;toast("Stopped sharing");loadViewers()}
+    catch(e){toast(errMsg(e))}});
+}
+// read-only viewer mode
+function roBanner(){const n=S.profile&&S.profile.name;return `<section class="insight good"><b>${n?"Viewing "+esc(n)+"'s progress":"Viewing shared progress"}</b><div class="dim" style="font-size:.84rem">Read-only. It refreshes each time you open the app.</div></section>`}
+function viewYouRO(){return `<div class="top"><h1>You</h1></div><section class="card" id="syncCard"></section>`}
+function bindYouRO(){renderSyncCard()}
+
 /* ============ Boot ============ */
 (async()=>{
   await loadState();applyTheme();render();
+  initSync();setTimeout(()=>{if(SYNC.booting){SYNC.booting=false;render()}},6000);
   try{if(navigator.storage&&navigator.storage.persisted)persisted=await navigator.storage.persisted()}catch(e){}
   try{if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js")}catch(e){}
   try{const h=(location.hash||"").slice(1);if(h&&S.profile){const n=applyKV(parseKV(decodeURIComponent(h)));if(n){commit();toast("Imported from Apple Health");history.replaceState(null,"",location.pathname);render()}}}catch(e){}
