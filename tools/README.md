@@ -1,7 +1,8 @@
 # Food database builder
 
-The repo's `foods.json.gz` is the full food database (about 11,700 foods: USDA FoodData Central
-SR Legacy and Foundation, plus AUSNUT 2023), normalised to per 100 g. The app precaches it
+The repo's `foods.json.gz` is the full food database (about 11,300 foods: USDA FoodData Central
+SR Legacy and Foundation, plus AUSNUT 2023), normalised to per 100 g, minus US fast-food chains
+and "Restaurant," entries (`DROP_FASTFOOD = True` in the script; set it to False to keep them). The app precaches it
 (`sw.js`), loads it once, keeps it in IndexedDB and searches it offline. Rebuild it with:
 
 ## One-time setup
@@ -47,3 +48,4 @@ them."
 - Names are never truncated and de-duplication uses the full name. (A 40-character key used to
   merge raw, cooked and fried variants, which gave wrong calories.)
 - Negative "carbohydrate by difference" values are clamped to 0.
+- 2026-10-05 (later): `DROP_FASTFOOD` removes ~370 fast-food/restaurant entries (11,690 -> 11,322 foods).

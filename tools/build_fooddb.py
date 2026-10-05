@@ -74,6 +74,17 @@ def clean_name(n):
     # raw vs cooked, which changes the calories, so never cut it short (the app truncates for display).
     return n[:160]
 
+# Filter out US fast-food chains and generic "Restaurant," entries (clutter for NZ users).
+# Set DROP_FASTFOOD = False to keep them.
+DROP_FASTFOOD = True
+_CHAINS = re.compile(r"(KFC|POPEYES|MCDONALD|BURGER KING|WENDY|TACO BELL|PIZZA HUT|DOMINO|SUBWAY|STARBUCKS|DENNY|CRACKER BARREL|APPLEBEE|OLIVE GARDEN|CHICK-FIL|CHIPOTLE|PANERA|ARBY|DAIRY QUEEN|LITTLE CAESAR|PAPA JOHN|SONIC|CARL'S|HARDEE|WHATABURGER|JACK IN THE BOX|IN-N-OUT|FIVE GUYS|PANDA EXPRESS|DUNKIN|T\.G\.I|NATHAN'S|AUNTIE ANNE|BOJANGLE|CHECKERS|CHURCH'S|DEL TACO|EL POLLO|JAMBA|JIMMY JOHN|KRISPY KREME|LONG JOHN|NOODLES & CO|QDOBA|RALLY'S|RED LOBSTER|SHAKE SHACK|WAWA|WINGSTOP)")
+def is_fastfood(name):
+    u = name.upper()
+    if _CHAINS.search(u): return True
+    if u.startswith("RESTAURANT,"): return True
+    if u.startswith("FAST FOODS"): return True
+    return False
+
 # NZ synonyms added as searchable alt terms (not changing the food)
 NZ_SYN = {
  "sweet potato":"kumara kūmara","zucchini":"courgette","bell pepper":"capsicum",
@@ -210,7 +221,9 @@ def main():
     print("3. De-duplicating + enriching…")
     seen={}; final=[]
     PRI={"AUSNUT":3,"USDA-Foundation":2,"USDA-SR":1}  # AUSNUT first (NZ-closest)
+    dropped=0
     for f in foods:
+        if DROP_FASTFOOD and is_fastfood(f["n"]): dropped+=1; continue
         key=re.sub(r"[^a-z0-9]","",f["n"].lower())   # full name: a prefix key merged raw/cooked/fried variants
         if key in seen:
             if PRI.get(f["src"],0)>PRI.get(final[seen[key]]["src"],0): final[seen[key]]=f
@@ -224,7 +237,7 @@ def main():
         if s: f["syn"]=s
         f["id"]="f"+str(i)
 
-    print(f"   total unique foods: {len(final)}")
+    print(f"   total unique foods: {len(final)}  (dropped {dropped} fast-food/restaurant entries)")
     # compact record: keep short keys
     data={"v":1,"built":__import__("datetime").date.today().isoformat(),
           "attribution":"USDA FoodData Central (public domain); AUSNUT 2023 © Food Standards Australia New Zealand (FSANZ), CC BY 4.0 AU; values converted to per 100 g, kJ to kcal",

@@ -1057,33 +1057,53 @@ function pickFood(f,meal,d){
   on("svBack",()=>addFoodSheet(meal));
 }
 
-/* ============ Barcode scanner (BarcodeDetector if available, else manual code entry) ============ */
+/* ============ Barcode scanner (native BarcodeDetector, else ZXing-WASM polyfill) ============ */
+// iOS Safari has no native BarcodeDetector, so we lazy-load the Sec-ant/barcode-detector polyfill
+// (ZXing-C++ WASM) from jsDelivr on first scan; the service worker caches it for offline use.
+// Pinned to an exact version (a floating @2 could change under us; dynamic import() cannot carry an SRI hash). The module fetches its
+// ZXing WASM engine from fastly.jsdelivr.net, so sw.js caches every *.jsdelivr.net host.
+const ZXING_SRC="https://cdn.jsdelivr.net/npm/barcode-detector@2.3.1/dist/es/pure.min.js";
+let BD=null,BDLOADING=null;
+async function getDetector(){
+  if(BD)return BD;
+  if("BarcodeDetector" in window){BD=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e","code_128"]});return BD}
+  if(!BDLOADING)BDLOADING=(async()=>{
+    try{const m=await import(ZXING_SRC);const D=m.BarcodeDetector||m.default;BD=new D({formats:["ean_13","ean_8","upc_a","upc_e","code_128"]});return BD}
+    catch(e){return null}
+  })();
+  return BDLOADING;
+}
 async function scanBarcode(meal,d){
-  const hasDetector="BarcodeDetector" in window;
   sheet(`<h2 style="margin-top:0">Scan barcode</h2>
-    ${hasDetector?`<video id="bcVid" playsinline style="width:100%;border-radius:14px;background:#000;aspect-ratio:4/3;object-fit:cover"></video><p class="dim" id="bcMsg">Point at the barcode…</p>`:`<p class="dim">This browser can't scan the camera. Type the barcode number from the packet instead.</p>`}
+    <video id="bcVid" playsinline muted style="width:100%;border-radius:14px;background:#000;aspect-ratio:4/3;object-fit:cover"></video>
+    <p class="dim" id="bcMsg">Starting camera…</p>
     <label>Or enter the barcode number</label><div class="row"><input id="bcNum" inputmode="numeric" placeholder="9400…" class="grow" style="width:auto"><button class="btn" id="bcGo">Look up</button></div>
     <button class="btn ghost block" id="bcClose" style="margin-top:12px">Cancel</button>`);
-  let stream=null,stop=false;
-  const finish=async code=>{stop=true;if(stream)stream.getTracks().forEach(t=>t.stop());
-    $("#bcMsg")&&($("#bcMsg").textContent="Looking up "+code+"…");
-    const f=await lookupBarcode(code);
-    if(f.error==="offline")return toast("Offline. Connect to scan, or add manually.");
-    if(f.error==="notfound")return toast("Not in the database. Add it manually.");
-    if(f.error)return toast("Lookup failed. Try again or add manually.");
-    pickFood(f,meal,d);
+  let stream=null,stop=false,raf=null;
+  const cleanup=()=>{stop=true;if(raf)cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop())};
+  const finish=async code=>{cleanup();const m=$("#bcMsg");if(m)m.textContent="Looking up "+code+"…";
+    const fd=await lookupBarcode(code);
+    if(fd.error==="offline")return toast("Offline. Connect to scan, or add manually.");
+    if(fd.error==="notfound")return toast("Not in the database. Add it manually.");
+    if(fd.error)return toast("Lookup failed. Try again or add manually.");
+    pickFood(fd,meal,d);
   };
   on("bcGo",()=>{const c=$("#bcNum").value.trim();if(c)finish(c)});
-  on("bcClose",()=>{stop=true;if(stream)stream.getTracks().forEach(t=>t.stop());closeSheet()});
-  if(hasDetector){
-    try{
-      stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
-      const v=$("#bcVid");if(!v){stream.getTracks().forEach(t=>t.stop());return}v.srcObject=stream;await v.play();
-      const det=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e","code_128"]});
-      const tick=async()=>{if(stop)return;try{const codes=await det.detect(v);if(codes&&codes.length){finish(codes[0].rawValue);return}}catch(e){}requestAnimationFrame(tick)};
-      requestAnimationFrame(tick);
-    }catch(e){const m=$("#bcMsg");if(m)m.textContent="Camera unavailable. Enter the number instead."}
-  }
+  on("bcClose",()=>{cleanup();closeSheet()});
+  const det=await getDetector();
+  const msg=$("#bcMsg");
+  if(!det){if(msg)msg.textContent="Camera scanning isn't available here. Type the barcode number instead.";const v=$("#bcVid");if(v)v.style.display="none";return}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+    const v=$("#bcVid");if(!v){cleanup();return}v.srcObject=stream;await v.play();
+    if(msg)msg.textContent="Point the camera at the barcode.";
+    let misses=0;
+    const tick=async()=>{if(stop)return;
+      try{const codes=await det.detect(v);if(codes&&codes.length){finish(codes[0].rawValue);return}}catch(e){}
+      if(++misses===80&&msg)msg.textContent="Hold steady, fill the frame with the barcode. Or type the number below.";
+      raf=requestAnimationFrame(tick);
+    };raf=requestAnimationFrame(tick);
+  }catch(e){if(msg)msg.textContent="Camera unavailable (allow camera access, or type the number).";const v=$("#bcVid");if(v)v.style.display="none"}
 }
 
 /* ============ Food insight for the Sugar tab ============ */
@@ -1113,7 +1133,7 @@ function buildIndex(foods){
   return idx;
 }
 // Bump FOODDB_VER whenever foods.json.gz is rebuilt (tools/build_fooddb.py prints it), or phones keep the old cached copy.
-const FOODDB_VER="2026-10-05-11690";
+const FOODDB_VER="2026-10-05-11322";
 async function gunzipText(buf){
   const u=new Uint8Array(buf);
   if(u[0]===0x1f&&u[1]===0x8b){   // still gzipped: inflate it
