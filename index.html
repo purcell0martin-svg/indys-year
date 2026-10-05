@@ -1405,30 +1405,42 @@ function bindLog(){
 }
 
 /* ============ Import / export ============ */
-function importView(){const u=location.origin+location.pathname;return `<section class="card"><h3>Apple Health & Apple Watch</h3>
-  <p class="dim" style="font-size:.9rem">Your Apple Watch, iPhone and Withings scale all feed Apple Health. A one-tap Shortcut sends today's numbers straight in: steps, exercise minutes, weight, resting heart rate and sleep.</p>
+function importView(){return `<section class="card"><h3>Apple Health & Apple Watch</h3>
+  <p class="dim" style="font-size:.9rem">Your Apple Watch, iPhone and Withings scale all feed Apple Health. A Shortcut copies today's numbers (steps, exercise minutes, weight, resting heart rate, sleep); then one tap here imports them.</p>
+  <button class="btn xl" id="ahClip">Paste from clipboard</button>
+  <p class="dim" style="font-size:.82rem;margin:6px 0 10px">Run your Shortcut first, then tap this. iPhone asks you to allow the paste: tap it.</p>
+  <label for="ahPaste">Or paste the numbers by hand</label>
   <textarea id="ahPaste" placeholder="weight=72.4&#10;steps=8231&#10;exercise=34&#10;heart rate=58&#10;sleep=6.5"></textarea>
-  <button class="btn xl" id="ahImport" style="margin-top:10px">Import pasted numbers</button>
-  <details style="margin-top:10px"><summary>Set up the one-tap Shortcut (5 min, once)</summary>
-  <p class="dim" style="font-size:.9rem">In the <b>Shortcuts</b> app, tap + and add these actions. Each "Find Health Samples" is followed by "Calculate Statistics" where noted.</p>
+  <button class="btn alt block" id="ahImport" style="margin-top:10px">Import pasted numbers</button>
+  <details style="margin-top:10px"><summary>Set up the Shortcut (5 min, once)</summary>
+  <p class="dim" style="font-size:.9rem">In the <b>Shortcuts</b> app, tap + and add these actions in order. Every "Find Health Samples" action is followed by "Calculate Statistics" where noted.</p>
   <ol style="padding-left:18px;font-size:.92rem;line-height:1.5">
-    <li>Name it "Send to Indy's Year".</li>
-    <li><b>Steps</b> → Find Health Samples (Type Steps, Start Date Today) → Calculate Statistics → <b>Sum</b>.</li>
-    <li><b>Exercise</b> → Find Health Samples (Apple Exercise Time, Today) → Calculate Statistics → Sum.</li>
-    <li><b>Weight</b> → Find Health Samples (Weight, Sort Latest First, Limit 1).</li>
+    <li>Name it "Capture my health".</li>
+    <li><b>Steps</b> → Find Health Samples (Type Steps, Start Date is today) → Calculate Statistics → <b>Sum</b>.</li>
+    <li><b>Exercise</b> → Find Health Samples (Apple Exercise Time, Start Date is today) → Calculate Statistics → Sum.</li>
+    <li><b>Weight</b> → Find Health Samples (Weight, <b>Start Date is today</b>, Sort Latest First, Limit 1). The "is today" filter matters: without it an old weigh-in is logged as today's. If you haven't weighed yet today the line is simply skipped.</li>
     <li><b>Resting heart rate</b> → Find Health Samples (Resting Heart Rate, Latest First, Limit 1).</li>
-    <li><b>Sleep</b> → Find Health Samples (Sleep, Today) → Calculate Statistics → Sum, then divide by 60 for hours (optional).</li>
-    <li>Add a <b>Text</b> action:<br><code>weight=[Weight]<br>steps=[Steps Sum]<br>exercise=[Exercise Sum]<br>heart rate=[RHR]<br>sleep=[Sleep hours]</code><br>(insert each result as a variable).</li>
-    <li><b>URL</b> action: <code>${u}#</code> followed by the Text, then <b>Open URLs</b>. That opens the app with the numbers filled in automatically.</li>
-    <li>Or simpler: <b>Copy to Clipboard</b> the Text, then open this app and paste above.</li>
-    <li>Add the Shortcut to your Home Screen. Each evening, one tap sends the day's numbers.</li>
+    <li><b>Sleep</b> (optional) → Find Health Samples (Sleep, Start Date is today) → Calculate Statistics → Sum. The app reads hours, minutes or seconds automatically, so no maths is needed.</li>
+    <li>Add a <b>Text</b> action with one line per result (insert each result as a variable):<br><code>weight=[Weight]<br>steps=[Steps Sum]<br>exercise=[Exercise Sum]<br>heart rate=[RHR]<br>sleep=[Sleep Sum]</code></li>
+    <li>Add <b>Copy to Clipboard</b> and choose that Text.</li>
+    <li>Add the Shortcut to your Home Screen.</li>
   </ol>
-  <p class="dim" style="font-size:.82rem">A web app can't read Apple Health directly, so the Shortcut is the bridge. Set an Automation (Shortcuts → Automation → Time of Day) to run it nightly, though iOS may still ask for a tap.</p>
+  <p style="font-size:.92rem"><b>Each day:</b> tap the Shortcut, then open this app from your Home Screen icon, go to Log → Import and tap <b>Paste from clipboard</b>.</p>
+  <p class="dim" style="font-size:.82rem">The first run asks permission for each Health item: tap Allow. Don't end the Shortcut with "Open URLs": that can open Safari instead of this app, and Safari keeps its own separate copy of the app with none of your data, so the numbers wouldn't land here. A web app can't read Apple Health directly, so the Shortcut is the bridge.</p>
   </details></section>
   <section class="card"><h3>Withings history</h3><p class="dim" style="font-size:.9rem">Withings app: Profile, Settings, Download your data. Unzip and choose <b>weight.csv</b>. Duplicates are skipped.</p><input id="wiFile" type="file" accept=".csv,text/csv"></section>
   <section class="card"><h3>Backup</h3><p class="dim" style="font-size:.9rem">${S.lastBackup?"Last backup "+fmtD(S.lastBackup)+".":"No backup yet."} Save one weekly to iCloud Drive.</p>
     <div class="row"><button class="btn grow" id="exportJ">Save backup</button><button class="btn alt grow" id="exportC">Export CSV</button></div>
     <label>Restore from a backup file (works with the old version too)</label><input id="impFile" type="file" accept=".json,application/json"></section>`}
+// Sleep from Apple Health can arrive as hours, minutes or seconds depending on the Shortcut: under 24 = hours, 24-1440 = minutes, above that = seconds.
+function sleepHours(v){if(!(v>0))return null;const hrs=v<24?v:v<=1440?v/60:v<=86400?v/3600:null;return hrs!=null&&hrs>0&&hrs<24?r1(hrs):null}
+// Tidy whatever was pasted: a whole link (https://…#weight=…) or URL-encoded text (weight%3D71.8%0A…) both work.
+function cleanHealthText(raw){let t=String(raw==null?"":raw).trim();
+  const hi=t.lastIndexOf("#");if(hi>=0&&t.slice(hi).includes("="))t=t.slice(hi+1);
+  if(/%3D|%0A|%26/i.test(t)){try{t=decodeURIComponent(t)}catch(e){}}
+  return t}
+// Import pasted/clipboard text; returns the number of items imported (0 = nothing recognised).
+function importHealthText(raw){const n=applyKV(parseKV(cleanHealthText(raw)));if(n){commit();toast("Imported "+n+" item"+(n>1?"s":""));render()}return n}
 function parseKV(text){const o={};text.split(/[\n&;]+/).forEach(l=>{const m=l.match(/^\s*([a-z %]+?)\s*[:=]\s*([-\d.,]+)/i);if(m){const v=num(m[2]);if(v!=null)o[m[1].trim().toLowerCase()]=v}});return o}
 function applyKV(o,date=iso()){
   let n=0;const w=o.weight??o.kg;
@@ -1438,7 +1450,7 @@ function applyKV(o,date=iso()){
   if(o.glucose&&o.glucose<40){S.glucose.push({id:uid(),d:date,t:nowHM(),mmol:r1(o.glucose),ctx:"other"});n++}
   // vitals: resting heart rate + sleep hours
   const hr0=o["resting heart rate"]??o["heart rate"]??o.hr??o.rhr, sl0=o.sleep??o["sleep hours"]??o["time asleep"];
-  const hr=hr0&&hr0>25&&hr0<160?Math.round(hr0):null, sl=sl0&&sl0>0&&sl0<24?r1(sl0):null;   // each value checked on its own so one bad number can't ride in with a good one
+  const hr=hr0&&hr0>25&&hr0<160?Math.round(hr0):null, sl=sleepHours(sl0);   // each value checked on its own so one bad number can't ride in with a good one
   if(hr||sl){
     dropWhere("vitals",x=>x.d===date&&x.src==="Apple Health");
     S.vitals.push({id:uid(),d:date,hr,sleep:sl,src:"Apple Health"});n++;
@@ -1471,7 +1483,12 @@ async function saveFile(name,data,type){
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);return true;
 }
 function bindImport(){
-  on("ahImport",()=>{const n=applyKV(parseKV($("#ahPaste").value));if(n){commit();toast("Imported "+n+" item"+(n>1?"s":""));render()}else toast("Nothing recognised. Expected lines like weight=72.4")});
+  on("ahImport",()=>{if(!importHealthText($("#ahPaste").value))toast("Nothing recognised. Expected lines like weight=72.4")});
+  on("ahClip",async()=>{
+    let txt=null;
+    try{if(navigator.clipboard&&navigator.clipboard.readText)txt=await navigator.clipboard.readText()}catch(e){}   // iPhone shows a "Paste" prompt; denied or unsupported lands here
+    if(txt==null){const ta=$("#ahPaste");if(ta)ta.focus();return toast("Can't read the clipboard here. Long-press the box below, tap Paste, then Import.")}
+    if(!importHealthText(txt))toast("The clipboard has no Health numbers yet. Run your Shortcut first.")});
   const wf=$("#wiFile");if(wf)wf.onchange=async()=>{const f=wf.files[0];if(!f)return;const n=importWithings(await f.text());commit();toast(n?"Imported "+n+" weigh-ins":"No new weigh-ins found");render()};
   on("exportJ",async()=>{if(await saveFile("indys-year-backup-"+iso()+".json",JSON.stringify(S),"application/json")){S.lastBackup=iso();commit();render()}});
   on("exportC",()=>saveFile("indys-year-"+iso()+".csv",toCSV(),"text/csv"));
