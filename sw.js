@@ -1,6 +1,7 @@
 // Offline cache. Bump VERSION whenever index.html changes so phones pick up the update.
-const VERSION = "indys-year-v2.5.0";
-const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-180.png", "./icon-192.png", "./icon-512.png",
+const VERSION = "indys-year-v2.6.0";
+const FILES = ["./foods.json.gz", "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-180.png", "./icon-192.png", "./icon-512.png",
+  // (foods.json.gz above: the offline food database, ~380 KB, built by tools/build_fooddb.py)
   // self-hosted fonts (Neon Athletic restyle): precached, then served by the cache-first fetch handler below
   "./fonts/barlow-400.woff2", "./fonts/barlow-500.woff2", "./fonts/barlow-600.woff2", "./fonts/barlow-700.woff2",
   "./fonts/chakra-petch-500.woff2", "./fonts/chakra-petch-600.woff2", "./fonts/chakra-petch-700.woff2"];

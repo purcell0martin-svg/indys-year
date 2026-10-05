@@ -963,10 +963,13 @@ function calorieTarget(){ // Mifflin-St Jeor, female, minus a safe deficit; floo
 }
 function scaleFood(f,g){const r=g/100;return {name:f.n,g,kcal:Math.round(f.k*r),p:+(f.p*r).toFixed(1),c:+(f.c*r).toFixed(1),f:+(f.f*r).toFixed(1),fb:+(f.fb*r).toFixed(1)}}
 function searchFood(q){ensureFood();q=q.toLowerCase().trim();if(!q)return [];
-  const cached=Object.values(S.foodCache).map(c=>({...c,_cache:true}));
-  const hits=FOODDB.filter(f=>f.n.toLowerCase().includes(q)).slice(0,30);
-  const ch=cached.filter(f=>(f.n||"").toLowerCase().includes(q)).slice(0,10);
-  return [...ch,...hits];
+  const cached=Object.values(S.foodCache).map(c=>({...c,_cache:true})).filter(f=>(f.n||"").toLowerCase().includes(q)).slice(0,6);
+  const core=FOODDB.filter(f=>f.n.toLowerCase().includes(q)).slice(0,12); // curated NZ staples first
+  const big=bigSearch(q,40);
+  // de-dupe by lowercased name, curated+cached win
+  const seen=new Set([...cached,...core].map(f=>f.n.toLowerCase()));
+  const bigU=big.filter(f=>!seen.has(f.n.toLowerCase()));
+  return [...cached,...core,...bigU].slice(0,60);
 }
 
 /* ============ Barcode (Open Food Facts, online; cached) ============ */
@@ -1026,9 +1029,10 @@ function addFoodSheet(meal){
       <div class="grid3"><div><label>Protein g</label><input id="mP" type="number" inputmode="decimal"></div><div><label>Carbs g</label><input id="mC" type="number" inputmode="decimal"></div><div><label>Fat g</label><input id="mF" type="number" inputmode="decimal"></div></div>
       <button class="btn block" id="mAdd" style="margin-top:10px">Add this</button></details>
     <button class="btn ghost block" id="fClose" style="margin-top:12px">Close</button>`);
+  loadBigDB(msg=>{const r=$("#fResults");if(r&&!$("#fSearch").value)r.innerHTML=`<p class="dim">${esc(msg)}</p>`}).then(db=>{if(db){const r=$("#fResults");if(r&&!$("#fSearch").value)r.innerHTML=`<p class="dim">${bigDBCount().toLocaleString()} foods ready. Type to search.</p>`;if($("#fSearch").value)doSearch()}});
   const doSearch=()=>{const q=$("#fSearch").value;const res=searchFood(q);
-    $("#fResults").innerHTML=q.length<2?`<p class="dim">Type to search ${FOODDB.length} foods, or scan a barcode.</p>`:
-      res.length?`<ul class="list">${res.map((f,i)=>`<li><span class="grow">${esc(f.n)}${f._cache?' <span class="chip">scanned</span>':""}<div class="dim" style="font-size:.8rem">${f.k} kcal · ${f.p}p / 100 g</div></span><button class="btn sm" data-pick="${i}">Add</button></li>`).join("")}</ul>`:`<p class="dim">No match. Add it manually below.</p>`;
+    $("#fResults").innerHTML=q.length<2?`<p class="dim">${bigDBReady()?bigDBCount().toLocaleString()+" foods ready":"Loading foods"}. Type a food or scan a barcode.</p>`:
+      res.length?`<ul class="list">${res.map((f,i)=>`<li><span class="grow">${esc(f.n)}${f._cache?' <span class="chip">scanned</span>':""}<div class="dim" style="font-size:.8rem">${f.k} kcal · ${f.p}p / 100 g${f.src&&f.src!=="app"?" · "+esc(f.src.replace("USDA-","USDA ")):""}</div></span><button class="btn sm" data-pick="${i}">Add</button></li>`).join("")}</ul>`:`<p class="dim">No match. Add it manually below.</p>`;
     $$("[data-pick]").forEach(b=>b.onclick=()=>pickFood(res[+b.dataset.pick],meal,d));
   };
   $("#fSearch").oninput=doSearch;doSearch();
@@ -1093,6 +1097,81 @@ function mealGlucoseInsight(){
   if(big.length>=3&&small.length>=3){const bd=mean(big),sd=mean(small);if(bd-sd>0.8)out.push({c:"warn",t:`After-meal glucose runs ${r1(bd-sd)} mmol/L higher after bigger meals (${big.length} big vs ${small.length} smaller). Smaller portions or a walk after help.`})}
   return out;
 }
+
+/* ============ Big food database (USDA + AUSNUT), lazy-loaded & cached ============ */
+// Shipped as foods.json.gz (built by build_fooddb.py). Loaded once, kept in memory + IndexedDB.
+let BIGDB=null, BIGLOADING=null, BIGINDEX=null;
+const bigStore={
+  get(){return new Promise(res=>{try{const r=indexedDB.open("indy-fooddb",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>{const db=r.result;try{const q=db.transaction("kv").objectStore("kv").get("foods");q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)}catch(e){res(null)}};r.onerror=()=>res(null)}catch(e){res(null)}})},
+  set(v){return new Promise(res=>{try{const r=indexedDB.open("indy-fooddb",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>{const db=r.result;try{const tx=db.transaction("kv","readwrite");tx.objectStore("kv").put(v,"foods");tx.oncomplete=()=>res(true);tx.onerror=()=>res(false)}catch(e){res(false)}};r.onerror=()=>res(false)}catch(e){res(false)}})}
+};
+function tokenize(s){return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(Boolean)}
+function buildIndex(foods){
+  const idx=new Map();
+  foods.forEach((f,i)=>{const toks=new Set([...tokenize(f.n),...tokenize(f.syn||"")]);
+    toks.forEach(t=>{if(!idx.has(t))idx.set(t,[]);idx.get(t).push(i)})});
+  return idx;
+}
+// Bump FOODDB_VER whenever foods.json.gz is rebuilt (tools/build_fooddb.py prints it), or phones keep the old cached copy.
+const FOODDB_VER="2026-10-05-11690";
+async function gunzipText(buf){
+  const u=new Uint8Array(buf);
+  if(u[0]===0x1f&&u[1]===0x8b){   // still gzipped: inflate it
+    if(!("DecompressionStream" in window))throw new Error("no DecompressionStream");
+    return await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+  }
+  return new TextDecoder().decode(u);   // the server already decoded it (Content-Encoding: gzip)
+}
+async function loadBigDB(onProgress){
+  if(BIGDB)return BIGDB;
+  if(BIGLOADING)return BIGLOADING;
+  BIGLOADING=(async()=>{
+    // 1. IndexedDB cache, only if it is the current version
+    const rec=await bigStore.get();
+    let data=rec&&rec.ver===FOODDB_VER&&rec.data&&rec.data.foods?rec.data:null;
+    if(!data){
+      onProgress&&onProgress("Downloading food database…");
+      try{
+        const r=await fetch("foods.json.gz");
+        if(!r.ok)throw new Error("no file");
+        data=JSON.parse(await gunzipText(await r.arrayBuffer()));
+        if(!data.foods||!data.foods.length)throw new Error("empty");
+        await bigStore.set({ver:FOODDB_VER,data});
+      }catch(e){BIGLOADING=null;return null}
+    }
+    BIGDB=data;BIGINDEX=buildIndex(data.foods);
+    return BIGDB;
+  })();
+  return BIGLOADING;
+}
+function ed1(a,b){ // true if within edit distance 1
+  if(a===b)return true;const la=a.length,lb=b.length;if(Math.abs(la-lb)>1)return false;
+  let i=0,j=0,diff=0;while(i<la&&j<lb){if(a[i]===b[j]){i++;j++}else{diff++;if(diff>1)return false;if(la>lb)i++;else if(lb>la)j++;else{i++;j++}}}
+  return diff+(la-i)+(lb-j)<=1;
+}
+function bigSearch(q,limit=40){
+  if(!BIGDB||!BIGINDEX)return [];
+  const toks=tokenize(q);if(!toks.length)return [];
+  const score=new Map();
+  toks.forEach(t=>{
+    // exact token
+    (BIGINDEX.get(t)||[]).forEach(i=>score.set(i,(score.get(i)||0)+3));
+    // prefix match (scan keys only when token >=3 chars)
+    if(t.length>=3){for(const [k,arr] of BIGINDEX){if(k.startsWith(t)&&k!==t)arr.forEach(i=>score.set(i,(score.get(i)||0)+1))}}
+  });
+  // fuzzy fallback for typos: if nothing scored, try edit-distance-1 on index keys
+  if(score.size===0&&toks.length){const t=toks[0];if(t.length>=4){for(const [k,arr] of BIGINDEX){if(k.length>=4&&Math.abs(k.length-t.length)<=1&&ed1(t,k))arr.forEach(i=>score.set(i,(score.get(i)||0)+1))}}}
+  const foods=BIGDB.foods;
+  const ranked=[...score.entries()].map(([i,s])=>{
+    const f=foods[i];const nm=f.n.toLowerCase();
+    let boost=0;if(nm.startsWith(toks[0]))boost+=2;if(f.src==="AUSNUT")boost+=1; // NZ-closest first
+    boost+= Math.max(0,20-f.n.length/4)/10; // shorter names rank higher
+    return [i,s+boost];
+  }).sort((a,b)=>b[1]-a[1]).slice(0,limit);
+  return ranked.map(([i])=>{const f=foods[i];return {n:f.n,k:f.k,p:f.p,c:f.c,f:f.f,fb:f.fib,sug:f.sug,na:f.na,src:f.src,s:[["100 g",100],["serving",150]],_big:true}});
+}
+function bigDBReady(){return !!BIGDB}
+function bigDBCount(){return BIGDB?BIGDB.foods.length:0}
 /* ============ LOG ============ */
 let LOGSEG="weight";
 const SEGS=[["weight","Weight"],["measures","Body"],["glucose","Glucose"],["hba1c","HbA1c"],["activity","Activity"],["import","Import"]];
@@ -1340,7 +1419,7 @@ function viewYou(){
   <section class="card"><h3>Storage</h3><p class="dim" style="font-size:.88rem">${persisted?"Protected: iOS won't clear this app's data.":"Not protected yet. Open the app from your Home Screen icon and save a backup weekly."} ${S.lastBackup?"Last backup "+fmtD(S.lastBackup)+".":""}</p>
     <button class="btn alt block" data-golog="1" style="margin-top:8px">Open all logs</button>
     <button class="btn alt block" data-gobackup="1" style="margin-top:8px">Backup, import and export</button></section>
-  <section class="card"><h3>About</h3><p class="dim" style="font-size:.86rem">Built for one mum and her goals. Thresholds from NZSSD, ADA Standards of Care 2026, the 2025 Canadian postpartum activity guideline and the DiRECT trial. Exercise figures are original animations. Not medical advice.</p>
+  <section class="card"><h3>About</h3><p class="dim" style="font-size:.86rem">Built for one mum and her goals. Thresholds from NZSSD, ADA Standards of Care 2026, the 2025 Canadian postpartum activity guideline and the DiRECT trial. Exercise figures are original animations. Food data: USDA FoodData Central (public domain) and AUSNUT 2023, © Food Standards Australia New Zealand, CC BY 4.0 AU, converted to per 100 g. Barcode lookups: Open Food Facts contributors (ODbL). Not medical advice.</p>
     <button class="btn danger block" id="wipe" style="margin-top:10px">Erase all data</button></section>`;
 }
 function bindYou(){

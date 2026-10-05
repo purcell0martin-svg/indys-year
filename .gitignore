@@ -5,3 +5,6 @@ indys-year.zip
 .env*
 supabase/.temp
 .env*
+tools/raw/
+tools/out/
+__pycache__/
