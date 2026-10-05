@@ -1,5 +1,5 @@
 // Offline cache. Bump VERSION whenever index.html changes so phones pick up the update.
-const VERSION = "indys-year-v2.3.0";
+const VERSION = "indys-year-v2.5.0";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-180.png", "./icon-192.png", "./icon-512.png",
   // self-hosted fonts (Neon Athletic restyle): precached, then served by the cache-first fetch handler below
   "./fonts/barlow-400.woff2", "./fonts/barlow-500.woff2", "./fonts/barlow-600.woff2", "./fonts/barlow-700.woff2",
