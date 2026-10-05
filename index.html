@@ -96,6 +96,7 @@ input[type=color]{padding:4px;height:48px}
 .seg::-webkit-scrollbar{display:none}
 .seg button{flex:1 0 auto;min-width:44px;border:0;background:none;border-radius:11px;padding:9px 12px;font-weight:700;white-space:nowrap;min-height:44px;color:var(--dim)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--text)}
+@media(max-width:340px){.seg{gap:2px}.seg button{padding:9px 8px;font-size:.92rem}}
 :root[data-mode="light"] .seg button[aria-pressed="true"]{box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
 /* tab bar */
@@ -113,8 +114,8 @@ nav.tabs button[aria-current="page"] svg{filter:drop-shadow(0 0 6px var(--glow))
 
 /* rings */
 .rings{display:flex;align-items:center;gap:16px}
-.rings svg{width:104px;height:104px;flex:none}
-.ringleg{display:flex;flex-direction:column;gap:9px;flex:1}
+.rings svg{width:88px;height:88px;flex:none}
+.ringleg{display:flex;flex-direction:column;gap:7px;flex:1}
 .ringleg div{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
 .ringleg b{font-variant-numeric:tabular-nums;font-family:var(--display);color:var(--accent)}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
@@ -1240,8 +1241,8 @@ function viewFood(){
     ${bar(t.p,pt,"Protein","g")}
     <div class="row" style="gap:14px;margin-top:6px"><span class="chip">Carbs ${t.c} g</span><span class="chip">Fat ${t.f} g</span><span class="chip">Fibre ${t.fb}${t.fb>=25?" ✓":""} g</span></div>
   </section>
-  <div class="row between" style="margin:4px 2px"><h3 style="margin:0">Quick protein log</h3><div class="pf-dots">${[1,2,3].map(i=>`<button data-fprot="${i}" class="${dp>=i?"on":""}">${i}</button>`).join("")}</div></div>
-  <p class="dim" style="font-size:.82rem;margin:0 2px 8px">Tired day? Just tap the meals that had protein. No typing needed.</p>
+  <section class="card"><div class="row between"><h3 style="margin:0">Quick protein log</h3><div class="pf-dots">${[1,2,3].map(i=>`<button data-fprot="${i}" class="${dp>=i?"on":""}">${i}</button>`).join("")}</div></div>
+  <p class="dim" style="font-size:.82rem;margin:8px 0 0">Tired day? Just tap the meals that had protein. No typing needed.</p></section>
   ${["b","l","d","s"].map(mk=>{const items=dayFood(d).filter(x=>x.meal===mk);const mt=items.reduce((a,b)=>a+(b.kcal||0),0);
     return `<section class="card"><div class="row between"><h3>${MEALNAMES[mk]}</h3><span class="dim">${mt?Math.round(mt)+" kcal":""}</span></div>
     ${items.length?`<ul class="list">${items.map(x=>`<li><span class="grow">${esc(x.name)}<div class="dim" style="font-size:.8rem">${x.g} g · ${Math.round(x.kcal)} kcal · ${Math.round(x.p)}p</div></span><button class="x" data-fdel="${x.id}">×</button></li>`).join("")}</ul>`:""}
@@ -1784,15 +1785,15 @@ function insOverview(){
   const ins=insights();const lost=lostKg();
   return `<section class="card hero"><div class="lbl">This week</div>
     ${wkParts.map(x=>`<div style="margin-top:12px"><div class="row between" style="font-size:.95rem"><span>${x.l}</span><span class="dim">${x.t}</span></div><div class="bar" role="progressbar" aria-label="${esc(x.l)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(x.f*100)}"><i style="width:${x.f*100}%"></i></div></div>`).join("")}</section>
+  <section class="card"><h3>Diabetes remission evidence</h3>
+    <p class="dim" style="font-size:.88rem">In the DiRECT trial, the share of people in remission at one year rose with weight lost. You're at ${lost>0?lost:0} kg.</p>
+    ${[[0,5,7],[5,10,34],[10,15,57],[15,99,86]].map(([a,b,pc])=>{const here=lost>=a&&lost<b;return `<div style="margin-top:8px;${here?"":"opacity:.55"}"><div class="row between" style="font-size:.86rem"><span>${b===99?"15+ kg":a+"–"+b+" kg"}${here?" ← you":""}</span><b>${pc}%</b></div><div class="bar"><i style="width:${pc}%"></i></div></div>`}).join("")}
+    <p class="dim" style="font-size:.78rem;margin-top:8px">Trial evidence, not a promise. Remission is confirmed by your GP with HbA1c tests.</p></section>
   <section class="card"><h3>Week vs last week</h3><div class="grid2">
     <div class="tile"><b>${weekMinutes(ws)}</b><span>active min ${cmp(weekMinutes(ws),weekMinutes(lw))}</span></div>
     <div class="tile"><b>${weekStrength(ws)}</b><span>strength days ${cmp(weekStrength(ws),weekStrength(lw))}</span></div>
     <div class="tile"><b>${weekWalks(ws)}</b><span>meal walks ${cmp(weekWalks(ws),weekWalks(lw))}</span></div>
     <div class="tile"><b>${tw&&tl?(tw-tl>0?"+":"")+r1(tw-tl):"–"}</b><span>kg trend change</span></div></div></section>
-  <section class="card"><h3>Diabetes remission evidence</h3>
-    <p class="dim" style="font-size:.88rem">In the DiRECT trial, the share of people in remission at one year rose with weight lost. You're at ${lost>0?lost:0} kg.</p>
-    ${[[0,5,7],[5,10,34],[10,15,57],[15,99,86]].map(([a,b,pc])=>{const here=lost>=a&&lost<b;return `<div style="margin-top:8px;${here?"":"opacity:.55"}"><div class="row between" style="font-size:.86rem"><span>${b===99?"15+ kg":a+"–"+b+" kg"}${here?" ← you":""}</span><b>${pc}%</b></div><div class="bar"><i style="width:${pc}%"></i></div></div>`}).join("")}
-    <p class="dim" style="font-size:.78rem;margin-top:8px">Trial evidence, not a promise. Remission is confirmed by your GP with HbA1c tests.</p></section>
   <section class="card"><h3>What the data says</h3>${ins.length?ins.map(i=>`<div class="insight ${i.c}">${i.t}</div>`).join(""):`<p class="dim">Log a couple of weeks of weigh-ins and workouts and personal insights appear here.</p>`}</section>
   ${(()=>{const v=sorted((S.vitals||[]).filter(x=>inRange(x.d)));if(!v.length)return "";
     const sl=v.filter(x=>x.sleep),hr=v.filter(x=>x.hr);
