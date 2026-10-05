@@ -384,7 +384,7 @@ function flash(){const f=$("#flash");f.classList.add("on");setTimeout(()=>f.clas
 
 /* ============ State & storage (IndexedDB primary, localStorage mirror) ============ */
 const LS_KEY="indy-tracker-v1";
-const blank=()=>({v:3,updatedAt:0,profile:null,weights:[],measures:[],glucose:[],hba1c:[],activity:[],pf:{},protein:{},meals:[],foodCache:{},sessions:[],lastBackup:null,deleted:{},profileCleared:0});
+const blank=()=>({v:4,updatedAt:0,profile:null,weights:[],measures:[],glucose:[],hba1c:[],activity:[],vitals:[],pf:{},protein:{},meals:[],foodCache:{},sessions:[],lastBackup:null,deleted:{},profileCleared:0});
 let S=blank();
 const idb={
   db:null,
@@ -399,7 +399,7 @@ function migrate(o){
     if(p.theme==="light"||p.theme==="dark"){p.mode=p.theme;p.theme="volt"}
     if(!p.theme)p.theme="volt"; if(!p.mode)p.mode="auto";
   }
-  s.protein=s.protein||{};s.pf=s.pf||{};s.meals=s.meals||[];s.foodCache=s.foodCache||{};delete s.chat;
+  s.protein=s.protein||{};s.pf=s.pf||{};s.meals=s.meals||[];s.foodCache=s.foodCache||{};s.vitals=s.vitals||[];delete s.chat;
   s.deleted=s.deleted&&typeof s.deleted==="object"?s.deleted:{};
   // records without an id (very old backups) get a deterministic one so two devices don't duplicate them
   ARR_KEYS.forEach(k=>{s[k]=Array.isArray(s[k])?s[k]:[];s[k].forEach(x=>{if(!x.id)x.id="L"+hashStr(JSON.stringify(x))})});
@@ -671,12 +671,12 @@ function confetti(){
 }
 
 /* ============ Audio & wake lock ============ */
-let audio=null,wakeLock=null,wantWake=false;
+let audio=null,wakeLock=null,wantWake=false,keepAwakeOn=false;
 function unlockAudio(){try{if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();const b=audio.createBuffer(1,1,22050),s=audio.createBufferSource();s.buffer=b;s.connect(audio.destination);s.start(0)}if(audio.state==="suspended")audio.resume()}catch(e){}}
 document.addEventListener("pointerdown",unlockAudio,{once:true});
 function beep(n=1,long=false){try{unlockAudio();for(let i=0;i<n;i++){const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=long&&i===n-1?660:880;o.connect(g);g.connect(audio.destination);const t=audio.currentTime+i*.28,d=long&&i===n-1?.6:.16;g.gain.setValueAtTime(.001,t);g.gain.exponentialRampToValueAtTime(.35,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}}catch(e){}flash()}
-async function wake(on){wantWake=on;try{if(on&&"wakeLock"in navigator&&!wakeLock){wakeLock=await navigator.wakeLock.request("screen");wakeLock.addEventListener("release",()=>{wakeLock=null})}else if(!on&&wakeLock){await wakeLock.release();wakeLock=null}}catch(e){}}
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&wantWake)wake(true)});
+async function wake(on){wantWake=on;try{if(on&&"wakeLock"in navigator&&!wakeLock){wakeLock=await navigator.wakeLock.request("screen");wakeLock.addEventListener("release",()=>{wakeLock=null})}else if(!on&&!keepAwakeOn&&wakeLock){await wakeLock.release();wakeLock=null}}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&(wantWake||keepAwakeOn))wake(true)});
 /* ============ Navigation ============ */
 const ICONS={
   home:'<path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
@@ -1405,21 +1405,26 @@ function bindLog(){
 }
 
 /* ============ Import / export ============ */
-function importView(){return `<section class="card"><h3>Apple Health and Apple Watch</h3>
-  <p class="dim" style="font-size:.9rem">Withings and the Watch both sync into Apple Health. A Shortcut copies today's numbers; paste them here.</p>
-  <textarea id="ahPaste" placeholder="weight=72.4&#10;steps=8231&#10;exercise=34&#10;glucose=5.6"></textarea>
+function importView(){const u=location.origin+location.pathname;return `<section class="card"><h3>Apple Health & Apple Watch</h3>
+  <p class="dim" style="font-size:.9rem">Your Apple Watch, iPhone and Withings scale all feed Apple Health. A one-tap Shortcut sends today's numbers straight in: steps, exercise minutes, weight, resting heart rate and sleep.</p>
+  <textarea id="ahPaste" placeholder="weight=72.4&#10;steps=8231&#10;exercise=34&#10;heart rate=58&#10;sleep=6.5"></textarea>
   <button class="btn xl" id="ahImport" style="margin-top:10px">Import pasted numbers</button>
-  <details style="margin-top:10px"><summary>Set up the Shortcut (5 minutes, once)</summary>
-  <ol style="padding-left:18px;font-size:.92rem">
-    <li>Shortcuts app, tap +, name it "Send to Indy's Year".</li>
-    <li>Find Health Samples: Weight, sort Latest First, limit 1.</li>
-    <li>Find Health Samples: Steps, start date is today, then Calculate Statistics, Sum.</li>
-    <li>Find Health Samples: Exercise Minutes, start date is today, then Calculate Statistics, Sum.</li>
-    <li>Optional: Blood Glucose (Latest First, limit 1) and Body Fat Percentage.</li>
-    <li>Text action with lines like <code>weight=[Weight]</code>, <code>steps=[Sum]</code>, <code>exercise=[Sum]</code>, <code>glucose=[Glucose]</code>.</li>
-    <li>Copy to Clipboard, then Open App or Open URLs with this app's address.</li>
-    <li>Add to Home Screen. Each evening: tap it, then paste here.</li>
-  </ol></details></section>
+  <details style="margin-top:10px"><summary>Set up the one-tap Shortcut (5 min, once)</summary>
+  <p class="dim" style="font-size:.9rem">In the <b>Shortcuts</b> app, tap + and add these actions. Each "Find Health Samples" is followed by "Calculate Statistics" where noted.</p>
+  <ol style="padding-left:18px;font-size:.92rem;line-height:1.5">
+    <li>Name it "Send to Indy's Year".</li>
+    <li><b>Steps</b> → Find Health Samples (Type Steps, Start Date Today) → Calculate Statistics → <b>Sum</b>.</li>
+    <li><b>Exercise</b> → Find Health Samples (Apple Exercise Time, Today) → Calculate Statistics → Sum.</li>
+    <li><b>Weight</b> → Find Health Samples (Weight, Sort Latest First, Limit 1).</li>
+    <li><b>Resting heart rate</b> → Find Health Samples (Resting Heart Rate, Latest First, Limit 1).</li>
+    <li><b>Sleep</b> → Find Health Samples (Sleep, Today) → Calculate Statistics → Sum, then divide by 60 for hours (optional).</li>
+    <li>Add a <b>Text</b> action:<br><code>weight=[Weight]<br>steps=[Steps Sum]<br>exercise=[Exercise Sum]<br>heart rate=[RHR]<br>sleep=[Sleep hours]</code><br>(insert each result as a variable).</li>
+    <li><b>URL</b> action: <code>${u}#</code> followed by the Text, then <b>Open URLs</b>. That opens the app with the numbers filled in automatically.</li>
+    <li>Or simpler: <b>Copy to Clipboard</b> the Text, then open this app and paste above.</li>
+    <li>Add the Shortcut to your Home Screen. Each evening, one tap sends the day's numbers.</li>
+  </ol>
+  <p class="dim" style="font-size:.82rem">A web app can't read Apple Health directly, so the Shortcut is the bridge. Set an Automation (Shortcuts → Automation → Time of Day) to run it nightly, though iOS may still ask for a tap.</p>
+  </details></section>
   <section class="card"><h3>Withings history</h3><p class="dim" style="font-size:.9rem">Withings app: Profile, Settings, Download your data. Unzip and choose <b>weight.csv</b>. Duplicates are skipped.</p><input id="wiFile" type="file" accept=".csv,text/csv"></section>
   <section class="card"><h3>Backup</h3><p class="dim" style="font-size:.9rem">${S.lastBackup?"Last backup "+fmtD(S.lastBackup)+".":"No backup yet."} Save one weekly to iCloud Drive.</p>
     <div class="row"><button class="btn grow" id="exportJ">Save backup</button><button class="btn alt grow" id="exportC">Export CSV</button></div>
@@ -1428,8 +1433,16 @@ function parseKV(text){const o={};text.split(/[\n&;]+/).forEach(l=>{const m=l.ma
 function applyKV(o,date=iso()){
   let n=0;const w=o.weight??o.kg;
   if(w&&w>30&&w<250){dropWhere("weights",x=>x.d===date&&x.src==="Apple Health");S.weights.push({id:uid(),d:date,kg:r1(w),fat:o.fat??o["body fat"]??null,src:"Apple Health"});n++}
-  if(o.steps||o.exercise){dropWhere("activity",x=>x.d===date&&x.src==="Apple Health");S.activity.push({id:uid(),d:date,kind:"other",min:o.exercise?Math.round(o.exercise):null,steps:o.steps?Math.round(o.steps):null,src:"Apple Health"});n++}
+  const steps=o.steps,ex=o.exercise??o["exercise minutes"]??o["active minutes"];
+  if(steps||ex){dropWhere("activity",x=>x.d===date&&x.src==="Apple Health");S.activity.push({id:uid(),d:date,kind:"walk",min:ex?Math.round(ex):null,steps:steps?Math.round(steps):null,kcal:ex?kcalFor("walk",Math.round(ex),trendNow()||P_().startWeight):null,src:"Apple Health"});n++}
   if(o.glucose&&o.glucose<40){S.glucose.push({id:uid(),d:date,t:nowHM(),mmol:r1(o.glucose),ctx:"other"});n++}
+  // vitals: resting heart rate + sleep hours
+  const hr0=o["resting heart rate"]??o["heart rate"]??o.hr??o.rhr, sl0=o.sleep??o["sleep hours"]??o["time asleep"];
+  const hr=hr0&&hr0>25&&hr0<160?Math.round(hr0):null, sl=sl0&&sl0>0&&sl0<24?r1(sl0):null;   // each value checked on its own so one bad number can't ride in with a good one
+  if(hr||sl){
+    dropWhere("vitals",x=>x.d===date&&x.src==="Apple Health");
+    S.vitals.push({id:uid(),d:date,hr,sleep:sl,src:"Apple Health"});n++;
+  }
   return n;
 }
 function importWithings(text){
@@ -1499,7 +1512,16 @@ function insOverview(){
     ${[[0,5,7],[5,10,34],[10,15,57],[15,99,86]].map(([a,b,pc])=>{const here=lost>=a&&lost<b;return `<div style="margin-top:8px;${here?"":"opacity:.55"}"><div class="row between" style="font-size:.86rem"><span>${b===99?"15+ kg":a+"–"+b+" kg"}${here?" ← you":""}</span><b>${pc}%</b></div><div class="bar"><i style="width:${pc}%"></i></div></div>`}).join("")}
     <p class="dim" style="font-size:.78rem;margin-top:8px">Trial evidence, not a promise. Remission is confirmed by your GP with HbA1c tests.</p></section>
   <section class="card"><h3>What the data says</h3>${ins.length?ins.map(i=>`<div class="insight ${i.c}">${i.t}</div>`).join(""):`<p class="dim">Log a couple of weeks of weigh-ins and workouts and personal insights appear here.</p>`}</section>
-  <section class="card"><h3>Ask ChatGPT with your numbers</h3><p class="dim" style="font-size:.88rem">Copies your goals and latest numbers. Paste into ChatGPT, then ask your question.</p>
+  ${(()=>{const v=sorted((S.vitals||[]).filter(x=>inRange(x.d)));if(!v.length)return "";
+    const sl=v.filter(x=>x.sleep),hr=v.filter(x=>x.hr);
+    const avgSl=sl.length?r1(mean(sl.map(x=>x.sleep))):null,avgHr=hr.length?Math.round(mean(hr.map(x=>x.hr))):null;
+    const ms=d=>parseD(d).getTime();
+    return `<section class="card"><h3>Sleep & heart rate</h3><div class="grid2">
+      ${avgSl!=null?`<div class="tile"><b>${avgSl}</b><span>avg sleep hours</span></div>`:""}
+      ${avgHr!=null?`<div class="tile"><b>${avgHr}</b><span>avg resting HR</span></div>`:""}</div>
+      ${sl.length>2?`<div class="chart" style="margin-top:8px">${lineChart({h:120,label:"Sleep",series:[{pts:sl.map(x=>[ms(x.d),x.sleep]),color:"var(--accent)"}]})}</div>`:""}
+      <p class="dim" style="font-size:.82rem;margin-top:6px">From Apple Health. Short sleep can nudge next-day glucose and appetite up, so a rough night isn't a scale failure.</p></section>`;})()}
+    <section class="card"><h3>Ask ChatGPT with your numbers</h3><p class="dim" style="font-size:.88rem">Copies your goals and latest numbers. Paste into ChatGPT, then ask your question.</p>
     <button class="btn block" id="copyCtx" style="margin-top:8px">Copy my summary</button><div id="ctxBox"></div></section>
   ${TIPS.map(([h,b])=>`<details class="card"><summary>${h}</summary><p class="dim">${b}</p></details>`).join("")}
   <p class="dim" style="font-size:.8rem">This app supports, not replaces, your GP and diabetes team.</p>`;
@@ -1602,6 +1624,8 @@ function viewYou(){
   ${viewSetup(false)}
   <section class="card" id="syncCard"></section>
   <section class="card" id="shareCard"></section>
+  <section class="card"><div class="toggle"><div><h3 style="margin:0">Keep screen on</h3><span class="lbl">Stops the screen sleeping while the app is open</span></div><input type="checkbox" id="keepAwake" ${keepAwakeOn?"checked":""}></div>
+    <p class="dim" style="font-size:.82rem;margin-top:4px">Handy during a workout or walk. iPhone still sleeps if you lock it or switch apps.</p></section>
   <section class="card"><h3>Storage</h3><p class="dim" style="font-size:.88rem">${persisted?"Protected: iOS won't clear this app's data.":"Not protected yet. Open the app from your Home Screen icon and save a backup weekly."} ${S.lastBackup?"Last backup "+fmtD(S.lastBackup)+".":""}</p>
     <button class="btn alt block" data-golog="1" style="margin-top:8px">Open all logs</button>
     <button class="btn alt block" data-gobackup="1" style="margin-top:8px">Backup, import and export</button></section>
@@ -1611,8 +1635,9 @@ function viewYou(){
 function bindYou(){
   $$("[data-theme]").forEach(b=>b.onclick=()=>{S.profile.theme=b.dataset.theme;S.profile.updatedAt=Date.now();commit();applyTheme();render()});
   on("useCustom",()=>{S.profile.custom=$("#custom").value;S.profile.theme="custom";S.profile.updatedAt=Date.now();commit();applyTheme();render()});
-  $$("[data-mode]").forEach(b=>b.onclick=()=>{S.profile.mode=b.dataset.mode;S.profile.updatedAt=Date.now();commit();applyTheme();render()});
+  $$("button[data-mode]").forEach(b=>b.onclick=()=>{S.profile.mode=b.dataset.mode;   /* buttons only: <html data-mode> also matched, so every click re-rendered */S.profile.updatedAt=Date.now();commit();applyTheme();render()});
   $$("[data-gobackup]").forEach(b=>b.onclick=()=>{TAB="log";LOGSEG="import";render()});
+  const ka=document.getElementById("keepAwake");if(ka)ka.onchange=()=>{keepAwakeOn=ka.checked;if(keepAwakeOn)wake(true);else if(!W&&!GPS&&!walkTimer)wake(false);toast(keepAwakeOn?"Screen will stay on":"Screen can sleep again")};
   $$("[data-golog]").forEach(b=>b.onclick=()=>{TAB="log";LOGSEG="weight";render()});
   on("wipe",()=>{if(!confirm("Erase every entry"+(SYNC.user?" here and in your cloud backup":"")+"? Save a backup first if unsure."))return;
     const old=S;S=blank();S.deleted=Object.assign({},old.deleted);ARR_KEYS.forEach(k=>old[k].forEach(x=>{S.deleted[x.id]=Date.now()}));S.profileCleared=Date.now();
@@ -1751,7 +1776,7 @@ function openReport(){
 /* ============ Cloud sync (Supabase): IndexedDB stays primary, the cloud is backup + merge ============ */
 const SB_SRC="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js";
 const SB_SRI="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok";
-const META_KEY="indy-sync-meta",ARR_KEYS=["weights","measures","glucose","hba1c","activity","sessions","meals"],RO_TABS=["home","insights","you"];
+const META_KEY="indy-sync-meta",ARR_KEYS=["weights","measures","glucose","hba1c","activity","sessions","meals","vitals"],RO_TABS=["home","insights","you"];
 let RO=false,sb=null;
 const SYNC={user:null,known:false,email:"",msg:"",last:0,busy:false,again:false,err:"",booting:false,initing:false,viewers:null,verr:"",t:null};
 try{const m=JSON.parse(localStorage.getItem(META_KEY)||"null");if(m&&m.email){SYNC.email=m.email;SYNC.last=m.last||0;SYNC.known=true;SYNC.booting=true}}catch(e){}
