@@ -1431,6 +1431,17 @@ function bigDBReady(){return !!BIGDB}
 function bigDBCount(){return BIGDB?BIGDB.foods.length:0}
 
 /* ============ Activity: manual log + GPS tracker ============ */
+/* ============ Exercise database (Compendium of Physical Activities METs) ============ */
+const EXDB=[{"n":"Push-ups","met":3.8,"syn":"press ups pushup","cat":"Strength"},{"n":"Pull-ups","met":8.0,"syn":"pullup chin-ups chinups","cat":"Strength"},{"n":"Squats (bodyweight)","met":5.0,"syn":"squat air squats","cat":"Strength"},{"n":"Lunges","met":4.0,"syn":"lunge walking lunges","cat":"Strength"},{"n":"Plank","met":3.3,"syn":"planks forearm plank","cat":"Strength"},{"n":"Sit-ups","met":4.3,"syn":"situps crunches","cat":"Strength"},{"n":"Burpees","met":8.0,"syn":"burpee","cat":"Strength"},{"n":"Mountain climbers","met":8.0,"syn":"mountain climber","cat":"Strength"},{"n":"Glute bridges","met":3.5,"syn":"bridge hip thrust","cat":"Strength"},{"n":"Dips","met":5.0,"syn":"tricep dips bench dips","cat":"Strength"},{"n":"Calf raises","met":3.5,"syn":"calf raise heel raise","cat":"Strength"},{"n":"Jumping jacks","met":8.0,"syn":"star jumps","cat":"Strength"},{"n":"Weight training, general","met":3.5,"syn":"weights gym lifting resistance","cat":"Strength"},{"n":"Weight training, vigorous","met":6.0,"syn":"heavy lifting powerlifting","cat":"Strength"},{"n":"Kettlebell","met":9.8,"syn":"kettlebells","cat":"Strength"},{"n":"Dumbbell workout","met":5.0,"syn":"dumbbells free weights","cat":"Strength"},{"n":"Resistance bands","met":3.5,"syn":"bands band workout","cat":"Strength"},{"n":"Deadlift","met":6.0,"syn":"deadlifts","cat":"Strength"},{"n":"Bench press","met":5.0,"syn":"benching","cat":"Strength"},{"n":"CrossFit / circuit training","met":8.0,"syn":"crossfit circuit wod bootcamp","cat":"Strength"},{"n":"Core / ab workout","met":3.8,"syn":"abs core abdominal","cat":"Strength"},{"n":"Walking, slow","met":2.8,"syn":"walk stroll","cat":"Cardio"},{"n":"Walking, brisk","met":4.3,"syn":"walk fast walking power walk","cat":"Cardio"},{"n":"Walking with pram","met":4.0,"syn":"pram pushchair stroller buggy","cat":"Cardio"},{"n":"Walking uphill","met":6.0,"syn":"hill walking incline walk","cat":"Cardio"},{"n":"Hiking","met":6.0,"syn":"tramping bushwalk trek","cat":"Cardio"},{"n":"Running, 8 km/h","met":8.3,"syn":"run jog jogging","cat":"Cardio"},{"n":"Running, 10 km/h","met":9.8,"syn":"run 6min k","cat":"Cardio"},{"n":"Running, 12 km/h","met":11.8,"syn":"run fast 5min k","cat":"Cardio"},{"n":"Treadmill","met":8.0,"syn":"treadmill running","cat":"Cardio"},{"n":"Cycling, leisure","met":4.0,"syn":"bike biking cycle","cat":"Cardio"},{"n":"Cycling, moderate","met":6.8,"syn":"bike cycle road","cat":"Cardio"},{"n":"Cycling, vigorous","met":10.0,"syn":"bike spin fast cycling","cat":"Cardio"},{"n":"Stationary bike","met":7.0,"syn":"exercise bike spin bike","cat":"Cardio"},{"n":"Spin class","met":8.5,"syn":"spinning rpm","cat":"Cardio"},{"n":"Swimming, leisure","met":6.0,"syn":"swim pool","cat":"Cardio"},{"n":"Swimming, laps","met":8.3,"syn":"swim laps freestyle","cat":"Cardio"},{"n":"Rowing machine","met":7.0,"syn":"rowing erg rower","cat":"Cardio"},{"n":"Elliptical / cross-trainer","met":5.0,"syn":"elliptical cross trainer","cat":"Cardio"},{"n":"Stair climbing","met":8.8,"syn":"stairs stair master steps","cat":"Cardio"},{"n":"Skipping / jump rope","met":11.0,"syn":"skipping rope jump rope","cat":"Cardio"},{"n":"HIIT","met":8.0,"syn":"hiit interval high intensity tabata","cat":"Cardio"},{"n":"Aerobics","met":6.5,"syn":"aerobic step class","cat":"Cardio"},{"n":"Dancing","met":5.0,"syn":"dance zumba","cat":"Cardio"},{"n":"Zumba","met":6.5,"syn":"zumba dance fitness","cat":"Cardio"},{"n":"Boxing / bag work","met":7.8,"syn":"boxing kickboxing bag","cat":"Cardio"},{"n":"Yoga","met":2.5,"syn":"yoga flow vinyasa","cat":"Low impact"},{"n":"Pilates","met":3.0,"syn":"pilates reformer","cat":"Low impact"},{"n":"Stretching","met":2.3,"syn":"stretch mobility cool down","cat":"Low impact"},{"n":"Pelvic floor exercises","met":2.0,"syn":"kegel pelvic floor","cat":"Low impact"},{"n":"Tai chi","met":3.0,"syn":"taichi","cat":"Low impact"},{"n":"Barre","met":3.5,"syn":"barre ballet fitness","cat":"Low impact"},{"n":"Netball","met":6.5,"syn":"netball","cat":"Sport"},{"n":"Touch rugby","met":8.0,"syn":"touch rugby","cat":"Sport"},{"n":"Football / soccer","met":7.0,"syn":"soccer football","cat":"Sport"},{"n":"Tennis","met":7.3,"syn":"tennis","cat":"Sport"},{"n":"Basketball","met":6.5,"syn":"basketball hoops","cat":"Sport"},{"n":"Golf (walking)","met":4.8,"syn":"golf","cat":"Sport"},{"n":"Badminton","met":5.5,"syn":"badminton","cat":"Sport"},{"n":"Table tennis","met":4.0,"syn":"ping pong table tennis","cat":"Sport"},{"n":"Volleyball","met":4.0,"syn":"volleyball","cat":"Sport"},{"n":"Squash","met":7.3,"syn":"squash","cat":"Sport"},{"n":"Surfing","met":3.0,"syn":"surf surfing","cat":"Sport"},{"n":"Paddleboarding / kayaking","met":5.0,"syn":"kayak paddle board sup waka","cat":"Sport"},{"n":"Horse riding","met":5.5,"syn":"horse riding equestrian","cat":"Sport"},{"n":"Rock climbing","met":8.0,"syn":"climbing bouldering","cat":"Sport"},{"n":"Skateboarding","met":5.0,"syn":"skateboard skating","cat":"Sport"},{"n":"Gardening","met":3.8,"syn":"garden weeding digging","cat":"Daily life"},{"n":"Mowing lawns","met":5.5,"syn":"mowing lawn","cat":"Daily life"},{"n":"Housework / cleaning","met":3.3,"syn":"cleaning vacuuming housework chores","cat":"Daily life"},{"n":"Carrying baby / babywearing","met":3.0,"syn":"carrying baby babywearing holding","cat":"Daily life"},{"n":"Playing with kids","met":4.0,"syn":"play kids children playing","cat":"Daily life"},{"n":"Grocery shopping","met":3.5,"syn":"shopping groceries","cat":"Daily life"},{"n":"Vacuuming","met":3.3,"syn":"vacuum hoovering","cat":"Daily life"},{"n":"Washing the car","met":3.5,"syn":"car washing","cat":"Daily life"},{"n":"Moving / lifting boxes","met":6.0,"syn":"moving furniture lifting boxes","cat":"Daily life"},{"n":"Standing / light activity","met":2.0,"syn":"standing light","cat":"Daily life"}];
+function kcalMET(met,min,kg){return Math.round(met*(kg||70)*(min/60));}
+function searchEx(q){q=(q||"").toLowerCase().trim();if(!q)return EXDB.slice(0,12);
+  const toks=q.split(/\s+/);
+  const scored=EXDB.map(e=>{const hay=(e.n+" "+e.syn).toLowerCase();let sc=0;
+    toks.forEach(t=>{if(e.n.toLowerCase().startsWith(t))sc+=5;else if(hay.includes(t))sc+=2});
+    return[e,sc]}).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+  return scored.slice(0,20).map(x=>x[0]);
+}
+
 // Uses existing S.activity. GPS sessions add kind:"walk"/"run", min, km, kcal, elev, route meta.
 
 const ACT_TYPES=[["walk","Walk"],["run","Run"],["pram","Pram walk"],["cycle","Cycle"],["swim","Swim"],
@@ -1469,7 +1480,7 @@ function viewActivity(){
       ${kcal>0?`<div><div class="big" style="font-size:1.8rem">${kcal}<small>kcal</small></div></div>`:""}</div></section>
   <div class="grid2"><button class="btn xl" id="gpsStart">Start walk/run</button><button class="btn alt xl" id="manualAdd">Log activity</button></div>
   <section class="card"><h3>${d===iso()?"Today's activity":"Activity"}</h3>
-    ${list.length?`<ul class="list">${list.map(a=>{const nm=(ACT_TYPES.find(t=>t[0]===a.kind)||[,a.kind])[1]||a.kind;
+    ${list.length?`<ul class="list">${list.map(a=>{const nm=a.name||(ACT_TYPES.find(t=>t[0]===a.kind)||[,a.kind])[1]||a.kind;
       return `<li><div class="grow"><b>${esc(a.kind==="postmeal"?"After-meal walk":nm)}</b><div class="dim" style="font-size:.82rem">${a.min?a.min+" min":""}${a.km?" · "+r1(a.km)+" km":""}${a.kcal?" · "+a.kcal+" kcal":""}${a.elev?" · ↑"+a.elev+" m":""}${a.src&&a.src!=="app"?" · "+esc(a.src):""}${a.note?" · "+esc(a.note):""}</div></div><button class="x" data-adel="${a.id}">×</button></li>`}).join("")}</ul>`:`<p class="dim">Nothing logged yet. Start a walk or log anything you did.</p>`}
   </section>
   <section class="card"><h3>Recent sessions</h3>${S.activity.filter(a=>a.km).length?`<ul class="list">${sorted(S.activity.filter(a=>a.km)).reverse().slice(0,6).map(a=>`<li><div class="grow"><b>${(ACT_TYPES.find(t=>t[0]===a.kind)||[,a.kind])[1]||a.kind} · ${r1(a.km)} km</b><div class="dim" style="font-size:.82rem">${fmtD(a.d)} · ${a.min} min · ${a.kcal} kcal${a.pace?" · "+a.pace+"/km":""}</div></div></li>`).join("")}</ul>`:`<p class="dim">Tracked walks and runs show here.</p>`}</section>`;
@@ -1484,23 +1495,33 @@ function bindActivity(){
 
 /* ---- MANUAL LOG ---- */
 function manualActivitySheet(d0){
-  const d=d0||ACTDATE||iso();
+  const d=d0||ACTDATE||iso();let picked=null;
   sheet(`<h2 style="margin-top:0">Log activity</h2>
     <label>What did you do?</label>
-    <div class="seg" id="atSeg" style="flex-wrap:wrap">${ACT_TYPES.filter(t=>t[0]!=="other").map((t,i)=>`<button data-at="${t[0]}" aria-pressed="${i===0}">${t[1]}</button>`).join("")}</div>
-    <div class="grid2"><div><label for="aMin">Time (minutes)</label><input id="aMin" type="number" inputmode="numeric" placeholder="30"></div><div><label for="aDt">Date</label><input id="aDt" type="date" value="${d}"></div></div>
-    <label for="aKm">Distance (km, optional)</label><input id="aKm" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 2.5">
-    <label for="aNote">Note (optional)</label><input id="aNote" placeholder="e.g. big hills, felt good">
-    <div id="aKcalPrev" class="tile" style="margin-top:10px"></div>
-    <button class="btn xl" id="aSave" style="margin-top:12px">Save</button>
-    <button class="btn ghost block" id="aClose" style="margin-top:8px">Cancel</button>`);
-  let type="walk";
-  const prev=()=>{const m=num($("#aMin").value)||0;const km=num($("#aKm").value);const kmh=km&&m?km/(m/60):null;
-    const kc=kcalFor(type,m,trendNow()||P_().startWeight,kmh);$("#aKcalPrev").innerHTML=m?`<b>${kc} kcal</b><span>estimate · adds to your day</span>`:`<span class="dim">Enter minutes for a calorie estimate</span>`};
-  $$("[data-at]").forEach(b=>b.onclick=()=>{type=b.dataset.at;$$("[data-at]").forEach(x=>x.setAttribute("aria-pressed",x===b));prev()});
-  $("#aMin").oninput=prev;$("#aKm").oninput=prev;prev();
-  on("aSave",()=>{const m=num($("#aMin").value);if(!m)return toast("Enter minutes");const km=num($("#aKm").value);const kmh=km?km/(m/60):null;
-    const dd=$("#aDt").value?formDate("aDt"):d;if(!dd)return;S.activity.push({id:uid(),d:dd,kind:type,min:m,km:km||null,kcal:kcalFor(type,m,trendNow()||P_().startWeight,kmh),note:$("#aNote").value.trim()||null,src:"app"});
+    <input id="exSearch" aria-label="Search exercises" placeholder="Type e.g. pull ups, netball, gardening" autocomplete="off">
+    <div id="exResults" style="margin-top:8px"></div>
+    <div id="exForm" style="display:none">
+      <div class="row between" style="margin-top:6px"><b id="exName"></b><button class="btn alt sm" id="exChange">Change</button></div>
+      <div class="grid2"><div><label for="aMin">Time (minutes)</label><input id="aMin" type="number" inputmode="numeric" placeholder="30"></div><div><label for="aDt">Date</label><input id="aDt" type="date" value="${d}"></div></div>
+      <label for="aNote">Note (optional)</label><input id="aNote" placeholder="e.g. felt good">
+      <div id="aKcalPrev" class="tile" style="margin-top:10px"></div>
+      <button class="btn xl" id="aSave" style="margin-top:12px">Save</button>
+    </div>
+    <button class="btn ghost block" id="aClose" style="margin-top:10px">Cancel</button>`);
+  const kg=()=>trendNow()||P_().startWeight||70;
+  const showResults=()=>{const q=$("#exSearch").value;const res=searchEx(q);
+    $("#exResults").innerHTML=`<ul class="list">${res.map((e,i)=>`<li><div class="grow"><b>${esc(e.n)}</b><div class="dim" style="font-size:.8rem">${e.cat} · ~${kcalMET(e.met,30,kg())} kcal / 30 min</div></div><button class="btn sm" data-ex="${i}">Pick</button></li>`).join("")}${q.trim()&&!res.some(e=>e.n.toLowerCase()===q.toLowerCase())?`<li><div class="grow"><b>Use "${esc(q)}"</b><div class="dim" style="font-size:.8rem">Not listed — we'll estimate</div></div><button class="btn sm alt" id="exCustom">Add</button></li>`:""}</ul>`;
+    res.forEach((e,i)=>{const b=document.querySelector('[data-ex="'+i+'"]');if(b)b.onclick=()=>pick(e)});
+    const cb=$("#exCustom");if(cb)cb.onclick=()=>pick({n:q.trim().slice(0,60),met:4.0,cat:"Other",custom:true});
+  };
+  const pick=e=>{picked=e;$("#exResults").style.display="none";$("#exSearch").style.display="none";$("#exForm").style.display="block";$("#exName").textContent=e.n;prev();$("#aMin").focus()};
+  const prev=()=>{const m=num($("#aMin").value)||0;const kc=picked?kcalMET(picked.met,m,kg()):0;
+    $("#aKcalPrev").innerHTML=m?`<b>${kc} kcal</b><span>estimate · adds to your day${picked&&picked.custom?" (rough)":""}</span>`:`<span class="dim">Enter minutes for a calorie estimate</span>`};
+  $("#exSearch").oninput=showResults;showResults();
+  on("exChange",()=>{picked=null;$("#exForm").style.display="none";$("#exSearch").style.display="block";$("#exResults").style.display="block";$("#exSearch").value="";$("#exSearch").focus();showResults()});
+  $("#aMin").oninput=prev;
+  on("aSave",()=>{const m=num($("#aMin").value);if(!picked)return toast("Pick an exercise first");if(!m)return toast("Enter the minutes");
+    const dd=$("#aDt").value?formDate("aDt"):d;if(!dd)return;S.activity.push({id:uid(),d:dd,kind:"ex",name:picked.n,min:m,kcal:kcalMET(picked.met,m,kg()),note:($("#aNote").value||"").trim()||null,src:"app"});
     commit();closeSheet();toast("Activity saved");render()});
   on("aClose",closeSheet);
 }
@@ -1715,7 +1736,7 @@ function toCSV(){
   S.measures.forEach(m=>["waist","hips","chest","arm","thigh"].forEach(k=>m[k]&&rows.push(["measure",m.d,m[k],"cm",k])));
   S.glucose.forEach(g=>rows.push(["glucose",g.d,g.mmol,"mmol/L",g.ctx+" "+(g.t||"")]));
   S.hba1c.forEach(h=>rows.push(["hba1c",h.d,h.v,"mmol/mol",""]));
-  S.activity.forEach(a=>rows.push(["activity",a.d,a.min||"","min",a.kind+(a.steps?" "+a.steps+" steps":"")]));
+  S.activity.forEach(a=>rows.push(["activity",a.d,a.min||"","min",(a.name||a.kind)+(a.steps?" "+a.steps+" steps":"")]));
   S.sessions.forEach(s=>s.sets.forEach(x=>rows.push(["set",s.d,x.v,x.u==="s"?"sec":"reps",`day ${s.day} ${EX[x.ex]?.n||x.ex} round ${x.r} time ${x.sec}s`])));
   return rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
 }
