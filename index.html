@@ -102,8 +102,8 @@ input[type=color]{padding:4px;height:48px}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:space-around;
   padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));
   background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--line)}
-nav.tabs button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.7rem;font-weight:700;color:var(--dim);min-width:60px;min-height:48px;padding:2px 6px}
-nav.tabs svg{width:24px;height:24px}
+nav.tabs button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.64rem;font-weight:700;color:var(--dim);min-width:0;flex:1;min-height:48px;padding:2px 2px}
+nav.tabs svg{width:22px;height:22px}
 nav.tabs button[aria-current="page"]{color:var(--accent)}
 nav.tabs button[aria-current="page"] svg{filter:drop-shadow(0 0 6px var(--glow))}
 
@@ -171,7 +171,7 @@ nav.tabs button[aria-current="page"] svg{filter:drop-shadow(0 0 6px var(--glow))
 .bar{height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
 .score{font-family:var(--display);font-size:3.2rem;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--accent);text-shadow:0 0 calc(20px * var(--glowon)) var(--glow)}
-.band{position:relative;height:14px;border-radius:999px;background:linear-gradient(90deg,var(--good) 0 27%,var(--warn) 27% 50%,var(--bad) 50% 100%);margin:16px 0 22px}
+.band{position:relative;height:14px;border-radius:999px;background:linear-gradient(90deg,var(--good) 0 30%,var(--warn) 30% 45%,var(--bad) 45% 100%);margin:16px 0 22px}
 .band .pin{position:absolute;top:-6px;width:4px;height:26px;border-radius:2px;background:var(--text);transform:translateX(-2px)}
 .band .tick{position:absolute;top:18px;font-size:.7rem;color:var(--dim);transform:translateX(-50%)}
 
@@ -483,7 +483,7 @@ function deficitPerDay(){const r=regression();if(!r||!r.ok)return null;return Ma
 function whtr(){const p=P_();const m=lastOf(S.measures.filter(x=>x.waist));if(!p.height||!m)return null;const v=r2(m.waist/p.height);return {v,band:v<.5?["Healthy","good"]:v<.6?["Increased risk","warn"]:["High risk","bad"]}}
 
 /* ============ ENGINE C: glucose ============ */
-function hbCat(v){if(v==null)return null;if(v<41)return{t:"Non-diabetic range",c:"good"};if(v<50)return{t:"Prediabetes range",c:"warn"};return{t:"Diabetes range",c:"bad"}}
+function hbCat(v){if(v==null)return null;if(v<42)return{t:"Non-diabetic range",c:"good"};if(v<48)return{t:"Prediabetes range",c:"warn"};return{t:"Diabetes range",c:"bad"}}
 const ifccToPct=v=>v/10.929+2.15;
 const eAG=v=>r1(1.59*ifccToPct(v)-2.59);
 function isPost(g){return /after meal/.test(g.ctx)}
@@ -511,9 +511,9 @@ function programCount(){return S.sessions.filter(s=>s.day).length}
 function nextDay(){return (programCount()%28)+1}
 function cycleNo(){return Math.floor(programCount()/28)+1}
 function lowImpactOn(){const p=P_();if(p.lowImpact==="on")return true;if(p.lowImpact==="off")return false;const w=ppWeeks();return (w!=null&&w<12)||!!p.diastasis}
-function streak(){ // forgiving: breaks after 3 inactive days in a row
-  let d=iso(),run=0,gap=0,days=0;
-  for(let i=0;i<400;i++){const act=dayMinutes(d)>0;if(act){gap=0;days++;run=i+1}else{gap++;if(gap>=3)break}d=addDays(d,-1)}
+function streak(){ // forgiving "never miss twice": breaks only after 2 consecutive inactive days
+  let d=iso(),gap=0,days=0;
+  for(let i=0;i<400;i++){const act=dayMinutes(d)>0;if(act){gap=0;days++}else{gap++;if(gap>=2)break}d=addDays(d,-1)}
   return days;
 }
 function bestFor(ex,before){let b=0;S.sessions.forEach(s=>{if(before&&s.id===before)return;s.sets.forEach(x=>{if(x.ex===ex&&x.v>b)b=x.v})});return b}
@@ -683,10 +683,11 @@ const ICONS={
   train:'<path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
   log:'<path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
   insights:'<path d="M4 19l5-6 4 3 7-9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+  activity:'<path d="M13 3l-2 7h5l-2 8M6 8h3M15 11h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
   food:'<path d="M5 3v8M8 3v8M5 7h3M18 3c-2 0-3 2-3 5s1 3 1 3v10M11 3v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
   you:'<circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
 };
-const TABS=[["home","Home"],["train","Train"],["food","Food"],["insights","Insights"],["you","You"]];
+const TABS=[["home","Home"],["train","Train"],["food","Food"],["activity","Move"],["insights","Insights"],["you","You"]];
 let TAB="home",W=null;
 function renderTabs(){
   const t=$("#tabs");t.style.display=S.profile&&!W?"flex":"none";
@@ -700,7 +701,7 @@ function render(){
     if(SYNC.booting){$("#app").innerHTML=`<section class="card" style="margin-top:40vh;text-align:center"><p class="dim">Checking your account…</p></section>`;return}
     $("#app").innerHTML=viewSetup(true);bindSetup(true);animateFigs();return}
   if(W){$("#app").innerHTML=viewWorkout();bindWorkout();animateFigs();return}
-  const V={home:[viewHome,bindHome],train:[viewTrain,bindTrain],food:[viewFood,bindFood],log:[viewLog,bindLog],insights:[viewInsights,bindInsights],you:[RO?viewYouRO:viewYou,RO?bindYouRO:bindYou]}[TAB];
+  const V={home:[viewHome,bindHome],train:[viewTrain,bindTrain],food:[viewFood,bindFood],activity:[viewActivity,bindActivity],log:[viewLog,bindLog],insights:[viewInsights,bindInsights],you:[RO?viewYouRO:viewYou,RO?bindYouRO:bindYou]}[TAB];
   $("#app").innerHTML=(RO?roBanner():"")+V[0]();V[1]();animateFigs();
 }
 const on=(id,f)=>{const el=document.getElementById(id);if(el)el.onclick=f};
@@ -728,7 +729,7 @@ function viewHome(){
   const wm=weekMinutes(),st=weekStrength(),walksToday=S.activity.filter(a=>a.d===t&&a.kind==="postmeal");
   const hb=lastOf(S.hba1c),cat=hbCat(hb?.v),fa=fastingAvg(7);
   const ins=insights()[0];const prot=S.protein[t]||0;
-  const pin=hb?clamp((hb.v-30)/40*100,0,100):null;
+  const pin=hb?clamp((hb.v-30)/40*100,0,100):null;const t42=(42-30)/40*100,t48=(48-30)/40*100;
   return `<div class="top"><div><div class="lbl">${new Date().toLocaleDateString("en-NZ",{weekday:"short",day:"2-digit",month:"short"}).toUpperCase()} · ${streak()} DAY STREAK</div><h1>Kia ora${p.name?" "+esc(p.name):""}</h1></div></div>
 
   <section class="card hero">
@@ -767,8 +768,8 @@ function viewHome(){
 
   <section class="card"><div class="row between"><h3>Blood sugar</h3>${hb?`<span class="chip ${cat.c}">${cat.t}</span>`:""}</div>
     ${hb?`<div class="row" style="align-items:baseline;gap:6px"><span class="big" style="font-size:2.6rem">${hb.v}</span><span class="dim">mmol/mol HbA1c, ${fmtD(hb.d)}</span></div>
-    <div class="band"><div class="pin" style="left:${pin}%"></div><span class="tick" style="left:27.5%">41</span><span class="tick" style="left:50%">50</span></div>
-    <p class="dim" style="font-size:.86rem">Average glucose ≈ ${eAG(hb.v)} mmol/L. Non-diabetic range needs ≈ 6.8 or lower. ${Math.max(0,90-dbt(hb.d,t))>0?"Next test in "+(90-dbt(hb.d,t))+" days.":"Retest is due."}</p>`
+    <div class="band"><div class="pin" style="left:${pin}%"></div><span class="tick" style="left:${t42}%">42</span><span class="tick" style="left:${t48}%">48</span></div>
+    <p class="dim" style="font-size:.86rem">Average glucose ≈ ${eAG(hb.v)} mmol/L. Non-diabetic range (under 42) needs ≈ 6.9 or lower. ${Math.max(0,90-dbt(hb.d,t))>0?"Next test in "+(90-dbt(hb.d,t))+" days.":"Retest is due."}</p>`
       :`<p class="dim">Add your HbA1c in Log to see where you sit.</p>`}
     ${fa?`<div class="tile" style="margin-top:8px"><b>${fa.v.toFixed(1)}</b><span>fasting average, last 7 days (${fa.n} readings)</span></div>`:""}
   </section>
@@ -1192,6 +1193,171 @@ function bigSearch(q,limit=40){
 }
 function bigDBReady(){return !!BIGDB}
 function bigDBCount(){return BIGDB?BIGDB.foods.length:0}
+
+/* ============ Activity: manual log + GPS tracker ============ */
+// Uses existing S.activity. GPS sessions add kind:"walk"/"run", min, km, kcal, elev, route meta.
+
+const ACT_TYPES=[["walk","Walk"],["run","Run"],["pram","Pram walk"],["cycle","Cycle"],["swim","Swim"],
+  ["gym","Gym / weights"],["yoga","Yoga / stretch"],["garden","Gardening / housework"],["play","Play with Indy"],["other","Other"]];
+// METs for calorie estimate (approx, moderate effort)
+const METS={walk:3.5,pram:4.0,run:8.0,cycle:6.0,swim:6.0,gym:5.0,yoga:2.5,garden:3.5,play:3.0,other:3.5};
+function kcalFor(type,min,kg,kmh){
+  let met=METS[type]||3.5;
+  if((type==="walk"||type==="pram")&&kmh){met=kmh<4?3.0:kmh<5.5?3.8:kmh<6.5?5.0:6.3}
+  if(type==="run"&&kmh){met=kmh<8?8.3:kmh<9.7?9.8:kmh<11?11.0:kmh<12.9?11.8:12.8}
+  return Math.round(met*(kg||70)*(min/60));
+}
+function haversine(a,b){const R=6371000,toR=x=>x*Math.PI/180;
+  const dLat=toR(b.lat-a.lat),dLon=toR(b.lon-a.lon);
+  const s=Math.sin(dLat/2)**2+Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+// postpartum return-to-run gate
+function runUnlocked(){
+  const p=P_();if(p.runOK)return true;
+  const w=ppWeeks();return w!=null&&w>=52; // auto-unlock well past a year
+}
+
+/* ---- ACTIVITY TAB ---- */
+let ACTDATE=null;
+function viewActivity(){
+  const d=ACTDATE||iso();const list=S.activity.filter(a=>a.d===d);
+  const mins=Math.round(list.reduce((a,b)=>a+(b.min||0),0));
+  const kcal=Math.round(list.reduce((a,b)=>a+(b.kcal||0),0));
+  const km=r1(list.reduce((a,b)=>a+(b.km||0),0));
+  return `<div class="top"><div><div class="lbl">${d===iso()?"TODAY":fmtD(d).toUpperCase()}</div><h1>Activity</h1></div>
+    <div class="row"><button class="btn alt sm" id="aPrev">Prev</button><button class="btn alt sm" id="aNext" ${d>=iso()?"disabled":""}>Next</button></div></div>
+  <section class="card hero"><div class="lbl">Logged ${d===iso()?"today":fmtD(d)}</div>
+    <div class="row" style="gap:18px;align-items:baseline"><div class="big" style="font-size:2.8rem">${mins}<small>min</small></div>
+      ${km>0?`<div><div class="big" style="font-size:1.8rem">${km}<small>km</small></div></div>`:""}
+      ${kcal>0?`<div><div class="big" style="font-size:1.8rem">${kcal}<small>kcal</small></div></div>`:""}</div></section>
+  <div class="grid2"><button class="btn xl" id="gpsStart">Start walk/run</button><button class="btn alt xl" id="manualAdd">Log activity</button></div>
+  <section class="card"><h3>${d===iso()?"Today's activity":"Activity"}</h3>
+    ${list.length?`<ul class="list">${list.map(a=>{const nm=(ACT_TYPES.find(t=>t[0]===a.kind)||[,a.kind])[1]||a.kind;
+      return `<li><div class="grow"><b>${esc(a.kind==="postmeal"?"After-meal walk":nm)}</b><div class="dim" style="font-size:.82rem">${a.min?a.min+" min":""}${a.km?" · "+r1(a.km)+" km":""}${a.kcal?" · "+a.kcal+" kcal":""}${a.elev?" · ↑"+a.elev+" m":""}${a.src&&a.src!=="app"?" · "+esc(a.src):""}${a.note?" · "+esc(a.note):""}</div></div><button class="x" data-adel="${a.id}">×</button></li>`}).join("")}</ul>`:`<p class="dim">Nothing logged yet. Start a walk or log anything you did.</p>`}
+  </section>
+  <section class="card"><h3>Recent sessions</h3>${S.activity.filter(a=>a.km).length?`<ul class="list">${sorted(S.activity.filter(a=>a.km)).reverse().slice(0,6).map(a=>`<li><div class="grow"><b>${(ACT_TYPES.find(t=>t[0]===a.kind)||[,a.kind])[1]||a.kind} · ${r1(a.km)} km</b><div class="dim" style="font-size:.82rem">${fmtD(a.d)} · ${a.min} min · ${a.kcal} kcal${a.pace?" · "+a.pace+"/km":""}</div></div></li>`).join("")}</ul>`:`<p class="dim">Tracked walks and runs show here.</p>`}</section>`;
+}
+function bindActivity(){
+  on("aPrev",()=>{ACTDATE=addDays(ACTDATE||iso(),-1);render()});
+  on("aNext",()=>{ACTDATE=addDays(ACTDATE||iso(),1);render()});
+  $$("[data-adel]").forEach(b=>b.onclick=()=>{dropWhere("activity",a=>a.id===b.dataset.adel);commit();render()});
+  on("manualAdd",()=>manualActivitySheet());
+  on("gpsStart",()=>gpsSheet());
+}
+
+/* ---- MANUAL LOG ---- */
+function manualActivitySheet(){
+  const d=ACTDATE||iso();
+  sheet(`<h2 style="margin-top:0">Log activity</h2>
+    <label>What did you do?</label>
+    <div class="seg" id="atSeg" style="flex-wrap:wrap">${ACT_TYPES.filter(t=>t[0]!=="other").map((t,i)=>`<button data-at="${t[0]}" aria-pressed="${i===0}">${t[1]}</button>`).join("")}</div>
+    <div class="grid2"><div><label>Minutes</label><input id="aMin" type="number" inputmode="numeric" placeholder="30"></div><div><label>Date</label><input id="aDt" type="date" value="${d}"></div></div>
+    <label>Distance km (optional)</label><input id="aKm" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 2.5">
+    <label>Note (optional)</label><input id="aNote" placeholder="e.g. big hills, felt good">
+    <div id="aKcalPrev" class="tile" style="margin-top:10px"></div>
+    <button class="btn xl" id="aSave" style="margin-top:12px">Save</button>
+    <button class="btn ghost block" id="aClose" style="margin-top:8px">Cancel</button>`);
+  let type="walk";
+  const prev=()=>{const m=num($("#aMin").value)||0;const km=num($("#aKm").value);const kmh=km&&m?km/(m/60):null;
+    const kc=kcalFor(type,m,trendNow()||P_().startWeight,kmh);$("#aKcalPrev").innerHTML=m?`<b>${kc} kcal</b><span>estimate · adds to your day</span>`:`<span class="dim">Enter minutes for a calorie estimate</span>`};
+  $$("[data-at]").forEach(b=>b.onclick=()=>{type=b.dataset.at;$$("[data-at]").forEach(x=>x.setAttribute("aria-pressed",x===b));prev()});
+  $("#aMin").oninput=prev;$("#aKm").oninput=prev;prev();
+  on("aSave",()=>{const m=num($("#aMin").value);if(!m)return toast("Enter minutes");const km=num($("#aKm").value);const kmh=km?km/(m/60):null;
+    S.activity.push({id:uid(),d:$("#aDt").value||d,kind:type,min:m,km:km||null,kcal:kcalFor(type,m,trendNow()||P_().startWeight,kmh),note:$("#aNote").value.trim()||null,src:"app"});
+    commit();closeSheet();toast("Activity saved");render()});
+  on("aClose",closeSheet);
+}
+
+/* ---- GPS TRACKER ---- */
+let GPS=null;
+function gpsSheet(){
+  // choose walk or run (run gated)
+  const canRun=runUnlocked();
+  sheet(`<h2 style="margin-top:0">Track a session</h2>
+    <p class="dim" style="font-size:.88rem">Keep the screen on and the phone with you. iPhone pauses tracking if the screen locks, so this is for a walk where the phone stays in your hand or pram. Pocket walks: track on your Apple Watch and import via Apple Health.</p>
+    <div class="seg" id="gpType"><button data-gt="walk" aria-pressed="true">Walk</button><button data-gt="pram" aria-pressed="false">Pram walk</button><button data-gt="run" aria-pressed="false" ${canRun?"":"disabled"}>Run${canRun?"":" 🔒"}</button></div>
+    ${canRun?"":`<div class="note">Running is locked until you've done the postpartum check. It protects your pelvic floor. <button class="btn sm alt" id="runGate" style="margin-top:8px">Do the check</button></div>`}
+    <button class="btn xl" id="gpGo" style="margin-top:14px">Start</button>
+    <button class="btn ghost block" id="gpClose" style="margin-top:8px">Cancel</button>`);
+  let type="walk";
+  $$("[data-gt]").forEach(b=>b.onclick=()=>{if(b.disabled)return;type=b.dataset.gt;$$("[data-gt]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+  on("runGate",()=>runGateSheet());
+  on("gpClose",closeSheet);
+  on("gpGo",()=>startGPS(type));
+}
+function runGateSheet(){
+  sheet(`<h2 style="margin-top:0">Ready to run?</h2>
+    <p class="dim" style="font-size:.9rem">Running too soon after birth can strain the pelvic floor. This quick check follows postnatal return-to-run guidance. It's guidance, not a medical clearance — see a pelvic health physio if unsure.</p>
+    <div class="toggle"><span>At least 12 weeks since birth</span><input type="checkbox" id="g1"></div>
+    <div class="toggle"><span>Can walk 30 min with no pain</span><input type="checkbox" id="g2"></div>
+    <div class="toggle"><span>No leaking, heaviness or dragging down below</span><input type="checkbox" id="g3"></div>
+    <div class="toggle"><span>No doming/coning along the tummy with effort</span><input type="checkbox" id="g4"></div>
+    <div class="toggle"><span>Can do 10 single-leg calf raises + 10 squats each side comfortably</span><input type="checkbox" id="g5"></div>
+    <button class="btn xl" id="gateSave" style="margin-top:14px">Unlock running</button>
+    <button class="btn ghost block" id="gateClose" style="margin-top:8px">Not yet</button>`);
+  on("gateSave",()=>{const ok=["g1","g2","g3","g4","g5"].every(id=>$("#"+id).checked);
+    if(!ok)return toast("Tick all boxes when you can meet them. Walking's great until then.");
+    S.profile.runOK=true;S.profile.updatedAt=Date.now();commit();closeSheet();toast("Running unlocked. Start easy with run/walk intervals.");});
+  on("gateClose",()=>gpsSheet());
+}
+function startGPS(type){
+  if(type==="run"&&!runUnlocked()){toast("Running is locked until you have done the postpartum check.");return}
+  if(!("geolocation" in navigator)){toast("This phone can't do GPS tracking. Log it manually instead.");return}
+  GPS={type,t0:Date.now(),pts:[],dist:0,elev:0,last:null,lastAlt:null,watch:null,paused:false,moving:0};
+  wake(true);
+  sheet(gpsLiveHTML());
+  bindGPSLive();
+  GPS.watch=navigator.geolocation.watchPosition(onPos,onPosErr,{enableHighAccuracy:true,maximumAge:1000,timeout:10000});
+  GPS.timer=setInterval(updGPS,1000);
+}
+function onPos(p){
+  if(!GPS||GPS.paused)return;
+  const c=p.coords,now={lat:c.latitude,lon:c.longitude,t:Date.now(),acc:c.accuracy,alt:c.altitude};
+  if(c.accuracy&&c.accuracy>40)return; // ignore poor fixes
+  if(GPS.last){const d=haversine(GPS.last,now);
+    if(d>1&&d<60){ // plausible step
+      GPS.dist+=d;
+      if(now.alt!=null&&GPS.lastAlt!=null){const climb=now.alt-GPS.lastAlt;if(climb>0.8)GPS.elev+=climb}
+      if(now.alt!=null)GPS.lastAlt=now.alt;
+    }
+  }else if(now.alt!=null)GPS.lastAlt=now.alt;
+  GPS.last=now;GPS.pts.push([r1(now.lat*1e4)/1e4,r1(now.lon*1e4)/1e4]);
+}
+function onPosErr(e){const m=$("#gMsg");if(m)m.textContent=e.code===1?"Allow location access in Settings → Safari to track. Or log manually.":"Getting GPS signal…"}
+function gpsLiveHTML(){
+  const el=GPS.t0?(Date.now()-GPS.t0)/1000:0;const km=GPS.dist/1000;
+  const kmh=el>5?km/(el/3600):0;const pace=km>0.05?(el/60)/km:0;
+  const kcal=kcalFor(GPS.type,el/60,trendNow()||P_().startWeight,kmh);
+  const tn=(ACT_TYPES.find(t=>t[0]===GPS.type)||[,GPS.type])[1];
+  return `<h2 style="margin-top:0">${tn}${GPS.paused?" (paused)":""}</h2>
+    <div class="grid2" style="gap:10px">
+      <div class="tile"><b style="font-size:2rem">${fmtT(el)}</b><span>time</span></div>
+      <div class="tile"><b style="font-size:2rem">${r1(km)}</b><span>km</span></div>
+      <div class="tile"><b style="font-size:2rem">${pace?Math.floor(pace)+":"+String(Math.round((pace%1)*60)).padStart(2,"0"):"–"}</b><span>min/km pace</span></div>
+      <div class="tile"><b style="font-size:2rem">${kcal}</b><span>kcal</span></div>
+      <div class="tile"><b style="font-size:2rem">${r1(kmh)}</b><span>km/h</span></div>
+      <div class="tile"><b style="font-size:2rem">↑${GPS.elev}</b><span>elev gain m</span></div>
+    </div>
+    <p class="dim" id="gMsg" style="font-size:.84rem;margin-top:10px">${GPS.pts.length?"Tracking… keep the screen on.":"Getting GPS signal… step outside for a better fix."}</p>
+    <div class="grid2" style="margin-top:8px"><button class="btn alt xl" id="gPause">${GPS.paused?"Resume":"Pause"}</button><button class="btn xl" id="gFinish">Finish</button></div>
+    <button class="btn ghost block" id="gDiscard" style="margin-top:8px">Discard</button>`;
+}
+function updGPS(){if(!GPS)return;const inner=$("#sheetInner");if(inner&&$("#gFinish")){const sc=inner.scrollTop;inner.innerHTML=gpsLiveHTML();bindGPSLive();inner.scrollTop=sc}}
+function bindGPSLive(){
+  on("gPause",()=>{GPS.paused=!GPS.paused;updGPS()});
+  on("gFinish",finishGPS);
+  on("gDiscard",()=>{if(confirm("Discard this session?"))stopGPS()});
+}
+function stopGPS(){if(!GPS)return;if(GPS.watch!=null)navigator.geolocation.clearWatch(GPS.watch);clearInterval(GPS.timer);wake(false);GPS=null;closeSheet();render()}
+function finishGPS(){
+  const el=(Date.now()-GPS.t0)/1000,min=Math.round(el/60),km=r1(GPS.dist/1000);
+  if(min<1){toast("Too short to save");stopGPS();return}
+  const kmh=km/(el/3600),pace=km>0.05?(()=>{const p=(el/60)/km;return Math.floor(p)+":"+String(Math.round((p%1)*60)).padStart(2,"0")})():null;
+  const kcal=kcalFor(GPS.type,min,trendNow()||P_().startWeight,kmh);
+  S.activity.push({id:uid(),d:iso(),kind:GPS.type,min,km:km||null,kcal,elev:GPS.elev||null,pace,src:"GPS"});
+  commit();toast(`Saved: ${km} km, ${min} min, ${kcal} kcal`);stopGPS();if(km>=2)confetti();
+}
 /* ============ LOG ============ */
 let LOGSEG="weight";
 const SEGS=[["weight","Weight"],["measures","Body"],["glucose","Glucose"],["hba1c","HbA1c"],["activity","Activity"],["import","Import"]];
@@ -1218,7 +1384,7 @@ function segBody(){
     <section class="card"><ul class="list">${sorted(S.glucose).reverse().slice(0,40).map(g=>`<li><span>${fmtD(g.d)} <span class="dim">${esc(g.t||"")}</span></span><span class="grow dim" style="font-size:.84rem">${esc(g.ctx)}${g.meal?" ("+{b:"breakfast",l:"lunch",d:"dinner"}[g.meal]+")":""}</span><b class="num" style="color:${g.mmol<3.9?"var(--bad)":"inherit"}">${g.mmol}</b>${delBtn("glucose",g.id)}</li>`).join("")||"<li class='dim'>No readings yet</li>"}</ul></section>`;
   if(LOGSEG==="hba1c")return `<section class="card"><div class="grid2"><div><label>Test date</label><input id="hD" type="date" value="${t}"></div><div><label>HbA1c (mmol/mol)</label><input id="hV" type="number" inputmode="numeric"></div></div>
     <button class="btn xl" id="addH" style="margin-top:12px">Save result</button>
-    <p class="dim" style="font-size:.84rem;margin-top:8px">NZ: 40 or under is normal, 41–49 prediabetes, 50+ diabetes. It reflects about 3 months, so retest every 3 months. Results soon after birth can read off.</p></section>
+    <p class="dim" style="font-size:.84rem;margin-top:8px">NZ (from July 2026): under 42 is normal, 42–47 prediabetes, 48+ diabetes. It reflects about 3 months, so retest every 3 months. Results can read off soon after birth or with low iron, so mention both to your GP.</p></section>
     <section class="card"><ul class="list">${sorted(S.hba1c).reverse().map(h=>`<li><span class="grow">${fmtD(h.d)}</span><span class="chip ${hbCat(h.v).c}">${hbCat(h.v).t}</span><b class="num">${h.v}</b>${delBtn("hba1c",h.id)}</li>`).join("")||"<li class='dim'>No results yet</li>"}</ul></section>`;
   if(LOGSEG==="activity")return `<section class="card"><div class="grid2"><div><label>Date</label><input id="aD" type="date" value="${t}"></div><div><label>Type</label><select id="aK"><option value="walk">Walk</option><option value="postmeal">After-meal walk</option><option value="other">Other exercise</option><option value="steps">Steps only</option></select></div></div>
     <div class="grid2"><div><label>Minutes</label><input id="aM" type="number" inputmode="numeric"></div><div><label>Steps (optional)</label><input id="aS" type="number" inputmode="numeric"></div></div>
@@ -1368,8 +1534,8 @@ function insWeight(){
 function insSugar(){
   const ms=s=>parseD(s).getTime(),hb=sorted(S.hba1c).filter(h=>inRange(h.d)),last=(sorted(S.hba1c).slice(-1)[0]);
   const hbChart=lineChart({label:"HbA1c",ymin:35,ymax:60,series:[{pts:hb.map(h=>[ms(h.d),h.v]),color:"var(--text)",step:true,r:4}],
-    bands:[{y0:0,y1:41,color:"var(--good)"},{y0:41,y1:50,color:"var(--warn)"},{y0:50,y1:200,color:"var(--bad)"}],
-    refs:[{y:48,label:"48 international",color:"var(--dim)"},{y:53,label:"53 treatment target",color:"var(--dim)"}],empty:"Add HbA1c results in Log."});
+    bands:[{y0:0,y1:42,color:"var(--good)"},{y0:42,y1:48,color:"var(--warn)"},{y0:48,y1:200,color:"var(--bad)"}],
+    refs:[{y:42,label:"42 normal",color:"var(--good)"},{y:48,label:"48 diabetes",color:"var(--dim)"}],empty:"Add HbA1c results in Log."});
   const fast=sorted(S.glucose.filter(g=>g.ctx==="fasting"&&inRange(g.d))),post=sorted(S.glucose.filter(g=>isPost(g)&&inRange(g.d)));
   const gChart=lineChart({label:"Glucose",series:[{pts:fast.map(g=>[ms(g.d),g.mmol]),color:"var(--accent)"},{pts:post.map(g=>[ms(g.d),g.mmol]),color:"var(--info)",line:false}],
     bands:[{y0:6.1,y1:7,color:"var(--warn)"}],refs:[{y:7.8,label:"7.8 after-meal",color:"var(--dim)"}],empty:"Log glucose readings to see patterns."});
@@ -1378,7 +1544,7 @@ function insSugar(){
     <p style="margin-top:8px">${c.mn>c.my?`<b>${r1(c.mn-c.my)} mmol/L lower</b> ${a.toLowerCase()}.`:`No benefit showing yet.`}</p>`:
     `<p class="dim">Needs 5 readings each way. So far: ${c.yes} ${a.toLowerCase()}, ${c.no} ${b.toLowerCase()}.</p><div class="bar"><i style="width:${Math.min(c.yes,5)*10+Math.min(c.no,5)*10}%"></i></div>`}</section>`};
   return `<section class="card"><div class="row between"><h3>HbA1c</h3>${last?`<span class="chip ${hbCat(last.v).c}">${hbCat(last.v).t}</span>`:""}</div><div class="chart">${hbChart}</div>
-    ${last?`<p class="dim" style="font-size:.86rem;margin-top:6px">${last.v} mmol/mol ≈ ${eAG(last.v)} mmol/L average glucose. Normal range (40 or under) ≈ 6.8 or lower. ${hb.length>1?`Change since first test: ${r1(last.v-hb[0].v)}.`:""}</p>`:""}</section>
+    ${last?`<p class="dim" style="font-size:.86rem;margin-top:6px">${last.v} mmol/mol ≈ ${eAG(last.v)} mmol/L average glucose. Normal range (under 42) ≈ 6.9 or lower. ${hb.length>1?`Change since first test: ${r1(last.v-hb[0].v)}.`:""}</p>`:""}</section>
   <section class="card"><h3>Glucose readings</h3><div class="chart">${gChart}</div><div class="legend"><span><i style="background:var(--accent)"></i>Fasting</span><span><i style="background:var(--info)"></i>After meals</span><span><i style="background:var(--warn)"></i>Fasting prediabetes band 6.1–6.9</span></div>
     <div class="grid2" style="margin-top:10px"><div class="tile"><b>${f7?f7.v.toFixed(1):"–"}</b><span>fasting avg 7 days</span></div><div class="tile"><b>${f28?f28.v.toFixed(1):"–"}</b><span>fasting avg 28 days</span></div></div></section>
   ${cmpCard("Does walking after meals help you?",wc,"With a walk","Without")}
@@ -1409,7 +1575,7 @@ function insTraining(){
 }
 function coachContext(){
   const p=P_(),hb=lastOf(S.hba1c),lw=lastOf(S.measures.filter(m=>m.waist)),r=regression(),f=fastingAvg(14);
-  return `Act as a supportive, evidence-based fitness and lifestyle coach for me, a woman in New Zealand about ${ppWeeks()??"?"} weeks postpartum. Goals: lose ${p.goal1||5} kg in ${p.goal1Months||3} months and ${p.goal2||15} kg by my baby Indy's first birthday (${p.indyBday||"date not set"}), and get my HbA1c into the non-diabetic range (40 mmol/mol or under). Building muscle is welcome.
+  return `Act as a supportive, evidence-based fitness and lifestyle coach for me, a woman in New Zealand about ${ppWeeks()??"?"} weeks postpartum. Goals: lose ${p.goal1||5} kg in ${p.goal1Months||3} months and ${p.goal2||15} kg by my baby Indy's first birthday (${p.indyBday||"date not set"}), and get my HbA1c into the non-diabetic range (under 42 mmol/mol). Building muscle is welcome.
 My data: start ${p.startWeight} kg on ${p.startDate}; trend weight now ${r1(trendNow())} kg (lost ${lostKg()} kg); rate ${r&&r.ok?r2(r.perWeek)+" kg/week":"not enough data"}; height ${p.height||"?"} cm; waist ${lw?lw.waist+" cm":"not logged"}; HbA1c ${hb?hb.v+" mmol/mol on "+hb.d:"not logged"}; fasting glucose 14-day average ${f?f.v+" mmol/L":"not logged"}; active minutes this week ${weekMinutes()}; strength days this week ${weekStrength()}; total workouts ${S.sessions.length}; breastfeeding ${p.breastfeeding?"yes":"no"}; diabetes medication: ${p.meds||"not stated"}; pelvic floor/diastasis concerns: ${p.diastasis?"yes":"no"}.
 Please answer with these rules: NZ English, mmol/L and mmol/mol, kg and cm. Warm, brief (under 150 words), practical. No very low-calorie diets, fasting protocols or medication changes without my GP. Aim for about 0.5 kg/week while breastfeeding. Encourage protein, vegetables, walks after meals, strength training and sleep. If I mention glucose under 4, chest pain, leaking or heaviness, or low mood, point me to my GP, midwife, Plunket, a pelvic health physio or Healthline 0800 611 116.
 
@@ -1523,7 +1689,7 @@ function reportHTML(days){
     {pts:ts.map(x=>[ms(x.d),x.t]),dots:false,w:3,color:acc}],
     refs:[{y:p.startWeight-(p.goal2||15),label:(p.goal2||15)+" kg goal",color:"#111"}]});
   const hb=sorted(S.hba1c);const hbchart=lineChart({h:170,ymin:35,ymax:60,series:[{pts:hb.map(h=>[ms(h.d),h.v]),color:"#111",step:true,r:4}],
-    bands:[{y0:0,y1:41,color:"#34D399"},{y0:41,y1:50,color:"#FBBF24"},{y0:50,y1:200,color:"#F87171"}],refs:[{y:48,label:"48",color:"#777"}]});
+    bands:[{y0:0,y1:42,color:"#34D399"},{y0:42,y1:48,color:"#FBBF24"},{y0:48,y1:200,color:"#F87171"}],refs:[{y:42,label:"42",color:"#777"},{y:48,label:"48",color:"#777"}]});
   const weeks=[];const nw=Math.max(4,Math.round(days/7));for(let i=nw-1;i>=0;i--){const w=addDays(weekStart(iso()),-7*i);weeks.push({l:fmtD(w).split(" ")[0],v:weekMinutes(w)})}
   const mchart=barChart({h:150,bars:weeks,ref:minTarget(),refLabel:minTarget()+" min"});
   const lost=lostKg(),rb=remissionBand(lost);
@@ -1569,7 +1735,7 @@ td{border-bottom:1px solid #EEF1EF}
 <h2>Blood sugar (HbA1c)</h2><div class="chart">${hbchart}</div>
 ${st.hb.length?`<table>${st.hb.map(h=>row(fmtD(h.d),h.v+" mmol/mol · "+hbCat(h.v).t)).join("")}</table>`:'<p class="sub">No HbA1c results in this period.</p>'}
 <h2>Training</h2><div class="chart">${mchart}</div>
-<p class="foot">Personal tracker. Not medical advice. HbA1c ranges per NZSSD (≤40 normal, 41–49 prediabetes, ≥50 diabetes). Remission figures from the DiRECT trial. Discuss any medication or remission questions with your GP or diabetes nurse.</p>
+<p class="foot">Personal tracker. Not medical advice. HbA1c ranges per Health NZ from 1 July 2026 (under 42 normal, 42–47 prediabetes, 48 or more diabetes). Remission figures from the DiRECT trial. Discuss any medication or remission questions with your GP or diabetes nurse.</p>
 </body></html>`;
 }
 function rangeFmt(days){const map={28:"Last 4 weeks",56:"Last 8 weeks",84:"Last 12 weeks",168:"Last 6 months"};return map[days]||"Last "+Math.round(days/7)+" weeks"}
