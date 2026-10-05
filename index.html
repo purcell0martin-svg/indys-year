@@ -13,6 +13,14 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>Indy's Year</title>
 <style>
+/* Fonts: Chakra Petch (display/numbers) + Barlow (body), self-hosted in /fonts (custom subset: Latin, Latin Extended-A, arrows, approx sign) */
+@font-face{font-family:"Barlow";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/barlow-400.woff2) format("woff2")}
+@font-face{font-family:"Barlow";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/barlow-500.woff2) format("woff2")}
+@font-face{font-family:"Barlow";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/barlow-600.woff2) format("woff2")}
+@font-face{font-family:"Barlow";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/barlow-700.woff2) format("woff2")}
+@font-face{font-family:"Chakra Petch";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/chakra-petch-500.woff2) format("woff2")}
+@font-face{font-family:"Chakra Petch";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/chakra-petch-600.woff2) format("woff2")}
+@font-face{font-family:"Chakra Petch";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/chakra-petch-700.woff2) format("woff2")}
 :root{
   --bg:#0B0D10;--surface:#15181E;--surface-2:#1D2129;--line:#272C36;
   --text:#F2F4F7;--dim:#9AA3AF;
@@ -22,7 +30,9 @@
   --a70:color-mix(in srgb,var(--accent) 70%,var(--surface));
   --a40:color-mix(in srgb,var(--accent) 40%,var(--surface));
   --a15:color-mix(in srgb,var(--accent) 15%,var(--surface));
-  --font:-apple-system,"SF Pro Display","SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  --font:"Barlow","Chakra Petch",-apple-system,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  --display:"Chakra Petch","Barlow",-apple-system,system-ui,sans-serif;
+  --tglow:0 0 18px color-mix(in srgb,var(--accent) 55%,transparent);
   --r-lg:22px;--r-md:16px;--r-sm:12px;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
@@ -33,6 +43,7 @@
   color-scheme:light;--bg:#F4F5F7;--surface:#FFFFFF;--surface-2:#EDEFF3;--line:#DDE1E7;
   --text:#0B0D10;--dim:#4B5563;
   --good:#047857;--warn:#B45309;--bad:#B91C1C;--info:#0369A1;
+  --glow:transparent;--tglow:none;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
@@ -193,10 +204,28 @@ details[open] summary::after{content:"−"}
 .pf-dots button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:80}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ===== Neon Athletic restyle (colours still come from --accent, so all 8 themes + custom + light/dark work) ===== */
+body{font-size:17px;letter-spacing:.005em}
+h1,h2,h3,.big,.score,.tile b,.exname,.timer .t,.stepper output,.chip,.btn,.seg button,.day,.kicker,.lbl,.num,nav.tabs button,.toast{font-family:var(--display)}
+h1,h2,h3{letter-spacing:.01em}
+.top h1,.exname{text-transform:uppercase;letter-spacing:.02em}
+.lbl{text-transform:uppercase;letter-spacing:.1em;font-size:.7rem;font-weight:600}
+.kicker{display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:5px}
+.kicker::before{content:"";width:18px;height:2px;border-radius:2px;background:var(--accent);box-shadow:0 0 10px var(--glow)}
+:root[data-mode="light"] .kicker{color:var(--dim)}
+.big,.score,.timer .t,.stepper output{color:var(--accent);text-shadow:var(--tglow)}
+.big{letter-spacing:-.02em}.big small{color:var(--dim);text-shadow:none}
+.tile{border:1px solid var(--line);border-top:2px solid var(--a70);box-shadow:0 0 22px -12px var(--glow)}
+.tile b{color:var(--accent);text-shadow:var(--tglow);letter-spacing:0}
+.card.hero{border-color:color-mix(in srgb,var(--accent) 30%,var(--line));box-shadow:0 0 36px -14px var(--glow)}
+.chip.acc,.day.done,.walks button.done,.pf-dots button.on{box-shadow:0 0 14px -3px var(--glow)}
+.bar i{box-shadow:0 0 10px var(--glow)}
+.btn{letter-spacing:.03em}
+nav.tabs button[aria-current="page"]{text-shadow:0 0 10px var(--glow)}
+nav.tabs button[aria-current="page"] svg{filter:drop-shadow(0 0 6px var(--glow))}
+.seg button{letter-spacing:.02em}
 body.ro [data-start],body.ro [data-quick],body.ro #pfBtn,body.ro #copyCtx{display:none!important}
 body.ro [data-walk],body.ro [data-prot]{pointer-events:none}
-.otp{letter-spacing:.4em;text-align:center;font-size:1.4rem}
-.linkbtn{background:none;border:0;color:var(--accent);padding:8px 0;font-weight:700;min-height:40px}
 </style>
 </head>
 <body>
@@ -370,6 +399,7 @@ const lastOf=a=>{const s=sorted(a);return s.length?s[s.length-1]:null};
 const weekStart=s=>{const d=parseD(s);d.setDate(d.getDate()-((d.getDay()+6)%7));return iso(d)};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+const kick=()=>new Date().toLocaleDateString("en-NZ",{weekday:"short",day:"numeric",month:"short"});
 const nowHM=()=>new Date().toTimeString().slice(0,5);
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("on"),2400)}
 function flash(){const f=$("#flash");f.classList.add("on");setTimeout(()=>f.classList.remove("on"),350)}
@@ -720,7 +750,7 @@ function viewHome(){
   const hb=lastOf(S.hba1c),cat=hbCat(hb?.v),fa=fastingAvg(7);
   const ins=insights()[0];const prot=S.protein[t]||0;
   const pin=hb?clamp((hb.v-30)/40*100,0,100):null;
-  return `<div class="top"><div><div class="lbl">${new Date().toLocaleDateString("en-NZ",{weekday:"long",day:"numeric",month:"long"})}</div><h1>Kia ora${p.name?" "+esc(p.name):""}</h1></div>
+  return `<div class="top"><div><div class="kicker">${new Date().toLocaleDateString("en-NZ",{weekday:"long",day:"numeric",month:"long"})}</div><h1>Kia ora${p.name?" "+esc(p.name):""}</h1></div>
     <span class="chip">${streak()} day streak</span></div>
 
   <section class="card hero">
@@ -799,7 +829,7 @@ let SELDAY=null;
 function viewTrain(){
   const nd=nextDay(),sel=SELDAY||nd,cyc=cycleNo();
   const doneDays=new Set(S.sessions.filter(s=>(s.cycle||1)===cyc).map(s=>s.day));
-  return `<div class="top"><h1>Train</h1><span class="chip">Cycle ${cyc}</span></div>
+  return `<div class="top"><div><div class="kicker">${kick()}</div><h1>Train</h1></div><span class="chip">Cycle ${cyc}</span></div>
   ${cyc>1?`<div class="note">Cycle ${cyc}: reps up ${(cyc-1)*20}%, holds +${(cyc-1)*5}s. Slow the lowering to 3 seconds or add a band to keep progressing.</div>`:""}
   ${lowImpactOn()?`<div class="note">Low-impact swaps are on. Change this in You, Safety.</div>`:""}
   <div class="days" style="margin-top:12px">${Array.from({length:28},(_,i)=>i+1).map(d=>`<button class="day ${doneDays.has(d)?"done":""} ${d===nd?"next":""} ${d===sel?"sel":""}" data-pday="${d}"><span>${d}</span><small>${({Recovery:"Rest",Challenge:"Test","Final day":"Final","Glutes & core":"Glutes"})[PLAN[d].f]||PLAN[d].f.split(" ")[0]}</small></button>`).join("")}</div>
@@ -937,7 +967,7 @@ function saveSession(){
 /* ============ LOG ============ */
 let LOGSEG="weight";
 const SEGS=[["weight","Weight"],["measures","Body"],["glucose","Glucose"],["hba1c","HbA1c"],["activity","Activity"],["import","Import"]];
-function viewLog(){return `<div class="top"><h1>Log</h1></div><div class="seg" role="group">${SEGS.map(([k,l])=>`<button data-seg="${k}" aria-pressed="${LOGSEG===k}">${l}</button>`).join("")}</div>${segBody()}`}
+function viewLog(){return `<div class="top"><div><div class="kicker">${kick()}</div><h1>Log</h1></div></div><div class="seg" role="group">${SEGS.map(([k,l])=>`<button data-seg="${k}" aria-pressed="${LOGSEG===k}">${l}</button>`).join("")}</div>${segBody()}`}
 const delBtn=(a,id)=>`<button class="x" data-del="${a}:${id}" aria-label="Delete">×</button>`;
 const srcChip=x=>x.src&&x.src!=="app"?` <span class="chip">${esc(x.src)}</span>`:"";
 function segBody(){
@@ -1047,7 +1077,7 @@ function bindImport(){
 let EXSEL=null,INSEG="overview";
 function viewInsights(){
   const segs=[["overview","Overview"],["weight","Weight"],["sugar","Blood sugar"],["training","Training"]];
-  return `<div class="top"><h1>Insights</h1></div><div class="seg">${segs.map(([k,l])=>`<button data-iseg="${k}" aria-pressed="${INSEG===k}">${l}</button>`).join("")}</div>`+
+  return `<div class="top"><div><div class="kicker">${kick()}</div><h1>Insights</h1></div></div><div class="seg">${segs.map(([k,l])=>`<button data-iseg="${k}" aria-pressed="${INSEG===k}">${l}</button>`).join("")}</div>`+
     ({overview:insOverview,weight:insWeight,sugar:insSugar,training:insTraining}[INSEG])();
 }
 function insOverview(){
@@ -1159,7 +1189,7 @@ function bindInsights(){
 /* ============ YOU ============ */
 function viewYou(){
   const p=P_(),th=applyTheme();
-  return `<div class="top"><h1>You</h1></div>
+  return `<div class="top"><div><div class="kicker">${kick()}</div><h1>You</h1></div></div>
   <section class="card"><h3>Colour theme</h3>
     <div class="swatches" style="margin-top:8px">${THEMES.map(([k,l,dk,lt])=>`<button class="sw" data-theme="${k}" aria-pressed="${(p.theme||"volt")===k}"><i style="background:${currentMode()==="light"?lt:dk}"></i>${l}</button>`).join("")}</div>
     <label>Or pick any colour</label><div class="row"><input type="color" id="custom" value="${p.custom||"#C6FF3D"}" class="grow" style="width:auto"><button class="btn alt" id="useCustom">Use it</button></div>
@@ -1233,7 +1263,7 @@ const SB_SRC="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/um
 const SB_SRI="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok";
 const META_KEY="indy-sync-meta",ARR_KEYS=["weights","measures","glucose","hba1c","activity","sessions"],RO_TABS=["home","insights","you"];
 let RO=false,sb=null;
-const SYNC={user:null,known:false,email:"",step:"email",last:0,busy:false,again:false,err:"",booting:false,initing:false,viewers:null,verr:"",t:null};
+const SYNC={user:null,known:false,email:"",msg:"",last:0,busy:false,again:false,err:"",booting:false,initing:false,viewers:null,verr:"",t:null};
 try{const m=JSON.parse(localStorage.getItem(META_KEY)||"null");if(m&&m.email){SYNC.email=m.email;SYNC.last=m.last||0;SYNC.known=true;SYNC.booting=true}}catch(e){}
 const saveMeta=()=>{try{if(SYNC.known)localStorage.setItem(META_KEY,JSON.stringify({email:SYNC.email,last:SYNC.last}));else localStorage.removeItem(META_KEY)}catch(e){}};
 const errMsg=e=>{const m=String(e&&e.message||e||"");return /fetch|network|offline|reach|load failed/i.test(m)?"Can't reach the cloud right now":m||"Something went wrong"};
@@ -1335,7 +1365,7 @@ function enterViewer(st){RO=true;S=st;document.body.classList.add("ro");applyThe
 async function leaveViewer(){RO=false;document.body.classList.remove("ro");S=blank();await loadState();applyTheme()}
 function signedOutLocal(){
   if(!SYNC.user&&!SYNC.known)return;
-  SYNC.user=null;SYNC.known=false;SYNC.step="email";SYNC.err="";SYNC.viewers=null;saveMeta();
+  SYNC.user=null;SYNC.known=false;SYNC.msg="";SYNC.err="";SYNC.viewers=null;saveMeta();
   if(RO)leaveViewer().then(render);else{renderSyncCard();renderShareCard()}
 }
 async function signOut(){try{if(sb)await sb.auth.signOut()}catch(e){}signedOutLocal()}
@@ -1346,35 +1376,51 @@ function syncStatusText(){
   return SYNC.last?"Last synced "+new Date(SYNC.last).toLocaleString("en-NZ",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"}):"Not synced yet";
 }
 function uiSync(){const s=$("#syncStatus");if(s)s.textContent=syncStatusText();const b=$("#sbSync");if(b)b.disabled=SYNC.busy}
+const setMsg=t=>{SYNC.msg=t||"";const m=$("#sbMsg");if(m)m.textContent=SYNC.msg};
 function renderSyncCard(){
   const el=$("#syncCard");if(!el)return;
   const signed=!!(SYNC.user||SYNC.known);let h;
+  const msg=`<p id="sbMsg" role="alert" style="color:var(--bad);font-size:.86rem;margin:8px 0 0;overflow-wrap:anywhere">${esc(SYNC.msg)}</p>`;
   if(!SUPABASE_URL)h=`<h3>Cloud sync</h3><p class="dim" style="font-size:.88rem">Not set up in this build.</p>`;
   else if(signed)h=`<h3>Cloud sync</h3><p style="overflow-wrap:anywhere;margin:6px 0 0"><b>${esc(SYNC.email)}</b></p><p class="dim" style="font-size:.86rem;margin:2px 0 10px" id="syncStatus">${esc(syncStatusText())}</p>
-    ${RO?"":`<button class="btn block" id="sbSync" ${SYNC.busy?"disabled":""}>Sync now</button>`}<button class="btn alt block" id="sbOut" style="margin-top:8px">Sign out</button>`;
-  else if(SYNC.step==="code")h=`<h3>Cloud sync</h3><p class="dim" style="font-size:.88rem">We emailed a 6-digit code to <b>${esc(SYNC.email)}</b>.</p>
-    <label for="sbCode">Code from the email</label><input id="sbCode" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" pattern="[0-9]*">
-    <button class="btn xl" id="sbVerify" style="margin-top:10px">Sign in</button><button class="linkbtn" id="sbBack">Use a different email</button>`;
-  else h=`<h3>Cloud sync</h3><p class="dim" style="font-size:.88rem">Back up your data and keep your devices in step. No password: we email you a code. Everything still works offline.</p>
-    <label for="sbEmail">Email</label><input id="sbEmail" type="email" inputmode="email" autocomplete="email" value="${esc(SYNC.email)}">
-    <button class="btn xl" id="sbSend" style="margin-top:10px">Send code</button>`;
+    ${RO?"":`<button class="btn block" id="sbSync" ${SYNC.busy?"disabled":""}>Sync now</button>`}
+    <details style="margin-top:12px"><summary>Change password</summary>
+      <label for="sbNewPw">New password (min 8 characters)</label><input id="sbNewPw" type="password" autocomplete="new-password" minlength="8">
+      <button class="btn alt block" id="sbPw" style="margin-top:8px">Update password</button></details>
+    ${msg}<button class="btn alt block" id="sbOut" style="margin-top:10px">Sign out</button>`;
+  else h=`<h3>Cloud sync</h3><p class="dim" style="font-size:.88rem">Back up your data and keep your devices in step. Create an account once, then sign in on each device. Everything still works offline.</p>
+    <form id="sbForm" novalidate><label for="sbEmail">Email</label><input id="sbEmail" type="email" inputmode="email" autocomplete="username" value="${esc(SYNC.email)}">
+    <label for="sbPass">Password (min 8 characters)</label><input id="sbPass" type="password" autocomplete="current-password" minlength="8">
+    ${msg}<div class="grid2" style="margin-top:10px"><button class="btn" id="sbIn" type="submit">Sign in</button><button class="btn alt" id="sbUp" type="button">Create account</button></div></form>`;
   el.innerHTML=h;
   on("sbSync",()=>{syncNow();loadViewers()});
   on("sbOut",signOut);
-  on("sbBack",()=>{SYNC.step="email";renderSyncCard()});
-  on("sbSend",async()=>{
-    const email=($("#sbEmail").value||"").trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(email))return toast("Enter a valid email");
-    const b=$("#sbSend");b.disabled=true;
-    try{const c=await sbClient();const {error}=await c.auth.signInWithOtp({email,options:{shouldCreateUser:true}});if(error)throw error;
-      SYNC.email=email;SYNC.step="code";toast("Code sent. Check your email.");renderSyncCard()}
-    catch(e){toast(errMsg(e));b.disabled=false}});
-  on("sbVerify",async()=>{
-    const token=($("#sbCode").value||"").replace(/\D/g,"");if(token.length<6)return toast("Enter the code from the email");
-    const b=$("#sbVerify");b.disabled=true;
-    try{const c=await sbClient();const {data,error}=await c.auth.verifyOtp({email:SYNC.email,token,type:"email"});if(error)throw error;
-      SYNC.user=data.user||(data.session&&data.session.user);SYNC.known=true;SYNC.step="email";SYNC.err="";saveMeta();renderSyncCard();toast("Signed in");
-      loadViewers();await syncNow();renderSyncCard()}
-    catch(e){toast(errMsg(e));b.disabled=false}});
+  const f=$("#sbForm");
+  if(f){
+    f.onsubmit=e=>{e.preventDefault();authGo("in")};
+    on("sbUp",()=>authGo("up"));
+  }
+  on("sbPw",async()=>{
+    const pw=$("#sbNewPw").value;if(pw.length<8)return setMsg("Password must be at least 8 characters.");
+    const b=$("#sbPw");b.disabled=true;setMsg("");
+    try{const c=await sbClient();const {error}=await c.auth.updateUser({password:pw});if(error)throw error;toast("Password updated");renderSyncCard()}
+    catch(e){setMsg(errMsg(e));b.disabled=false}});
+}
+async function authGo(mode){
+  const email=($("#sbEmail").value||"").trim().toLowerCase(),password=$("#sbPass").value||"";
+  SYNC.email=email;
+  if(!/^\S+@\S+\.\S+$/.test(email))return setMsg("Enter a valid email address.");
+  if(password.length<8)return setMsg("Password must be at least 8 characters.");
+  const bs=[$("#sbIn"),$("#sbUp")];bs.forEach(b=>b.disabled=true);setMsg("");
+  try{
+    const c=await sbClient();
+    const {data,error}=mode==="up"?await c.auth.signUp({email,password}):await c.auth.signInWithPassword({email,password});
+    if(error)throw error;
+    if(!data.session)throw new Error("No session was returned. Try Sign in.");
+    SYNC.user=data.session.user;SYNC.known=true;SYNC.email=data.session.user.email||email;SYNC.err="";SYNC.msg="";saveMeta();
+    renderSyncCard();toast(mode==="up"?"Account created":"Signed in");
+    loadViewers();await syncNow();renderSyncCard();
+  }catch(e){setMsg(errMsg(e));bs.forEach(b=>{if(b)b.disabled=false})}
 }
 
 // Share progress: the owner lists emails that may read her state (read-only, enforced by RLS)
@@ -1402,7 +1448,7 @@ function renderShareCard(){
 }
 // read-only viewer mode
 function roBanner(){const n=S.profile&&S.profile.name;return `<section class="insight good"><b>${n?"Viewing "+esc(n)+"'s progress":"Viewing shared progress"}</b><div class="dim" style="font-size:.84rem">Read-only. It refreshes each time you open the app.</div></section>`}
-function viewYouRO(){return `<div class="top"><h1>You</h1></div><section class="card" id="syncCard"></section>`}
+function viewYouRO(){return `<div class="top"><div><div class="kicker">${kick()}</div><h1>You</h1></div></div><section class="card" id="syncCard"></section>`}
 function bindYouRO(){renderSyncCard()}
 
 /* ============ Boot ============ */

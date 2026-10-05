@@ -1,6 +1,9 @@
 // Offline cache. Bump VERSION whenever index.html changes so phones pick up the update.
-const VERSION = "indys-year-v2.1.0";
-const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
+const VERSION = "indys-year-v2.3.0";
+const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-180.png", "./icon-192.png", "./icon-512.png",
+  // self-hosted fonts (Neon Athletic restyle): precached, then served by the cache-first fetch handler below
+  "./fonts/barlow-400.woff2", "./fonts/barlow-500.woff2", "./fonts/barlow-600.woff2", "./fonts/barlow-700.woff2",
+  "./fonts/chakra-petch-500.woff2", "./fonts/chakra-petch-600.woff2", "./fonts/chakra-petch-700.woff2"];
 // Pinned supabase-js (cloud sync). Cached separately so a CDN hiccup can't break the install; the app also works without it.
 const SB_JS = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js";
 self.addEventListener("install", e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES).then(() => c.add(new Request(SB_JS, { mode: "cors" })).catch(() => {})))); self.skipWaiting(); });

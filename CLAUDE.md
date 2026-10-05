@@ -14,6 +14,8 @@ Goals: −5 kg in 3 months, −15 kg by Indy's first birthday, HbA1c into the NZ
 - Deterministic analytics only (no AI calls). NZ units: kg, cm, mmol/L, mmol/mol.
 - Safety thresholds live in `insights()` and `preStart()` in index.html. Do not loosen: breastfeeding pace cap 0.5 kg/wk, hypo < 3.9 mmol/L, NZ HbA1c bands 40/41–49/50+.
 - No remote images or tracking. Exercise figures are inline SVG poses in `POSES`.
+- Fonts (Chakra Petch for headings/numbers, Barlow for body) are self-hosted in `/fonts` as custom subsets (Latin, Latin Extended-A, arrows, ≈) with the OFL licence in `fonts/LICENSE.txt`. No Google Fonts or other font CDN. Any font file added or renamed under `/fonts` MUST be added to the `FILES` list in `sw.js` (and `VERSION` bumped) or it won't work offline. Chakra Petch is Barlow's fallback so the arrow glyphs resolve.
+- Visual style is "Neon Athletic": all colour comes from `--accent`, glow uses `--glow`/`--tglow`, and both are switched off in light mode. Don't hard-code colours; keep all 8 themes + custom colour + light/dark working.
 - Not medical advice; never add medication-dose advice.
 
 ## Deploy
@@ -23,7 +25,7 @@ Hosted on Vercel (project `indys-year`, framework Other, no build, output dir `.
 Use ONLY this Supabase project. Never touch the user's other Supabase projects (Buildup, WorkUp, ...).
 IndexedDB stays the primary store; Supabase is backup + merge-sync + read-only sharing. The app works fully offline and signed out.
 - `SUPABASE_URL` / `SUPABASE_KEY` (publishable key, safe to commit) are at the top of the script in `index.html`. Never commit a secret/service_role key or an account token.
-- Auth: email OTP (`signInWithOtp` + `verifyOtp`, type `email`). Code length is set in the Supabase dashboard (currently 8); the input accepts 6–8 digits. Default Supabase SMTP (rate-limited, org members only) — add custom SMTP if emails to other people don't arrive. Session persists in localStorage key `indy-sb-auth`; `indy-sync-meta` remembers who is signed in.
+- Auth: email + password (`signUp` / `signInWithPassword`, min 8 characters, `updateUser` to change it). "Confirm email" is OFF in the Supabase dashboard, so **no email is ever sent** and no SMTP is needed; if it is turned on, sign-up will return no session and the app shows an error. There is no password reset (it would need email): reset a password in the dashboard under Authentication > Users. The password is never stored by the app; the supabase-js session persists in localStorage key `indy-sb-auth`, and `indy-sync-meta` remembers who is signed in.
 - Schema: `supabase/migrations/20261005000000_app_state_and_viewers.sql`
   - `public.app_state(user_id uuid pk -> auth.users, state jsonb, updated_at timestamptz)` — one row per user holding the whole `S` object.
   - `public.viewers(owner_id uuid -> auth.users, viewer_email text, pk(owner_id, viewer_email))` — the share list (emails stored lowercase).
