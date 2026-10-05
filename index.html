@@ -41,7 +41,7 @@
 :root[data-mode="light"]{
   color-scheme:light;--glowon:0;--bg:#F4F5F7;--surface:#FFFFFF;--surface-2:#EDEFF3;--line:#DDE1E7;
   --text:#0B0D10;--dim:#4B5563;
-  --good:#047857;--warn:#B45309;--bad:#B91C1C;--info:#0369A1;
+  --good:#047857;--warn:#AD4F08;--bad:#B91C1C;--info:#0369A1;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
@@ -55,20 +55,20 @@ h3{font-size:1.02rem;font-weight:700;margin:0 0 .35rem}
 p{margin:.3rem 0}
 .dim{color:var(--dim)}
 .num{font-variant-numeric:tabular-nums}
-main{max-width:620px;margin:0 auto;padding:0 16px calc(100px + env(safe-area-inset-bottom,0px))}
+main{max-width:620px;margin:0 auto;padding:0 16px calc(150px + env(safe-area-inset-bottom,0px))}
 
 /* cards */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;margin:12px 0;position:relative;overflow:hidden}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;margin:10px 0;position:relative;overflow:hidden}
 .card.hero{padding:20px 18px 14px;background:
   radial-gradient(130% 85% at 100% -10%,var(--a15),transparent 58%),var(--surface)}
-.lbl{font-size:.7rem;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.14em;font-family:var(--display)}
+.lbl{font-size:.78rem;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.14em;font-family:var(--display)}
 .big{font-family:var(--display);font-size:clamp(3rem,15vw,4.4rem);font-weight:700;letter-spacing:-.03em;line-height:.9;font-variant-numeric:tabular-nums;color:var(--accent);text-shadow:0 0 calc(34px * var(--glowon)) var(--glow)}
-.big small{font-size:.26em;font-weight:700;letter-spacing:.02em;color:var(--dim);margin-left:5px;text-shadow:none;font-family:var(--font)}
+.big small{font-size:max(.26em,.8rem);font-weight:700;letter-spacing:.02em;color:var(--dim);margin-left:5px;text-shadow:none;font-family:var(--font)}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .between{justify-content:space-between}
 .grow{flex:1}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
-.chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);font-size:.76rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em}
 .chip.acc{background:var(--accent);color:var(--on-accent)}
 .chip.good{color:var(--good)}.chip.warn{color:var(--warn)}.chip.bad{color:var(--bad)}
 .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
@@ -76,7 +76,7 @@ main{max-width:620px;margin:0 auto;padding:0 16px calc(100px + env(safe-area-ins
 .grid2>*,.grid3>*{min-width:0}
 .tile{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-md);padding:12px}
 .tile b{display:block;font-family:var(--display);font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--accent);text-shadow:0 0 calc(14px * var(--glowon)) var(--glow)}
-.tile span{font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.tile span{font-size:.78rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
 
 /* buttons */
 .btn{border:0;border-radius:var(--r-md);padding:13px 18px;background:var(--accent);color:var(--on-accent);font-weight:800;min-height:50px;box-shadow:0 0 28px var(--glow);transition:transform .08s}
@@ -86,7 +86,7 @@ main{max-width:620px;margin:0 auto;padding:0 16px calc(100px + env(safe-area-ins
 .btn.danger{background:transparent;border:1px solid var(--bad);color:var(--bad);box-shadow:none}
 .btn.block{width:100%}
 .btn.xl{width:100%;min-height:62px;font-size:1.15rem}
-.btn.sm{min-height:40px;padding:8px 13px;font-size:.88rem;border-radius:var(--r-sm)}
+.btn.sm{min-height:44px;padding:8px 13px;font-size:.88rem;border-radius:var(--r-sm)}
 .btn:disabled{opacity:.4}
 label{display:block;font-size:.84rem;color:var(--dim);margin:.6rem 0 .25rem;font-weight:600}
 input,select,textarea{min-width:0;max-width:100%;width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;min-height:48px}
@@ -94,7 +94,7 @@ textarea{min-height:90px}
 input[type=color]{padding:4px;height:48px}
 .seg{display:flex;background:var(--surface-2);border-radius:var(--r-md);padding:4px;gap:4px;overflow-x:auto;scrollbar-width:none}
 .seg::-webkit-scrollbar{display:none}
-.seg button{flex:1;border:0;background:none;border-radius:11px;padding:9px 12px;font-weight:700;white-space:nowrap;min-height:40px;color:var(--dim)}
+.seg button{flex:1 0 auto;min-width:44px;border:0;background:none;border-radius:11px;padding:9px 12px;font-weight:700;white-space:nowrap;min-height:44px;color:var(--dim)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--text)}
 :root[data-mode="light"] .seg button[aria-pressed="true"]{box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
@@ -102,18 +102,18 @@ input[type=color]{padding:4px;height:48px}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:space-around;
   padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));
   background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--line)}
-nav.tabs button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.64rem;font-weight:700;color:var(--dim);min-width:0;flex:1;min-height:48px;padding:2px 2px}
+nav.tabs button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.76rem;font-weight:700;color:var(--dim);min-width:0;flex:1;min-height:52px;padding:2px 1px}
 nav.tabs svg{width:22px;height:22px}
 nav.tabs button[aria-current="page"]{color:var(--accent)}
 nav.tabs button[aria-current="page"] svg{filter:drop-shadow(0 0 6px var(--glow))}
 
 /* header */
-.top{display:flex;align-items:flex-end;justify-content:space-between;padding:18px 2px 4px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;padding:12px 2px 2px}
 .top h1{font-size:1.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.01em}
 
 /* rings */
 .rings{display:flex;align-items:center;gap:16px}
-.rings svg{width:132px;height:132px;flex:none}
+.rings svg{width:104px;height:104px;flex:none}
 .ringleg{display:flex;flex-direction:column;gap:9px;flex:1}
 .ringleg div{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
 .ringleg b{font-variant-numeric:tabular-nums;font-family:var(--display);color:var(--accent)}
@@ -128,12 +128,12 @@ nav.tabs button[aria-current="page"] svg{filter:drop-shadow(0 0 6px var(--glow))
 .list{list-style:none;margin:0;padding:0}
 .list li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 .list li:last-child{border-bottom:0}
-.list .x{background:none;border:0;color:var(--dim);font-size:1.2rem;min-width:40px;min-height:40px}
+.list .x{background:none;border:0;color:var(--dim);font-size:1.3rem;min-width:44px;min-height:44px}
 
 /* plan grid */
-.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px}
 .day{aspect-ratio:1;border-radius:14px;border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;font-weight:800;font-size:1rem;color:var(--text)}
-.day small{font-size:.56rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--dim)}
+.day small{font-size:.75rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--dim)}
 .day.done{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .day.done small{color:var(--on-accent)}
 .day.next{box-shadow:inset 0 0 0 2px var(--accent)}
@@ -156,9 +156,9 @@ nav.tabs button[aria-current="page"] svg{filter:drop-shadow(0 0 6px var(--glow))
 
 /* walks */
 .walks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.walks button{border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r-md);padding:10px 6px;min-height:66px;font-weight:700;color:var(--text)}
+.walks button{border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r-md);padding:4px;min-height:54px;font-weight:700;color:var(--text)}
 .walks button.done{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
-.walks button small{display:block;font-weight:600;font-size:.76rem;opacity:.8}
+.walks button small{display:block;font-weight:600;font-size:.82rem;opacity:.8}
 
 /* insights */
 .insight{padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);margin:8px 0;border-left:4px solid var(--accent)}
@@ -166,18 +166,17 @@ nav.tabs button[aria-current="page"] svg{filter:drop-shadow(0 0 6px var(--glow))
 .insight.bad{border-color:var(--bad)}
 .insight.good{border-color:var(--good)}
 .chart svg{width:100%;height:auto;display:block}
-.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.76rem;color:var(--dim);margin-top:6px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--dim);margin-top:6px}
 .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
 .bar{height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
-.score{font-family:var(--display);font-size:3.2rem;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--accent);text-shadow:0 0 calc(20px * var(--glowon)) var(--glow)}
 .band{position:relative;height:14px;border-radius:999px;background:linear-gradient(90deg,var(--good) 0 30%,var(--warn) 30% 45%,var(--bad) 45% 100%);margin:16px 0 22px}
 .band .pin{position:absolute;top:-6px;width:4px;height:26px;border-radius:2px;background:var(--text);transform:translateX(-2px)}
-.band .tick{position:absolute;top:18px;font-size:.7rem;color:var(--dim);transform:translateX(-50%)}
+.band .tick{position:absolute;top:18px;font-size:.78rem;color:var(--dim);transform:translateX(-50%)}
 
 /* swatches */
 .swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.sw{border:2px solid transparent;border-radius:var(--r-md);padding:10px 6px;background:var(--surface-2);display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:var(--text);min-height:76px}
+.sw{border:2px solid transparent;border-radius:var(--r-md);padding:10px 6px;background:var(--surface-2);display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.82rem;font-weight:700;color:var(--text);min-height:76px}
 .sw i{width:30px;height:30px;border-radius:50%;display:block}
 .sw[aria-pressed="true"]{border-color:var(--text)}
 
@@ -185,31 +184,65 @@ nav.tabs button[aria-current="page"] svg{filter:drop-shadow(0 0 6px var(--glow))
 .sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none;align-items:flex-end;justify-content:center}
 .sheet.on{display:flex}
 .sheet .inner{background:var(--surface);width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:26px 26px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px))}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);padding:11px 16px;border-radius:14px;font-weight:700;z-index:70;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));background:var(--text);color:var(--bg);padding:11px 16px;border-radius:14px;font-weight:700;z-index:70;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
 .toast.on{opacity:1}
 .flash{position:fixed;inset:0;background:var(--accent);opacity:0;pointer-events:none;z-index:65;transition:opacity .35s}
 .flash.on{opacity:.35}
 .note{background:color-mix(in srgb,var(--warn) 16%,var(--surface));border-radius:var(--r-md);padding:12px 14px;font-size:.92rem;margin:10px 0}
 .note.bad{background:color-mix(in srgb,var(--bad) 16%,var(--surface))}
-details summary{cursor:pointer;font-weight:700;padding:4px 0;list-style:none}
+details summary{cursor:pointer;font-weight:700;padding:10px 0;min-height:44px;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px}
 details summary::-webkit-details-marker{display:none}
-details summary::after{content:"+";float:right;color:var(--dim);font-weight:800}
+details summary::after{content:"+";color:var(--dim);font-weight:800;font-size:1.3rem;line-height:1}
 details[open] summary::after{content:"−"}
-.toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;min-height:52px;border-bottom:1px solid var(--line)}
 .toggle:last-child{border:0}
+label.toggle{margin:0;font-size:1rem;color:var(--text);font-weight:500;cursor:pointer}
 .toggle input{width:auto;min-height:0}
-.pf-dots{display:flex;gap:6px}
-.pf-dots button{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:transparent;font-weight:800;color:var(--dim)}
+.toggle input[type=checkbox]{width:28px;height:28px;flex:none;accent-color:var(--accent)}
+.pf-dots{display:flex;gap:8px}
+.pf-dots button{width:44px;height:44px;font-size:1rem;border-radius:50%;border:2px solid var(--line);background:transparent;font-weight:800;color:var(--dim)}
 .pf-dots button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:80}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-body.ro [data-start],body.ro [data-quick],body.ro #pfBtn,body.ro #copyCtx{display:none!important}
+/* floating + (one place to log anything) */
+.fab{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);z-index:45;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.35),0 0 calc(24px * var(--glowon)) var(--glow);transition:transform .08s}
+.fab:active{transform:scale(.94)}
+.fab svg{width:28px;height:28px}
+.fab[hidden]{display:none}
+.addgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px}
+.addgrid .btn{min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:1rem}
+.addgrid .btn small{font-weight:600;font-size:.8rem;opacity:.8}
+.addgrid .btn.wide{grid-column:1/-1}
+.qlog{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+.qlog button{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:var(--r-md);min-height:72px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:var(--display);font-weight:700;font-size:.9rem}
+.qlog button:active{transform:scale(.96)}
+.qlog button svg{width:26px;height:26px;color:var(--accent)}
+.habits .hrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;min-height:48px;border-top:1px solid var(--line)}
+.habits .hrow:first-of-type{border-top:0}
+.habits .hrow h3{margin:0;font-size:1rem}
+.habits .walks{margin:0}
+.chk .crow{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:6px 2px;border:0;border-top:1px solid var(--line);background:none;text-align:left;color:var(--text);font-size:1rem}
+.chk .crow:first-of-type{border-top:0}
+.chk .crow .tick{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;color:var(--on-accent)}
+.chk .crow.done .tick{background:var(--accent);border-color:var(--accent)}
+.chk .crow.done .lab{color:var(--dim);text-decoration:line-through}
+details.sect{padding:4px 16px}
+details.sect>summary{font-family:var(--display);font-size:1.05rem;padding:12px 0}
+details.sect[open]>summary{border-bottom:1px solid var(--line);margin-bottom:6px}
+.backlink{background:none;border:0;color:var(--accent);font-weight:700;font-size:1rem;min-height:44px;padding:0 4px;display:inline-flex;align-items:center;gap:4px}
+:root[data-mode="light"] .backlink{color:var(--text)}
+.card.tight{padding:14px 16px 12px}
+.chips.col{flex-direction:column;align-items:flex-start;margin:0 0 6px}
+.chk>summary{padding:8px 0}
+.chk .crow{border-top:1px solid var(--line)}
+body.ro [data-start],body.ro .qlog,body.ro .chk,body.ro .fab,body.ro #pfBtn,body.ro #copyCtx{display:none!important}
 body.ro [data-walk],body.ro [data-prot]{pointer-events:none}
 </style>
 </head>
 <body>
 <main id="app"></main>
 <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+<button class="fab" id="fab" aria-label="Add a log entry" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></button>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="inner" id="sheetInner"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="flash" id="flash"></div>
@@ -379,7 +412,7 @@ const weekStart=s=>{const d=parseD(s);d.setDate(d.getDate()-((d.getDay()+6)%7));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 const nowHM=()=>new Date().toTimeString().slice(0,5);
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("on"),2400)}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("on"),Math.min(6500,2400+Math.max(0,String(m).length-40)*50))}
 function flash(){const f=$("#flash");f.classList.add("on");setTimeout(()=>f.classList.remove("on"),350)}
 
 /* ============ State & storage (IndexedDB primary, localStorage mirror) ============ */
@@ -400,9 +433,67 @@ function migrate(o){
     if(!p.theme)p.theme="volt"; if(!p.mode)p.mode="auto";
   }
   s.protein=s.protein||{};s.pf=s.pf||{};s.meals=s.meals||[];s.foodCache=s.foodCache||{};s.vitals=s.vitals||[];delete s.chat;
-  s.deleted=s.deleted&&typeof s.deleted==="object"?s.deleted:{};
+  s.deleted=s.deleted&&typeof s.deleted==="object"&&!Array.isArray(s.deleted)?s.deleted:{};
   // records without an id (very old backups) get a deterministic one so two devices don't duplicate them
-  ARR_KEYS.forEach(k=>{s[k]=Array.isArray(s[k])?s[k]:[];s[k].forEach(x=>{if(!x.id)x.id="L"+hashStr(JSON.stringify(x))})});
+  ARR_KEYS.forEach(k=>{s[k]=Array.isArray(s[k])?s[k]:[];s[k].forEach(x=>{if(x&&typeof x==="object"&&!x.id)x.id="L"+hashStr(JSON.stringify(x))})});
+  return sanitizeState(s);
+}
+/* Everything that enters from storage, a backup file or the cloud (including someone else's shared state) is cleaned in sanitizeState():
+   numbers are numbers, ids and tokens are plain, dates are sane and no text can smuggle markup into the page. */
+const fin=(v,lo,hi)=>{const n=typeof v==="number"?v:(typeof v==="string"&&v.trim()!==""?Number(v):NaN);return Number.isFinite(n)&&n>=lo&&n<=hi?n:null};
+const safeTok=(v,n=48)=>String(v==null?"":v).replace(/[^\w-]/g,"").slice(0,n);
+const safeStr=(v,n=160)=>v==null?null:String(v).slice(0,n);
+// "2026-10-5" -> "2026-10-05", clamped to 2000-01-01 .. a year ahead; null if it is not a date at all
+function cleanDate(v){
+  const m=/^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(String(v==null?"":v));if(!m)return null;
+  const mo=+m[2],da=+m[3];if(mo<1||mo>12||da<1||da>31)return null;
+  const d=m[1]+"-"+String(mo).padStart(2,"0")+"-"+String(da).padStart(2,"0"),lo="2000-01-01",hi=addDays(iso(),366);
+  return d<lo?lo:d>hi?hi:d;
+}
+// a date typed into a form: empty = today; anything silly is refused with a message
+function formDate(id){const v=($("#"+id)||{}).value||"";if(!v)return iso();const c=cleanDate(v);if(!c||c!==v.slice(0,10)){toast("That date looks wrong. Please check it.");return null}return c}
+const NUMSPEC={weights:{kg:[20,400],fat:[0,100],muscle:[0,300]},measures:{waist:[10,400],hips:[10,400],chest:[10,400],arm:[3,150],thigh:[10,300]},glucose:{mmol:[0.5,60]},hba1c:{v:[10,200]},
+  activity:{min:[0,1440],steps:[0,200000],km:[0,500],kcal:[0,20000],elev:[0,10000]},meals:{g:[0,10000],kcal:[0,20000],p:[0,2000],c:[0,2000],f:[0,2000],fb:[0,1000]},
+  vitals:{hr:[20,250],sleep:[0,24]},sessions:{day:[0,200],cycle:[0,1000],dur:[0,86400],rpe:[0,10]}};
+const NEED={weights:r=>r.kg!=null,glucose:r=>r.mmol!=null,hba1c:r=>r.v!=null,measures:r=>["waist","hips","chest","arm","thigh"].some(k=>r[k]!=null),meals:r=>r.kcal!=null,vitals:r=>r.hr!=null||r.sleep!=null};
+function sanitizeState(s){
+  ARR_KEYS.forEach(k=>{
+    const spec=NUMSPEC[k]||{};
+    s[k]=s[k].filter(x=>x&&typeof x==="object").map(x=>{
+      const r=Object.assign({},x),d=cleanDate(x.d);if(!d)return null;
+      r.d=d;r.id=safeTok(x.id)||"L"+hashStr(JSON.stringify(x));
+      for(const f in spec)if(f in r)r[f]=fin(r[f],spec[f][0],spec[f][1]);
+      if(r.t!=null)r.t=/^\d{1,2}:\d{2}$/.test(String(r.t))?String(r.t):null;
+      if(r.meal!=null)r.meal=safeTok(r.meal,2);
+      if("kind" in r)r.kind=safeTok(r.kind,24);
+      if("pace" in r)r.pace=r.pace!=null&&/^[\d:]{1,8}$/.test(String(r.pace))?String(r.pace):null;
+      for(const f of ["src","ctx","name","note","focus"])if(f in r)r[f]=safeStr(r[f],f==="note"?400:160);
+      if(k==="sessions"){r.sym=!!r.sym;r.low=!!r.low;
+        r.sets=(Array.isArray(r.sets)?r.sets:[]).filter(z=>z&&typeof z==="object").map(z=>Object.assign({},z,{ex:safeTok(z.ex,32),u:safeTok(z.u,3),v:fin(z.v,0,100000),sec:fin(z.sec,0,86400),r:fin(z.r,0,100),tg:fin(z.tg,0,100000),eff:fin(z.eff,0,10)})).filter(z=>z.ex&&z.v!=null)}
+      return r}).filter(r=>r&&(!NEED[k]||NEED[k](r)));
+  });
+  const p=s.profile;
+  if(p&&typeof p==="object"){
+    if(p.custom!=null&&!/^#[0-9a-fA-F]{6}$/.test(String(p.custom)))delete p.custom;
+    if(p.theme!=null)p.theme=safeTok(p.theme,16)||"volt";
+    if(!["auto","dark","light"].includes(p.mode))p.mode="auto";
+    [["height",50,260],["age",10,100],["startWeight",20,400],["goal1",0,200],["goal1Months",0,60],["goal2",0,200],["minTarget",0,2000],["updatedAt",0,4e12],["createdAt",0,4e12]].forEach(([f,lo,hi])=>{if(f in p){const n=fin(p[f],lo,hi);if(n==null)delete p[f];else p[f]=n}});
+    if(p.name!=null)p.name=safeStr(p.name,60);
+    if("startDate" in p)p.startDate=cleanDate(p.startDate)||iso();
+    if("indyBday" in p)p.indyBday=p.indyBday?cleanDate(p.indyBday):null;
+    for(const f of ["meds","lowImpact"])if(p[f]!=null)p[f]=safeTok(p[f],16);
+    for(const f of ["breastfeeding","diastasis","runOK","hideStart"])if(f in p)p[f]=!!p[f];
+    if(p.checklist!=null)p.checklist={shortcut:!!(p.checklist&&p.checklist.shortcut),homescreen:!!(p.checklist&&p.checklist.homescreen)};
+  }
+  const pf={};Object.keys(s.pf||{}).forEach(d=>{const c=cleanDate(d);if(c&&s.pf[d])pf[c]=true});s.pf=pf;
+  const pr={};Object.keys(s.protein||{}).forEach(d=>{const c=cleanDate(d),n=fin(s.protein[d],0,10);if(c&&n)pr[c]=Math.round(n)});s.protein=pr;
+  const fc={};Object.keys(s.foodCache||{}).forEach(code=>{const f=s.foodCache[code],c=safeTok(code,40);if(!c||!f||typeof f!=="object")return;
+    const sv=(Array.isArray(f.s)?f.s:[]).map(z=>Array.isArray(z)?[safeStr(z[0],40)||"serving",fin(z[1],0,5000)??100]:null).filter(Boolean);
+    fc[c]={n:safeStr(f.n,160)||("Product "+c),k:fin(f.k,0,2000)??0,p:fin(f.p,0,200)??0,c:fin(f.c,0,200)??0,f:fin(f.f,0,200)??0,fb:fin(f.fb,0,200)??0,s:sv.length?sv:[["100 g",100]],cat:safeStr(f.cat,20)||"Barcode",code:c}});
+  s.foodCache=fc;
+  const del={};Object.keys(s.deleted||{}).forEach(id=>{const t=fin(s.deleted[id],0,4e12);if(t!=null&&t>Date.now()-400*864e5&&id&&safeTok(id)===id)del[id]=t});s.deleted=del;   // a tombstone id that isn't already a plain token is junk: dropped, never re-spelled into someone else's id
+  s.lastBackup=s.lastBackup?cleanDate(s.lastBackup):null;
+  s.updatedAt=fin(s.updatedAt,0,4e12)||0;s.profileCleared=fin(s.profileCleared,0,4e12)||0;
   return s;
 }
 function hashStr(t){let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return (h>>>0).toString(36)}
@@ -414,9 +505,14 @@ async function loadState(){
   try{const raw=localStorage.getItem(LS_KEY);if(raw)b=JSON.parse(raw)}catch(e){}
   const pick=(a&&(!b||a.updatedAt>=b.updatedAt))?a:b;
   if(pick)S=migrate(pick);
+  if(S.profile&&!S.profile.createdAt){S.profile.createdAt=Date.now();persistNow()}   // not commit(): no updatedAt bump, no sync churn
 }
 let saveT=null;
 function commit(){if(RO)return;S.updatedAt=Date.now();clearTimeout(saveT);saveT=setTimeout(persistNow,250);scheduleSync()}
+// the save is debounced 250 ms; flush it the moment the app is hidden or closed so a quick tap-then-leave can't lose data
+function flushSave(){if(saveT){clearTimeout(saveT);saveT=null;persistNow()}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushSave();else if(S.profile&&iso()!==RENDER_DAY&&!typing()&&!W)render()});   // and refresh "today" after a night in the background
+addEventListener("pagehide",flushSave);
 function persistNow(){if(RO)return;const snap=JSON.parse(JSON.stringify(S));idb.set("state",snap);try{localStorage.setItem(LS_KEY,JSON.stringify(snap))}catch(e){}}
 let persisted=null;
 async function askPersist(){try{if(navigator.storage&&navigator.storage.persist){persisted=await navigator.storage.persisted();if(!persisted)persisted=await navigator.storage.persist()}}catch(e){}}
@@ -434,7 +530,7 @@ function applyTheme(){
   const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=bg;
   return {acc,bg,ratio:r1(contrast(acc,bg))};
 }
-matchMedia("(prefers-color-scheme: light)").addEventListener?.("change",()=>{applyTheme();render()});
+matchMedia("(prefers-color-scheme: light)").addEventListener?.("change",()=>{applyTheme();if(!typing()&&!W)render()});   // never wipe a half-typed form
 
 /* ============ Profile helpers ============ */
 const P_=()=>S.profile||{};
@@ -522,11 +618,13 @@ function allPRs(){
   sorted(S.sessions).forEach(s=>s.sets.forEach(x=>{const b=best[x.ex]||0;if(x.v>b){if(b>0)prs.push({d:s.d,ex:x.ex,v:x.v,u:x.u,prev:b});best[x.ex]=x.v}}));
   return {best,prs:prs.reverse()};
 }
-function adherence(ws=weekStart(iso())){
-  const m=weekMinutes(ws),st=weekStrength(ws),wk=weekWalks(ws);
-  const wi=S.weights.filter(w=>weekStart(w.d)===ws).length;
-  const parts=[["Active minutes",clamp(m/minTarget(),0,1),40],["Strength days",clamp(st/2,0,1),30],["After-meal walks",clamp(wk/14,0,1),20],["Weigh-ins",clamp(wi/3,0,1),10]];
-  return {score:Math.round(parts.reduce((s,p)=>s+p[1]*p[2],0)),parts};
+function adherence(ws=weekStart(iso())){   // plain progress for the week: no score, no grade
+  const m=weekMinutes(ws),st=weekStrength(ws),wk=weekWalks(ws),wi=S.weights.filter(w=>weekStart(w.d)===ws).length;
+  return [
+    {l:"Active minutes",f:clamp(m/minTarget(),0,1),t:m+" of "+minTarget()+" min"},
+    {l:"Strength days",f:clamp(st/2,0,1),t:st+" of 2 days"},
+    {l:"After-meal walks",f:clamp(wk/14,0,1),t:wk+" of 14"},
+    {l:"Weighed in "+wi+" time"+(wi===1?"":"s")+" this week",f:clamp(wi/3,0,1),t:""}];
 }
 
 /* ============ Build a program day (swaps + progression) ============ */
@@ -595,6 +693,7 @@ function animateFigs(){
   const items=svgs.map(svg=>({svg,P:POSES[svg.dataset.pose]||POSES.squat,lines:[...svg.querySelectorAll("line[data-a]")],head:svg.querySelector("circle")}));
   let last=0;
   const step=ts=>{
+    if(!items.some(it=>it.svg.isConnected)){figRAF=null;return}   // nothing left to animate: stop the loop
     if(ts-last>33){last=ts;
       const ph=(Math.sin(ts/1800*Math.PI*2-Math.PI/2)+1)/2; // 1.8s rep cadence
       const e=ph<.5?2*ph*ph:1-Math.pow(-2*ph+2,2)/2;
@@ -628,9 +727,9 @@ function lineChart(o){
   const X=x=>L+(x-x0)/(x1-x0)*(W-L-R),Y=y=>T+(1-(y-y0)/(y1-y0))*(H-T-B);
   let g="";
   (o.bands||[]).forEach(b=>{const a=Math.max(b.y0,y0),c=Math.min(b.y1,y1);if(c>a)g+=`<rect x="${L}" y="${Y(c)}" width="${W-L-R}" height="${Y(a)-Y(c)}" fill="${b.color}" opacity=".13"/>`});
-  for(let i=0;i<=3;i++){const v=y0+(y1-y0)*i/3;g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="10" fill="var(--dim)">${r1(v)}</text>`}
+  for(let i=0;i<=3;i++){const v=y0+(y1-y0)*i/3;g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--dim)">${r1(v)}</text>`}
   if(o.cone&&o.cone.length>1){const c=o.cone;g+=`<polygon points="${c.map(p=>X(p[0])+","+Y(p[1])).join(" ")} ${[...c].reverse().map(p=>X(p[0])+","+Y(p[2])).join(" ")}" fill="var(--accent)" opacity=".14"/>`}
-  (o.refs||[]).forEach(r=>{g+=`<line x1="${L}" x2="${W-R}" y1="${Y(r.y)}" y2="${Y(r.y)}" stroke="${r.color}" stroke-dasharray="4 4" stroke-width="1.4"/><text x="${W-R}" y="${Y(r.y)-4}" text-anchor="end" font-size="10" font-weight="700" fill="${r.color}">${esc(r.label)}</text>`});
+  (o.refs||[]).forEach(r=>{g+=`<line x1="${L}" x2="${W-R}" y1="${Y(r.y)}" y2="${Y(r.y)}" stroke="${r.color}" stroke-dasharray="4 4" stroke-width="1.4"/><text x="${W-R}" y="${Y(r.y)-4}" text-anchor="end" font-size="12" font-weight="700" fill="${r.color}">${esc(r.label)}</text>`});
   (o.vlines||[]).forEach(v=>{if(v.x<x0||v.x>x1)return;g+=`<line x1="${X(v.x)}" x2="${X(v.x)}" y1="${T}" y2="${H-B}" stroke="${v.color}" stroke-dasharray="2 4"/><text x="${X(v.x)>W-60?X(v.x)-3:X(v.x)+3}" text-anchor="${X(v.x)>W-60?"end":"start"}" y="${T+9}" font-size="10" fill="${v.color}">${esc(v.label)}</text>`});
   o.series.forEach(s=>{
     const pts=[...s.pts].sort((a,b)=>a[0]-b[0]);if(!pts.length)return;
@@ -639,27 +738,25 @@ function lineChart(o){
     if(s.dots!==false)pts.forEach(p=>g+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="${s.r||3}" fill="${p[2]||s.color}" opacity="${s.op||1}"/>`);
   });
   const fx=x=>new Date(x).toLocaleDateString("en-NZ",{day:"numeric",month:"short"});
-  g+=`<text x="${L}" y="${H-6}" font-size="10" fill="var(--dim)">${fx(x0)}</text><text x="${W-R}" y="${H-6}" text-anchor="end" font-size="10" fill="var(--dim)">${fx(x1)}</text>`;
+  g+=`<text x="${L}" y="${H-6}" font-size="12" fill="var(--dim)">${fx(x0)}</text><text x="${W-R}" y="${H-6}" text-anchor="end" font-size="12" fill="var(--dim)">${fx(x1)}</text>`;
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label||"chart")}">${g}</svg>`;
 }
 function barChart(o){
   const W=340,H=o.h||160,L=34,R=10,T=14,B=24;if(!o.bars.length)return `<p class="dim">No data yet.</p>`;
   const max=Math.max(o.ref||0,...o.bars.map(b=>b.v))*1.15||1,bw=(W-L-R)/o.bars.length,Y=v=>T+(1-v/max)*(H-T-B);let g="";
-  for(let i=0;i<=3;i++){const v=max*i/3;g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${Y(v)+4}" text-anchor="end" font-size="10" fill="var(--dim)">${Math.round(v)}</text>`}
-  o.bars.forEach((b,i)=>{const x=L+i*bw+bw*.2,hit=o.ref&&b.v>=o.ref;g+=`<rect x="${x}" y="${Y(b.v)}" width="${bw*.6}" height="${Math.max(0,Y(0)-Y(b.v))}" rx="4" fill="${hit?"var(--accent)":"var(--a40)"}"/>${i%2===0||o.bars.length<9?`<text x="${x+bw*.3}" y="${H-6}" text-anchor="middle" font-size="9" fill="var(--dim)">${esc(b.l)}</text>`:""}`});
-  if(o.ref)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(o.ref)}" y2="${Y(o.ref)}" stroke="var(--text)" stroke-dasharray="4 4"/><text x="${W-R}" y="${Y(o.ref)-4}" text-anchor="end" font-size="10" fill="var(--text)">${esc(o.refLabel||"")}</text>`;
+  for(let i=0;i<=3;i++){const v=max*i/3;g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--dim)">${Math.round(v)}</text>`}
+  o.bars.forEach((b,i)=>{const x=L+i*bw+bw*.2,hit=o.ref&&b.v>=o.ref;g+=`<rect x="${x}" y="${Y(b.v)}" width="${bw*.6}" height="${Math.max(0,Y(0)-Y(b.v))}" rx="4" fill="${hit?"var(--accent)":"var(--a40)"}"/>${i%2===0||o.bars.length<9?`<text x="${x+bw*.3}" y="${H-6}" text-anchor="middle" font-size="11" fill="var(--dim)">${esc(b.l)}</text>`:""}`});
+  if(o.ref)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(o.ref)}" y2="${Y(o.ref)}" stroke="var(--text)" stroke-dasharray="4 4"/><text x="${W-R}" y="${Y(o.ref)-4}" text-anchor="end" font-size="12" fill="var(--text)">${esc(o.refLabel||"")}</text>`;
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label||"chart")}">${g}</svg>`;
 }
 function heatmap(weeks=12){
   const W=340,cell=Math.floor((W-24)/weeks)-3,H=7*(cell+3)+4,start=addDays(weekStart(iso()),-(weeks-1)*7);let g="";
-  const labels=["M","","W","","F","",""];labels.forEach((l,i)=>{if(l)g+=`<text x="0" y="${i*(cell+3)+cell-2}" font-size="9" fill="var(--dim)">${l}</text>`});
+  const labels=["M","","W","","F","",""];labels.forEach((l,i)=>{if(l)g+=`<text x="0" y="${i*(cell+3)+cell-2}" font-size="11" fill="var(--dim)">${l}</text>`});
   for(let w=0;w<weeks;w++)for(let d=0;d<7;d++){const day=addDays(start,w*7+d);if(day>iso())continue;const m=dayMinutes(day),str=S.sessions.some(s=>s.d===day&&isStrength(s));
     const op=m<=0?0:m<15?.35:m<30?.6:m<45?.8:1;const x=14+w*(cell+3),y=d*(cell+3);
     g+=`<rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="4" fill="${m>0?"var(--accent)":"var(--surface-2)"}" fill-opacity="${m>0?op:1}"/>${str?`<circle cx="${x+cell/2}" cy="${y+cell/2}" r="2.4" fill="var(--on-accent)"/>`:""}`}
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="12-week activity calendar">${g}</svg>`;
 }
-function spark(vals,w=90,h=28){if(vals.length<2)return "";const mn=Math.min(...vals),mx=Math.max(...vals)||1,X=i=>i/(vals.length-1)*w,Y=v=>h-2-(mx===mn?.5:(v-mn)/(mx-mn))*(h-4);
-  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true"><polyline fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" points="${vals.map((v,i)=>X(i)+","+Y(v)).join(" ")}"/></svg>`}
 
 /* ============ Confetti ============ */
 function confetti(){
@@ -675,26 +772,29 @@ let audio=null,wakeLock=null,wantWake=false,keepAwakeOn=false;
 function unlockAudio(){try{if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();const b=audio.createBuffer(1,1,22050),s=audio.createBufferSource();s.buffer=b;s.connect(audio.destination);s.start(0)}if(audio.state==="suspended")audio.resume()}catch(e){}}
 document.addEventListener("pointerdown",unlockAudio,{once:true});
 function beep(n=1,long=false){try{unlockAudio();for(let i=0;i<n;i++){const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=long&&i===n-1?660:880;o.connect(g);g.connect(audio.destination);const t=audio.currentTime+i*.28,d=long&&i===n-1?.6:.16;g.gain.setValueAtTime(.001,t);g.gain.exponentialRampToValueAtTime(.35,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}}catch(e){}flash()}
-async function wake(on){wantWake=on;try{if(on&&"wakeLock"in navigator&&!wakeLock){wakeLock=await navigator.wakeLock.request("screen");wakeLock.addEventListener("release",()=>{wakeLock=null})}else if(!on&&!keepAwakeOn&&wakeLock){await wakeLock.release();wakeLock=null}}catch(e){}}
+let wakeBusy=false;
+async function wake(on){wantWake=on;try{if(on&&"wakeLock"in navigator&&!wakeLock&&!wakeBusy){wakeBusy=true;try{wakeLock=await navigator.wakeLock.request("screen");wakeLock.addEventListener("release",()=>{wakeLock=null})}finally{wakeBusy=false}}else if(!on&&!keepAwakeOn&&wakeLock){await wakeLock.release();wakeLock=null}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&(wantWake||keepAwakeOn))wake(true)});
 /* ============ Navigation ============ */
 const ICONS={
   home:'<path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
   train:'<path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
-  log:'<path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
   insights:'<path d="M4 19l5-6 4 3 7-9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
   activity:'<path d="M13 3l-2 7h5l-2 8M6 8h3M15 11h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
   food:'<path d="M5 3v8M8 3v8M5 7h3M18 3c-2 0-3 2-3 5s1 3 1 3v10M11 3v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
   you:'<circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
 };
 const TABS=[["home","Home"],["train","Train"],["food","Food"],["activity","Move"],["insights","Insights"],["you","You"]];
-let TAB="home",W=null;
+let TAB="home",W=null,RENDER_DAY=iso();
 function renderTabs(){
   const t=$("#tabs");t.style.display=S.profile&&!W?"flex":"none";
-  t.innerHTML=TABS.filter(([k])=>!RO||RO_TABS.includes(k)).map(([k,l])=>`<button data-tab="${k}" ${TAB===k?'aria-current="page"':""}><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>${l}</button>`).join("");
+  $("#fab").hidden=!(S.profile&&!W&&!RO&&TAB!=="log");   // + is on every main tab (not in a workout, the log screen, or read-only viewing)
+  const cur=TAB==="log"?LOGFROM:TAB;   // the Log screen keeps the tab she came from highlighted
+  t.innerHTML=TABS.filter(([k])=>!RO||RO_TABS.includes(k)).map(([k,l])=>`<button data-tab="${k}" ${cur===k?'aria-current="page"':""}><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>${l}</button>`).join("");
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){TAB=b.dataset.tab;render();scrollTo(0,0)}});
 function render(){
+  RENDER_DAY=iso();
   if(RO&&!RO_TABS.includes(TAB))TAB="home";
   renderTabs();
   if(!S.profile){
@@ -705,12 +805,143 @@ function render(){
   $("#app").innerHTML=(RO?roBanner():"")+V[0]();V[1]();animateFigs();
 }
 const on=(id,f)=>{const el=document.getElementById(id);if(el)el.onclick=f};
-function sheet(html){$("#sheetInner").innerHTML=html;$("#sheet").classList.add("on");animateFigs()}
-function closeSheet(){$("#sheet").classList.remove("on");$("#sheetInner").innerHTML=""}
-let walkTimer=null;
-$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet"&&!walkTimer)closeSheet()});
+// A sheet can register cleanup (e.g. the barcode scanner's camera). It runs whenever the sheet is replaced or closed, by any route.
+let sheetCleanup=null,walkTimer=null;
+function runSheetCleanup(){const f=sheetCleanup;sheetCleanup=null;if(f){try{f()}catch(e){}}}
+function sheet(html){runSheetCleanup();$("#sheetInner").innerHTML=html;$("#sheet").classList.add("on");animateFigs()}
+function closeSheet(){
+  runSheetCleanup();
+  if(walkTimer){clearInterval(walkTimer);walkTimer=null;wake(false)}   // a walk timer must never outlive its sheet
+  $("#sheet").classList.remove("on");$("#sheetInner").innerHTML="";
+}
+// tapping the dark backdrop closes a sheet, except while a walk timer or GPS session is running (those have Finish / Discard)
+$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet"&&!walkTimer&&!GPS)closeSheet()});
 
-/* ============ HOME ============ */
+/* ============ Add: the one floating + for logging anything (forms live in sheets, nowhere else) ============ */
+function mealNow(){const n=new Date(),h=n.getHours()+n.getMinutes()/60;return h<10.5?"b":h<15?"l":h<20.5?"d":"s"}
+// which after-meal walk to offer: the current meal's, or the next one not walked yet today
+function walkMealNow(){const t=iso(),done=new Set(S.activity.filter(a=>a.d===t&&a.kind==="postmeal").map(a=>a.meal));
+  const order=["b","l","d"],cur=mealNow()==="s"?"d":mealNow();
+  return [cur,...order.filter(k=>k!==cur)].find(k=>!done.has(k))||cur}
+function openAddSheet(){
+  if(RO||!S.profile||W)return;
+  sheet(`<h2 style="margin-top:0">Add</h2><div class="addgrid">
+    <button class="btn" data-add="weight">Weight<small>kg</small></button>
+    <button class="btn" data-add="glucose">Glucose<small>mmol/L</small></button>
+    <button class="btn alt" data-add="measures">Measurements<small>waist, hips and more</small></button>
+    <button class="btn alt" data-add="hba1c">HbA1c<small>lab result</small></button>
+    <button class="btn alt" data-add="activity">Activity<small>walk, cycle, gym</small></button>
+    <button class="btn alt" data-add="food">Food<small>meal or snack</small></button>
+    <button class="btn alt wide" data-add="health">Import from Apple Health</button></div>
+    <button class="btn ghost block" id="addClose" style="margin-top:12px">Close</button>`);
+  $$("[data-add]").forEach(b=>b.onclick=()=>addForm(b.dataset.add));
+  on("addClose",closeSheet);
+}
+function addForm(k){
+  const f={weight:weightSheet,glucose:glucoseSheet,measures:measuresSheet,hba1c:hba1cSheet,activity:()=>manualActivitySheet(iso()),food:()=>addFoodSheet(mealNow(),iso()),health:()=>healthSheet()}[k];
+  if(f)f();
+}
+// "See all …" link at the bottom of a form: closes the sheet and opens that history, with a back button to where she was
+const histLink=(seg,txt)=>`<button class="backlink" data-hist="${seg}" style="margin-top:6px">${txt} →</button>`;
+function bindForm(){on("formClose",closeSheet);$$("[data-hist]").forEach(b=>b.onclick=()=>{closeSheet();openLog(b.dataset.hist)})}
+
+function weightSheet(){
+  const last=lastOf(S.weights);
+  sheet(`<h2 style="margin-top:0">Weight</h2>
+    <div class="grid2"><div><label for="wKg">Weight (kg)</label><input id="wKg" type="number" inputmode="decimal" step="0.1" value="${last?last.kg:""}"></div>
+    <div><label for="wD">Date</label><input id="wD" type="date" value="${iso()}"></div></div>
+    <details><summary>Body fat and muscle (optional)</summary><div class="grid2"><div><label for="wFat">Body fat (%)</label><input id="wFat" type="number" inputmode="decimal" step="0.1"></div><div><label for="wMus">Muscle (kg)</label><input id="wMus" type="number" inputmode="decimal" step="0.1"></div></div></details>
+    <p class="dim" style="font-size:.84rem">Weigh first thing, after the loo, before food. Daily is best: the trend line smooths out water and milk swings.</p>
+    <button class="btn xl" id="addW" style="margin-top:8px">Save weight</button>
+    <button class="btn ghost block" id="formClose" style="margin-top:10px">Cancel</button>${histLink("weight","See all weights")}`);
+  bindForm();
+  const k=$("#wKg");if(k){k.focus();k.select()}   // her last weight is filled in; typing replaces it
+  on("addW",()=>{const kg=num($("#wKg").value);if(!kg||kg<30||kg>250)return toast("Enter your weight in kg, like 72.4");const dd=formDate("wD");if(!dd)return;
+    S.weights.push({id:uid(),d:dd,kg,fat:num($("#wFat").value),muscle:num($("#wMus").value),src:"app"});
+    commit();askPersist();closeSheet();toast("Weight saved");render()});
+}
+function glucoseSheet(){
+  const fastingTime=new Date().getHours()<10;
+  sheet(`<h2 style="margin-top:0">Blood sugar</h2>
+    <label for="gV">Reading (mmol/L)</label><input id="gV" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 5.6">
+    <label for="gC">When</label><select id="gC">${[["fasting","Fasting (before food)"],["before meal","Before a meal"],["1-2h after meal","1–2 hours after a meal"],["pre-exercise","Before exercise"],["post-exercise","After exercise"],["other","Other"]].map(([k,l])=>`<option value="${k}" ${k===(fastingTime?"fasting":"other")?"selected":""}>${l}</option>`).join("")}</select>
+    <div id="mealWrap" style="display:none"><label for="gM">Which meal</label><select id="gM"><option value="b">Breakfast</option><option value="l">Lunch</option><option value="d">Dinner</option></select></div>
+    <details><summary>Date and time (now)</summary><div class="grid2"><div><label for="gD">Date</label><input id="gD" type="date" value="${iso()}"></div><div><label for="gT">Time</label><input id="gT" type="time" value="${nowHM()}"></div></div></details>
+    <p class="dim" style="font-size:.84rem">Tag after-meal readings with the meal and the app compares days you walked against days you didn't.</p>
+    <button class="btn xl" id="addG" style="margin-top:8px">Save reading</button>
+    <button class="btn ghost block" id="formClose" style="margin-top:10px">Cancel</button>${histLink("glucose","See all readings")}`);
+  bindForm();
+  const gc=$("#gC");gc.onchange=()=>{$("#mealWrap").style.display=/after meal|before meal/.test(gc.value)?"block":"none"};const gv=$("#gV");if(gv)gv.focus();
+  on("addG",()=>{const v=num($("#gV").value);if(!v||v>40)return toast("Enter a reading in mmol/L, like 5.6");const ctx=gc.value;const dd=formDate("gD");if(!dd)return;
+    const g={id:uid(),d:dd,t:$("#gT").value||nowHM(),mmol:v,ctx};if(/meal/.test(ctx))g.meal=$("#gM").value;
+    S.glucose.push(g);commit();closeSheet();toast(v<3.9?"Saved. Under 3.9 is a low: treat it now.":"Reading saved");render()});
+}
+function measuresSheet(){
+  sheet(`<h2 style="margin-top:0">Measurements</h2>
+    <label for="mD">Date</label><input id="mD" type="date" value="${iso()}">
+    <div class="grid2">${[["waist","Waist at navel (cm)"],["hips","Hips (cm)"],["chest","Chest (cm)"],["arm","Upper arm (cm)"],["thigh","Thigh (cm)"]].map(([k,l])=>`<div><label for="m_${k}">${l}</label><input id="m_${k}" type="number" inputmode="decimal" step="0.1"></div>`).join("")}</div>
+    <p class="dim" style="font-size:.84rem">Every 2 weeks, same time of day. Waist is the best home measure of fat loss.</p>
+    <button class="btn xl" id="addM" style="margin-top:8px">Save measurements</button>
+    <button class="btn ghost block" id="formClose" style="margin-top:10px">Cancel</button>${histLink("measures","See all measurements")}`);
+  bindForm();
+  on("addM",()=>{const dd=formDate("mD");if(!dd)return;const m={id:uid(),d:dd};let any=false;["waist","hips","chest","arm","thigh"].forEach(k=>{const v=num($("#m_"+k).value);if(v){m[k]=v;any=true}});
+    if(!any)return toast("Enter at least one measurement in cm");S.measures.push(m);commit();closeSheet();toast("Measurements saved");render()});
+}
+function hba1cSheet(){
+  sheet(`<h2 style="margin-top:0">HbA1c</h2>
+    <div class="grid2"><div><label for="hV">HbA1c (mmol/mol)</label><input id="hV" type="number" inputmode="numeric" placeholder="e.g. 44"></div><div><label for="hD">Test date</label><input id="hD" type="date" value="${iso()}"></div></div>
+    <p class="dim" style="font-size:.84rem">NZ (from July 2026): under 42 is normal, 42–47 prediabetes, 48+ diabetes. It reflects about 3 months, so retest every 3 months. Results can read off soon after birth or with low iron, so mention both to your GP.</p>
+    <button class="btn xl" id="addH" style="margin-top:8px">Save result</button>
+    <button class="btn ghost block" id="formClose" style="margin-top:10px">Cancel</button>${histLink("hba1c","See all results")}`);
+  bindForm();const hv=$("#hV");if(hv)hv.focus();
+  on("addH",()=>{const v=num($("#hV").value);if(!v||v<20||v>150)return toast("Enter HbA1c in mmol/mol, like 44");const dd=formDate("hD");if(!dd)return;S.hba1c.push({id:uid(),d:dd,v});commit();closeSheet();toast("HbA1c saved");render()});
+}
+function healthSheet(fromChecklist){
+  sheet(`<h2 style="margin-top:0">Apple Health</h2>${healthBody()}
+    ${fromChecklist?`<button class="btn alt block" id="chkShortcut" style="margin-top:10px">I've built the Shortcut</button>`:""}
+    <button class="btn ghost block" id="formClose" style="margin-top:10px">Close</button>`);
+  bindForm();bindHealth(true);
+  on("chkShortcut",()=>{setChecklist("shortcut");closeSheet();toast("Nice. One step done")});
+}
+function homeScreenSheet(){
+  sheet(`<h2 style="margin-top:0">Add to your Home Screen</h2>
+    <ol style="padding-left:20px;line-height:1.7"><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button (the square with an arrow).</li><li>Tap <b>Add to Home Screen</b>, then <b>Add</b>.</li><li>From now on, always open Indy's Year from that icon. That's what keeps your data safe on the phone.</li></ol>
+    <button class="btn xl" id="chkHome" style="margin-top:8px">It's on my Home Screen</button>
+    <button class="btn ghost block" id="formClose" style="margin-top:10px">Not yet</button>`);
+  bindForm();on("chkHome",()=>{setChecklist("homescreen");closeSheet();toast("Nice. One step done")});
+}
+
+/* ---- first-week "Getting started" checklist (hides itself after 7 days, when everything is done, or when she taps Hide) ---- */
+let CHKOPEN=null;   // null = automatic: open for the first 2 days, folded after that
+const isStandalone=()=>navigator.standalone===true||matchMedia("(display-mode: standalone)").matches;
+function setChecklist(k){S.profile.checklist=Object.assign({},S.profile.checklist,{[k]:true});S.profile.updatedAt=Date.now();commit();render()}
+function checklistItems(){
+  const c=P_().checklist||{};
+  return [
+    {k:"weight",t:"Log your weight",done:S.weights.length>=2,go:()=>weightSheet()},
+    {k:"workout",t:"Do your first workout",done:S.sessions.length>0,go:()=>{TAB="train";render();scrollTo(0,0)}},
+    {k:"backup",t:"Sign in for cloud backup",done:!!(SYNC.user||SYNC.known),go:()=>{YOUOPEN.sync=true;TAB="you";render();scrollTo(0,0)}},
+    {k:"shortcut",t:"Build the Apple Health Shortcut",done:!!c.shortcut||S.vitals.some(v=>v.src==="Apple Health"),go:()=>healthSheet(true)},
+    {k:"homescreen",t:"Add the app to your Home Screen",done:!!c.homescreen||isStandalone(),go:()=>homeScreenSheet()}];
+}
+function showChecklist(){const p=P_();return !RO&&!p.hideStart&&!!p.createdAt&&Date.now()-p.createdAt<7*864e5&&checklistItems().some(i=>!i.done)}
+function checklistHTML(){
+  if(!showChecklist())return "";
+  const items=checklistItems(),n=items.filter(i=>i.done).length;
+  const tick='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const open=CHKOPEN!==null?CHKOPEN:Date.now()-P_().createdAt<2*864e5;
+  return `<details class="card chk" id="chkBox" ${open?"open":""}><summary>Getting started <span class="dim">${n} of ${items.length}</span></summary>
+    ${items.map(i=>`<button class="crow ${i.done?"done":""}" data-chk="${i.k}"><span class="tick" aria-hidden="true">${i.done?tick:""}</span><span class="lab">${i.t}</span></button>`).join("")}
+    <button class="btn alt sm block" id="chkHide" style="margin-top:8px" aria-label="Hide the getting started list">Hide this list</button></details>`;
+}
+const QICONS={
+  weight:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 9.5a4.5 4.5 0 017 0M12 9.5l1.6 2.4"/>',
+  glucose:'<path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/>',
+  food:'<path d="M5 3v8M8 3v8M5 7h3M18 3c-2 0-3 2-3 5s1 3 1 3v10M11 3v18"/>',
+  walk:'<circle cx="13" cy="4.5" r="1.8"/><path d="M9.5 21l2.5-6-1.6-3 2-4 3 2 3 1M12 15l3.5 2 1 4M10.4 12l-3 1.5"/>'
+};
+
+/* ============ HOME ("Today") ============ */
 const MEALS=[["b","Breakfast"],["l","Lunch"],["d","Dinner"]];
 function viewHome(){
   const p=P_(),t=iso(),tn=trendNow(),lost=lostKg(),r=regression();
@@ -720,7 +951,7 @@ function viewHome(){
   // mini chart with projection cone
   let cone=[],proj=[];
   if(r&&r.ok&&ts.length){const end=ts[ts.length-1];for(let i=0;i<=30;i+=5){const d=addDays(end.d,i);cone.push([ms(d),end.t+(r.slope-r.se)*i,end.t+(r.slope+r.se)*i]);proj.push([ms(d),end.t+r.slope*i])}}
-  const mini=lineChart({h:120,label:"Weight trend",series:[
+  const mini=lineChart({h:80,label:"Weight trend",series:[
     {pts:ts.filter(x=>x.w!=null).map(x=>[ms(x.d),x.w,x.w>x.t?"var(--warn)":"var(--good)"]),line:false,r:2.2,op:.8},
     {pts:ts.map(x=>[ms(x.d),x.t]),dots:false,w:3,color:"var(--accent)",glow:true},
     {pts:proj,dots:false,dash:"4 4",color:"var(--accent)",w:2}],cone,empty:"Log a weigh-in to start the trend line."});
@@ -728,20 +959,23 @@ function viewHome(){
   const d=nextDay(),day=buildDay(d),done=S.sessions.find(s=>s.d===t);
   const wm=weekMinutes(),st=weekStrength(),walksToday=S.activity.filter(a=>a.d===t&&a.kind==="postmeal");
   const hb=lastOf(S.hba1c),cat=hbCat(hb?.v),fa=fastingAvg(7);
-  const ins=insights()[0];const prot=S.protein[t]||0;
+  const prot=S.protein[t]||0;
   const pin=hb?clamp((hb.v-30)/40*100,0,100):null;const t42=(42-30)/40*100,t48=(48-30)/40*100;
+  const qb=(k,l)=>`<button data-q="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${QICONS[k]}</svg>${l}</button>`;
   return `<div class="top"><div><div class="lbl">${new Date().toLocaleDateString("en-NZ",{weekday:"short",day:"2-digit",month:"short"}).toUpperCase()} · ${streak()} DAY STREAK</div><h1>Kia ora${p.name?" "+esc(p.name):""}</h1></div></div>
 
-  <section class="card hero">
+  ${checklistHTML()}
+  <div class="qlog" role="group" aria-label="Quick log">${qb("weight","Weight")}${qb("glucose","Glucose")}${qb("food","Food")}${qb("walk","Walk")}</div>
+
+  <section class="card hero tight">
     <div class="lbl">Trend weight</div>
-    <div class="big">${tn?r1(tn):"–"}<small>kg</small></div>
-    <div class="chips">
-      <span class="chip acc">${lost>0?"−"+lost:lost===0?"0":"+"+(-lost)} kg</span>
-      ${r&&r.ok?`<span class="chip ${r.perWeek<0?"good":"warn"}">${r.perWeek<0?"":"+"}${r2(r.perWeek)} kg/wk</span>`:""}
-      ${deficitPerDay()>0?`<span class="chip">≈${deficitPerDay()} kcal/day deficit</span>`:""}
-    </div>
+    <div class="row" style="flex-wrap:nowrap;align-items:flex-end;gap:14px"><div class="big">${tn?r1(tn):"–"}<small>kg</small></div>
+      <div class="chips col">
+        <span class="chip acc">${lost>0?"−"+lost:lost===0?"0":"+"+(-lost)} kg</span>
+        ${r&&r.ok?`<span class="chip ${r.perWeek<0?"good":"warn"}">${r.perWeek<0?"":"+"}${r2(r.perWeek)} kg/wk</span>`:""}
+      </div></div>
     <div class="chart">${mini}</div>
-    <div class="row between" style="margin-top:6px;font-size:.86rem"><span>${etaTxt(e1,g1)}</span><span class="dim">${etaTxt(e2,g2)}</span></div>
+    <div class="row between" style="margin-top:6px;font-size:.9rem"><span>${etaTxt(e1,g1)}</span><span class="dim">${etaTxt(e2,g2)}</span></div>
     ${p.indyBday&&dbt(t,p.indyBday)>=0?`<div class="lbl" style="margin-top:8px">${dbt(t,p.indyBday)} days until Indy turns 1</div>`:""}
   </section>
 
@@ -753,31 +987,26 @@ function viewHome(){
     </div></div></section>
 
   <section class="card"><div class="row">
-    <div class="thumb figbox" style="width:96px;height:96px">${figSVG(day.list[0].key)}</div>
+    <div class="thumb figbox" style="width:76px;height:76px">${figSVG(day.list[0].key)}</div>
     <div class="grow"><div class="lbl">${done?"Done today":"Up next, cycle "+cycleNo()}</div>
       <h3 style="font-size:1.25rem">${done?"Session complete":"Day "+d+": "+day.focus}</h3>
-      <div class="dim" style="font-size:.86rem">${done?fmtT(done.dur)+" logged":day.list.map(x=>EX[x.key].n).join(", ")}</div></div></div>
-    ${done?"":`<button class="btn xl" data-start="${d}" style="margin-top:12px">Start workout</button>`}</section>
+      <div class="dim" style="font-size:.9rem">${done?fmtT(done.dur)+" logged":day.list.map(x=>EX[x.key].n).join(", ")}</div></div></div>
+    ${done?"":`<button class="btn xl" data-start="${d}" style="margin-top:10px;min-height:54px">Start workout</button>`}</section>
 
-  <section class="card"><div class="row between"><h3>Walk after meals</h3><span class="lbl">10–15 min</span></div>
-    <div class="walks" style="margin-top:8px">${MEALS.map(([k,l])=>{const w=walksToday.find(x=>x.meal===k);return `<button data-walk="${k}" class="${w?"done":""}">${l}<small>${w?w.min+" min":"Start timer"}</small></button>`}).join("")}</div>
-    <div class="row between" style="margin-top:14px"><div><h3 style="margin:0">Protein meals</h3><span class="lbl">Tap for each meal with protein</span></div>
-      <div class="pf-dots">${[1,2,3].map(i=>`<button data-prot="${i}" class="${prot>=i?"on":""}" aria-label="Protein meal ${i}">${i}</button>`).join("")}</div></div>
-    <div class="row between" style="margin-top:14px"><div><h3 style="margin:0">Pelvic floor</h3><span class="lbl">${pfStreak()} day streak</span></div>
-      <button class="btn sm ${S.pf[t]?"":"alt"}" id="pfBtn">${S.pf[t]?"Done":"Mark done"}</button></div></section>
+  <section class="card habits"><h3>Today's habits</h3>
+    <div class="hrow" style="display:block"><div class="row between"><h3>Walk after meals</h3><span class="lbl">10–15 min</span></div>
+      <div class="walks" style="margin-top:8px">${MEALS.map(([k,l])=>{const w=walksToday.find(x=>x.meal===k);return `<button data-walk="${k}" class="${w?"done":""}">${l}<small>${w?w.min+" min":"Start timer"}</small></button>`}).join("")}</div></div>
+    <div class="hrow"><div><h3>Protein with meals</h3><span class="lbl">Tap each meal that had protein</span></div>
+      <div class="pf-dots">${[1,2,3].map(i=>`<button data-prot="${i}" class="${prot>=i?"on":""}" aria-label="Protein meal ${i}" aria-pressed="${prot>=i}">${i}</button>`).join("")}</div></div>
+    <div class="hrow"><div><h3>Pelvic floor</h3><span class="lbl">${pfStreak()} day streak</span></div>
+      <button class="btn sm ${S.pf[t]?"":"alt"}" id="pfBtn">${S.pf[t]?"Done today":"Mark done"}</button></div></section>
 
   <section class="card"><div class="row between"><h3>Blood sugar</h3>${hb?`<span class="chip ${cat.c}">${cat.t}</span>`:""}</div>
-    ${hb?`<div class="row" style="align-items:baseline;gap:6px"><span class="big" style="font-size:2.6rem">${hb.v}</span><span class="dim">mmol/mol HbA1c, ${fmtD(hb.d)}</span></div>
+    ${hb?`<div class="row" style="align-items:baseline;gap:6px"><span class="big" style="font-size:2.4rem">${hb.v}</span><span class="dim">mmol/mol HbA1c, ${fmtD(hb.d)}</span></div>
     <div class="band"><div class="pin" style="left:${pin}%"></div><span class="tick" style="left:${t42}%">42</span><span class="tick" style="left:${t48}%">48</span></div>
-    <p class="dim" style="font-size:.86rem">Average glucose ≈ ${eAG(hb.v)} mmol/L. Non-diabetic range (under 42) needs ≈ 6.9 or lower. ${Math.max(0,90-dbt(hb.d,t))>0?"Next test in "+(90-dbt(hb.d,t))+" days.":"Retest is due."}</p>`
-      :`<p class="dim">Add your HbA1c in Log to see where you sit.</p>`}
-    ${fa?`<div class="tile" style="margin-top:8px"><b>${fa.v.toFixed(1)}</b><span>fasting average, last 7 days (${fa.n} readings)</span></div>`:""}
-  </section>
-
-  <section class="card"><div class="row between"><h3>Last 12 weeks</h3><span class="lbl">dot = strength day</span></div><div class="chart">${heatmap()}</div></section>
-  ${ins?`<section class="insight ${ins.c}">${ins.t}</section>`:""}
-  <div class="grid3" style="margin-top:12px"><button class="btn alt sm" data-quick="weight">+ Weight</button><button class="btn alt sm" data-quick="glucose">+ Glucose</button><button class="btn alt sm" data-quick="measures">+ Measure</button></div>
-  <button class="btn ghost block" data-quick="hba1c" style="margin-top:10px">All logs: HbA1c, body, activity, import</button>`;
+    <p class="dim" style="font-size:.9rem">${Math.max(0,90-dbt(hb.d,t))>0?"Next test in "+(90-dbt(hb.d,t))+" days.":"Retest is due."}${fa?` Fasting average ${fa.v.toFixed(1)} mmol/L over the last 7 days.`:""}</p>`
+      :`<p class="dim">Add your HbA1c with the + button to see where you sit.${fa?` Fasting average ${fa.v.toFixed(1)} mmol/L over the last 7 days.`:""}</p>`}
+  </section>`;
 }
 function pfStreak(){let n=0,d=iso();if(!S.pf[d])d=addDays(d,-1);while(S.pf[d]){n++;d=addDays(d,-1)}return n}
 function bindHome(){
@@ -785,7 +1014,10 @@ function bindHome(){
   $$("[data-walk]").forEach(b=>b.onclick=()=>openWalk(b.dataset.walk));
   $$("[data-prot]").forEach(b=>b.onclick=()=>{const t=iso(),i=+b.dataset.prot;S.protein[t]=(S.protein[t]||0)>=i?i-1:i;commit();render()});
   on("pfBtn",()=>{const t=iso();if(S.pf[t])delete S.pf[t];else S.pf[t]=true;commit();render()});
-  $$("[data-quick]").forEach(b=>b.onclick=()=>{TAB="log";LOGSEG=b.dataset.quick;render()});
+  $$("[data-q]").forEach(b=>b.onclick=()=>{if(RO)return;const q=b.dataset.q;if(q==="weight")weightSheet();else if(q==="glucose")glucoseSheet();else if(q==="food")addFoodSheet(mealNow(),iso());else openWalk(walkMealNow())});
+  $$("[data-chk]").forEach(b=>b.onclick=()=>{const it=checklistItems().find(i=>i.k===b.dataset.chk);if(it)it.go()});
+  on("chkHide",()=>{S.profile.hideStart=true;S.profile.updatedAt=Date.now();commit();render()});
+  const cb=$("#chkBox");if(cb)cb.addEventListener("toggle",()=>{CHKOPEN=cb.open});
 }
 
 /* walk timer */
@@ -795,11 +1027,11 @@ function openWalk(meal){
     <div class="timer"><svg viewBox="0 0 230 230"><circle cx="115" cy="115" r="100" fill="none" stroke="var(--surface-2)" stroke-width="12"/><circle id="wRing" cx="115" cy="115" r="100" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="628.3" stroke-dashoffset="628.3" transform="rotate(-90 115 115)"/></svg><div class="t" id="wt">0:00</div></div>
     <p class="extarget">Ring fills at 15 minutes</p>
     <button class="btn xl" id="wGo" style="margin-top:12px">Start walk</button>
-    <label>Or enter minutes</label><div class="row"><input id="wMin" type="number" inputmode="numeric" placeholder="12" class="grow" style="width:auto"><button class="btn alt" id="wSave">Save</button></div>
+    <label>Or enter minutes</label><div class="row"><input id="wMin" type="number" inputmode="numeric" placeholder="12" class="grow" style="width:auto"><button class="btn alt" id="walkSave">Save</button></div>
     <button class="btn ghost block" id="wClose" style="margin-top:12px">Close</button>`);
   const tick=()=>{const s=t0?(Date.now()-t0)/1000:0;$("#wt").textContent=fmtT(s);$("#wRing").setAttribute("stroke-dashoffset",628.3*(1-clamp(s/900,0,1)));return s};
   on("wGo",()=>{if(!t0){t0=Date.now();$("#wGo").textContent="Finish walk";walkTimer=setInterval(tick,500);wake(true)}else{const s=tick();clearInterval(walkTimer);walkTimer=null;wake(false);saveWalk(meal,Math.max(1,Math.round(s/60)))}});
-  on("wSave",()=>{const m=num($("#wMin").value);if(m)saveWalk(meal,m)});
+  on("walkSave",()=>{const m=num($("#wMin").value);if(m)saveWalk(meal,m)});
   on("wClose",()=>{clearInterval(walkTimer);walkTimer=null;wake(false);closeSheet()});
 }
 function saveWalk(meal,min){const t=iso();dropWhere("activity",a=>a.d===t&&a.kind==="postmeal"&&a.meal===meal);S.activity.push({id:uid(),d:t,kind:"postmeal",meal,min,src:"app"});commit();closeSheet();toast("Walk saved: "+min+" min");if(S.activity.filter(a=>a.d===t&&a.kind==="postmeal").length===3)confetti();render()}
@@ -830,17 +1062,17 @@ function preStart(day){
   const d=buildDay(day);
   sheet(`<h2 style="margin-top:0">Day ${day}: ${d.focus}</h2>
     <p class="dim">Quick check before you start.</p>
-    <div class="toggle"><span>Any leaking, heaviness or bulging down below?</span><input type="checkbox" id="q1"></div>
-    <div class="toggle"><span>Doming or coning down the middle of your tummy?</span><input type="checkbox" id="q2"></div>
-    <div class="toggle"><span>Any pain today?</span><input type="checkbox" id="q3"></div>
+    <label class="toggle"><span>Any leaking, heaviness or bulging down below?</span><input type="checkbox" id="q1"></label>
+    <label class="toggle"><span>Doming or coning down the middle of your tummy?</span><input type="checkbox" id="q2"></label>
+    <label class="toggle"><span>Any pain today?</span><input type="checkbox" id="q3"></label>
     ${hypoRisk()?`<div class="note"><b>Check glucose first.</b> Under 3.9: treat the low and skip today. 3.9–5.0: have carbs first and keep them handy.</div>
-      <div class="toggle"><span>Hypo kit with me</span><input type="checkbox" id="kit"></div>`:""}
+      <label class="toggle"><span>Hypo kit with me</span><input type="checkbox" id="kit"></label>`:""}
     <label>Glucose before (mmol/L, optional)</label><input id="gPre" type="number" inputmode="decimal" step="0.1">
     <button class="btn xl" id="goW" style="margin-top:14px">Let's go</button>
     <button class="btn ghost block" id="noW" style="margin-top:10px">Not now</button>`);
   on("noW",closeSheet);
   on("goW",()=>{
-    const g=num($("#gPre").value);if(g&&g<3.9){toast("Under 3.9: treat the low first and rest today.");return}
+    const g0=num($("#gPre").value),g=g0&&g0<=40?g0:null;if(g&&g<3.9){toast("Under 3.9: treat the low first and rest today.");return}
     if(g)S.glucose.push({id:uid(),d:iso(),t:nowHM(),mmol:g,ctx:"pre-exercise"});
     const sym=$("#q1").checked||$("#q2").checked;const pain=$("#q3").checked;
     closeSheet();if(sym)toast("Low-impact swaps on for today");startWorkout(day,sym||pain);
@@ -979,12 +1211,15 @@ async function lookupBarcode(code){
   if(S.foodCache[code])return {...S.foodCache[code],_cache:true};
   if(!navigator.onLine)return {error:"offline"};
   try{
-    const r=await fetch("https://world.openfoodfacts.org/api/v2/product/"+encodeURIComponent(code)+".json?fields=product_name,brands,nutriments,serving_quantity");
+    const ac=new AbortController(),to=setTimeout(()=>ac.abort(),10000);
+    const r=await fetch("https://world.openfoodfacts.org/api/v2/product/"+encodeURIComponent(code)+".json?fields=product_name,brands,nutriments,serving_quantity",{signal:ac.signal});clearTimeout(to);
+    if(!r.ok)return {error:"neterr"};
     const j=await r.json();
     if(j.status!==1||!j.product)return {error:"notfound"};
     const n=j.product.nutriments||{};const nm=[j.product.brands,j.product.product_name].filter(Boolean).join(" ").trim()||("Product "+code);
-    const food={n:nm,k:Math.round(n["energy-kcal_100g"]||(n["energy_100g"]?n["energy_100g"]/4.184:0)),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fb:+(n.fiber_100g||0),
-      s:[["serving",j.product.serving_quantity?+j.product.serving_quantity:100],["100 g",100]],cat:"Barcode",code};
+    const nf=v=>{const x=+v;return Number.isFinite(x)&&x>=0?x:0};
+    const food={n:nm,k:Math.round(nf(n["energy-kcal_100g"])||(n["energy_100g"]?nf(n["energy_100g"])/4.184:0)),p:nf(n.proteins_100g),c:nf(n.carbohydrates_100g),f:nf(n.fat_100g),fb:nf(n.fiber_100g),
+      s:[["serving",nf(j.product.serving_quantity)||100],["100 g",100]],cat:"Barcode",code};
     S.foodCache[code]=food;commit();
     return food;
   }catch(e){return {error:"neterr"}}
@@ -1019,18 +1254,18 @@ function bindFood(){
   $$("[data-fdel]").forEach(b=>b.onclick=()=>{dropWhere("meals",m=>m.id===b.dataset.fdel);commit();render()});
   $$("[data-fadd]").forEach(b=>b.onclick=()=>addFoodSheet(b.dataset.fadd));
 }
-function addFoodSheet(meal){
-  const d=FOODDATE||iso();
+function addFoodSheet(meal,day){
+  const d=day||FOODDATE||iso();
   sheet(`<h2 style="margin-top:0">Add to ${MEALNAMES[meal]}</h2>
     <div class="row"><input id="fSearch" placeholder="Search foods, e.g. ham, lettuce, oats" class="grow" style="width:auto" autocomplete=off><button class="btn" id="fScan" aria-label="Scan barcode">Scan</button></div>
     <div id="fResults" style="margin-top:10px"></div>
     <details style="margin-top:10px"><summary>Add manually</summary>
-      <label>Name</label><input id="mName" placeholder="e.g. Nana's soup">
-      <div class="grid2"><div><label>Amount (g)</label><input id="mG" type="number" inputmode="numeric" value="100"></div><div><label>Calories (per that amount)</label><input id="mK" type="number" inputmode="numeric"></div></div>
-      <div class="grid3"><div><label>Protein g</label><input id="mP" type="number" inputmode="decimal"></div><div><label>Carbs g</label><input id="mC" type="number" inputmode="decimal"></div><div><label>Fat g</label><input id="mF" type="number" inputmode="decimal"></div></div>
+      <label for="mName">Name</label><input id="mName" placeholder="e.g. Nana's soup">
+      <div class="grid2"><div><label for="mG">Amount (g)</label><input id="mG" type="number" inputmode="numeric" value="100"></div><div><label for="mK">Energy (kcal, for that amount)</label><input id="mK" type="number" inputmode="numeric"></div></div>
+      <div class="grid3"><div><label for="mP">Protein (g)</label><input id="mP" type="number" inputmode="decimal"></div><div><label for="mC">Carbs (g)</label><input id="mC" type="number" inputmode="decimal"></div><div><label for="mF">Fat (g)</label><input id="mF" type="number" inputmode="decimal"></div></div>
       <button class="btn block" id="mAdd" style="margin-top:10px">Add this</button></details>
     <button class="btn ghost block" id="fClose" style="margin-top:12px">Close</button>`);
-  loadBigDB(msg=>{const r=$("#fResults");if(r&&!$("#fSearch").value)r.innerHTML=`<p class="dim">${esc(msg)}</p>`}).then(db=>{if(db){const r=$("#fResults");if(r&&!$("#fSearch").value)r.innerHTML=`<p class="dim">${bigDBCount().toLocaleString()} foods ready. Type to search.</p>`;if($("#fSearch").value)doSearch()}});
+  loadBigDB(msg=>{const r=$("#fResults");if(r&&!$("#fSearch").value)r.innerHTML=`<p class="dim">${esc(msg)}</p>`}).then(db=>{const fs=$("#fSearch");if(db&&fs){const r=$("#fResults");if(r&&!fs.value)r.innerHTML=`<p class="dim">${bigDBCount().toLocaleString()} foods ready. Type to search.</p>`;if(fs.value)doSearch()}});   // the sheet may have closed while it loaded
   const doSearch=()=>{const q=$("#fSearch").value;const res=searchFood(q);
     $("#fResults").innerHTML=q.length<2?`<p class="dim">${bigDBReady()?bigDBCount().toLocaleString()+" foods ready":"Loading foods"}. Type a food or scan a barcode.</p>`:
       res.length?`<ul class="list">${res.map((f,i)=>`<li><span class="grow">${esc(f.n)}${f._cache?' <span class="chip">scanned</span>':""}<div class="dim" style="font-size:.8rem">${f.k} kcal · ${f.p}p / 100 g${f.src&&f.src!=="app"?" · "+esc(f.src.replace("USDA-","USDA ")):""}</div></span><button class="btn sm" data-pick="${i}">Add</button></li>`).join("")}</ul>`:`<p class="dim">No match. Add it manually below.</p>`;
@@ -1047,7 +1282,7 @@ function pickFood(f,meal,d){
   const servs=f.s||[["100 g",100]];
   sheet(`<h2 style="margin-top:0">${esc(f.n)}</h2><p class="dim">${f.k} kcal · ${f.p} g protein per 100 g</p>
     <label>How much?</label><div class="seg" id="servSeg">${servs.map((sv,i)=>`<button data-sv="${i}" aria-pressed="${i===0}">${esc(sv[0])}</button>`).join("")}</div>
-    <label>Grams</label><input id="svG" type="number" inputmode="numeric" value="${servs[0][1]}">
+    <label for="svG">Amount (g)</label><input id="svG" type="number" inputmode="numeric" value="${servs[0][1]}">
     <div id="svPrev" class="tile" style="margin-top:10px"></div>
     <button class="btn block" id="svAdd" style="margin-top:12px">Add to ${MEALNAMES[meal]}</button>
     <button class="btn ghost block" id="svBack" style="margin-top:8px">Back</button>`);
@@ -1055,7 +1290,7 @@ function pickFood(f,meal,d){
   $$("[data-sv]").forEach(b=>b.onclick=()=>{$$("[data-sv]").forEach(x=>x.setAttribute("aria-pressed",x===b));$("#svG").value=servs[+b.dataset.sv][1];prev()});
   $("#svG").oninput=prev;prev();
   on("svAdd",()=>{const g=num($("#svG").value)||0;if(!g)return;const s=scaleFood(f,g);S.meals.push({id:uid(),d,meal,...s,src:f.code?"barcode":f._cache?"scanned":"db"});commit();closeSheet();toast("Added "+f.n);render()});
-  on("svBack",()=>addFoodSheet(meal));
+  on("svBack",()=>addFoodSheet(meal,d));
 }
 
 /* ============ Barcode scanner (native BarcodeDetector, else ZXing-WASM polyfill) ============ */
@@ -1090,7 +1325,8 @@ async function scanBarcode(meal,d){
     pickFood(fd,meal,d);
   };
   on("bcGo",()=>{const c=$("#bcNum").value.trim();if(c)finish(c)});
-  on("bcClose",()=>{cleanup();closeSheet()});
+  sheetCleanup=cleanup;   // any way of closing this sheet switches the camera off
+  on("bcClose",closeSheet);
   const det=await getDetector();
   const msg=$("#bcMsg");
   if(!det){if(msg)msg.textContent="Camera scanning isn't available here. Type the barcode number instead.";const v=$("#bcVid");if(v)v.style.display="none";return}
@@ -1225,7 +1461,7 @@ function viewActivity(){
   const mins=Math.round(list.reduce((a,b)=>a+(b.min||0),0));
   const kcal=Math.round(list.reduce((a,b)=>a+(b.kcal||0),0));
   const km=r1(list.reduce((a,b)=>a+(b.km||0),0));
-  return `<div class="top"><div><div class="lbl">${d===iso()?"TODAY":fmtD(d).toUpperCase()}</div><h1>Activity</h1></div>
+  return `<div class="top"><div><div class="lbl">${d===iso()?"TODAY":fmtD(d).toUpperCase()}</div><h1>Move</h1></div>
     <div class="row"><button class="btn alt sm" id="aPrev">Prev</button><button class="btn alt sm" id="aNext" ${d>=iso()?"disabled":""}>Next</button></div></div>
   <section class="card hero"><div class="lbl">Logged ${d===iso()?"today":fmtD(d)}</div>
     <div class="row" style="gap:18px;align-items:baseline"><div class="big" style="font-size:2.8rem">${mins}<small>min</small></div>
@@ -1247,14 +1483,14 @@ function bindActivity(){
 }
 
 /* ---- MANUAL LOG ---- */
-function manualActivitySheet(){
-  const d=ACTDATE||iso();
+function manualActivitySheet(d0){
+  const d=d0||ACTDATE||iso();
   sheet(`<h2 style="margin-top:0">Log activity</h2>
     <label>What did you do?</label>
     <div class="seg" id="atSeg" style="flex-wrap:wrap">${ACT_TYPES.filter(t=>t[0]!=="other").map((t,i)=>`<button data-at="${t[0]}" aria-pressed="${i===0}">${t[1]}</button>`).join("")}</div>
-    <div class="grid2"><div><label>Minutes</label><input id="aMin" type="number" inputmode="numeric" placeholder="30"></div><div><label>Date</label><input id="aDt" type="date" value="${d}"></div></div>
-    <label>Distance km (optional)</label><input id="aKm" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 2.5">
-    <label>Note (optional)</label><input id="aNote" placeholder="e.g. big hills, felt good">
+    <div class="grid2"><div><label for="aMin">Time (minutes)</label><input id="aMin" type="number" inputmode="numeric" placeholder="30"></div><div><label for="aDt">Date</label><input id="aDt" type="date" value="${d}"></div></div>
+    <label for="aKm">Distance (km, optional)</label><input id="aKm" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 2.5">
+    <label for="aNote">Note (optional)</label><input id="aNote" placeholder="e.g. big hills, felt good">
     <div id="aKcalPrev" class="tile" style="margin-top:10px"></div>
     <button class="btn xl" id="aSave" style="margin-top:12px">Save</button>
     <button class="btn ghost block" id="aClose" style="margin-top:8px">Cancel</button>`);
@@ -1264,7 +1500,7 @@ function manualActivitySheet(){
   $$("[data-at]").forEach(b=>b.onclick=()=>{type=b.dataset.at;$$("[data-at]").forEach(x=>x.setAttribute("aria-pressed",x===b));prev()});
   $("#aMin").oninput=prev;$("#aKm").oninput=prev;prev();
   on("aSave",()=>{const m=num($("#aMin").value);if(!m)return toast("Enter minutes");const km=num($("#aKm").value);const kmh=km?km/(m/60):null;
-    S.activity.push({id:uid(),d:$("#aDt").value||d,kind:type,min:m,km:km||null,kcal:kcalFor(type,m,trendNow()||P_().startWeight,kmh),note:$("#aNote").value.trim()||null,src:"app"});
+    const dd=$("#aDt").value?formDate("aDt"):d;if(!dd)return;S.activity.push({id:uid(),d:dd,kind:type,min:m,km:km||null,kcal:kcalFor(type,m,trendNow()||P_().startWeight,kmh),note:$("#aNote").value.trim()||null,src:"app"});
     commit();closeSheet();toast("Activity saved");render()});
   on("aClose",closeSheet);
 }
@@ -1289,11 +1525,11 @@ function gpsSheet(){
 function runGateSheet(){
   sheet(`<h2 style="margin-top:0">Ready to run?</h2>
     <p class="dim" style="font-size:.9rem">Running too soon after birth can strain the pelvic floor. This quick check follows postnatal return-to-run guidance. It's guidance, not a medical clearance — see a pelvic health physio if unsure.</p>
-    <div class="toggle"><span>At least 12 weeks since birth</span><input type="checkbox" id="g1"></div>
-    <div class="toggle"><span>Can walk 30 min with no pain</span><input type="checkbox" id="g2"></div>
-    <div class="toggle"><span>No leaking, heaviness or dragging down below</span><input type="checkbox" id="g3"></div>
-    <div class="toggle"><span>No doming/coning along the tummy with effort</span><input type="checkbox" id="g4"></div>
-    <div class="toggle"><span>Can do 10 single-leg calf raises + 10 squats each side comfortably</span><input type="checkbox" id="g5"></div>
+    <label class="toggle"><span>At least 12 weeks since birth</span><input type="checkbox" id="g1"></label>
+    <label class="toggle"><span>Can walk 30 min with no pain</span><input type="checkbox" id="g2"></label>
+    <label class="toggle"><span>No leaking, heaviness or dragging down below</span><input type="checkbox" id="g3"></label>
+    <label class="toggle"><span>No doming/coning along the tummy with effort</span><input type="checkbox" id="g4"></label>
+    <label class="toggle"><span>Can do 10 single-leg calf raises + 10 squats each side comfortably</span><input type="checkbox" id="g5"></label>
     <button class="btn xl" id="gateSave" style="margin-top:14px">Unlock running</button>
     <button class="btn ghost block" id="gateClose" style="margin-top:8px">Not yet</button>`);
   on("gateSave",()=>{const ok=["g1","g2","g3","g4","g5"].every(id=>$("#"+id).checked);
@@ -1302,9 +1538,10 @@ function runGateSheet(){
   on("gateClose",()=>gpsSheet());
 }
 function startGPS(type){
+  if(GPS)return;   // never run two trackers (two watchers would count distance twice)
   if(type==="run"&&!runUnlocked()){toast("Running is locked until you have done the postpartum check.");return}
   if(!("geolocation" in navigator)){toast("This phone can't do GPS tracking. Log it manually instead.");return}
-  GPS={type,t0:Date.now(),pts:[],dist:0,elev:0,last:null,lastAlt:null,watch:null,paused:false,moving:0};
+  GPS={type,t0:Date.now(),n:0,dist:0,elev:0,last:null,lastAlt:null,watch:null,paused:false,err:""};
   wake(true);
   sheet(gpsLiveHTML());
   bindGPSLive();
@@ -1322,28 +1559,29 @@ function onPos(p){
       if(now.alt!=null)GPS.lastAlt=now.alt;
     }
   }else if(now.alt!=null)GPS.lastAlt=now.alt;
-  GPS.last=now;GPS.pts.push([r1(now.lat*1e4)/1e4,r1(now.lon*1e4)/1e4]);
+  GPS.last=now;GPS.n++;
 }
-function onPosErr(e){const m=$("#gMsg");if(m)m.textContent=e.code===1?"Allow location access in Settings → Safari to track. Or log manually.":"Getting GPS signal…"}
+function onPosErr(e){if(!GPS)return;GPS.err=e.code===1?"Allow location access in Settings → Safari to track. Or log manually.":"Getting GPS signal…";const m=$("#gMsg");if(m)m.textContent=GPS.err}
+function gpsStats(){
+  const el=(Date.now()-GPS.t0)/1000,km=GPS.dist/1000,kmh=el>5?km/(el/3600):0,pace=km>0.05?(el/60)/km:0;
+  return {el,km,kmh,kcal:kcalFor(GPS.type,el/60,trendNow()||P_().startWeight,kmh),pace:pace?Math.floor(pace)+":"+String(Math.round((pace%1)*60)).padStart(2,"0"):"–",
+    msg:GPS.err&&!GPS.n?GPS.err:GPS.n?"Tracking… keep the screen on.":"Getting GPS signal… step outside for a better fix."};
+}
 function gpsLiveHTML(){
-  const el=GPS.t0?(Date.now()-GPS.t0)/1000:0;const km=GPS.dist/1000;
-  const kmh=el>5?km/(el/3600):0;const pace=km>0.05?(el/60)/km:0;
-  const kcal=kcalFor(GPS.type,el/60,trendNow()||P_().startWeight,kmh);
-  const tn=(ACT_TYPES.find(t=>t[0]===GPS.type)||[,GPS.type])[1];
-  return `<h2 style="margin-top:0">${tn}${GPS.paused?" (paused)":""}</h2>
-    <div class="grid2" style="gap:10px">
-      <div class="tile"><b style="font-size:2rem">${fmtT(el)}</b><span>time</span></div>
-      <div class="tile"><b style="font-size:2rem">${r1(km)}</b><span>km</span></div>
-      <div class="tile"><b style="font-size:2rem">${pace?Math.floor(pace)+":"+String(Math.round((pace%1)*60)).padStart(2,"0"):"–"}</b><span>min/km pace</span></div>
-      <div class="tile"><b style="font-size:2rem">${kcal}</b><span>kcal</span></div>
-      <div class="tile"><b style="font-size:2rem">${r1(kmh)}</b><span>km/h</span></div>
-      <div class="tile"><b style="font-size:2rem">↑${GPS.elev}</b><span>elev gain m</span></div>
-    </div>
-    <p class="dim" id="gMsg" style="font-size:.84rem;margin-top:10px">${GPS.pts.length?"Tracking… keep the screen on.":"Getting GPS signal… step outside for a better fix."}</p>
+  const s=gpsStats(),tn=(ACT_TYPES.find(t=>t[0]===GPS.type)||[,GPS.type])[1];
+  const tile=(id,v,l)=>`<div class="tile"><b id="${id}" style="font-size:2rem">${v}</b><span>${l}</span></div>`;
+  return `<h2 id="gTitle" style="margin-top:0">${tn}${GPS.paused?" (paused)":""}</h2>
+    <div class="grid2" style="gap:10px">${tile("gpT",fmtT(s.el),"time")}${tile("gpK",r1(s.km),"km")}${tile("gpP",s.pace,"min/km pace")}${tile("gpC",s.kcal,"kcal")}${tile("gpS",r1(s.kmh),"km/h")}${tile("gpE","↑"+Math.round(GPS.elev),"elev gain m")}</div>
+    <p class="dim" id="gMsg" style="font-size:.9rem;margin-top:10px">${s.msg}</p>
     <div class="grid2" style="margin-top:8px"><button class="btn alt xl" id="gPause">${GPS.paused?"Resume":"Pause"}</button><button class="btn xl" id="gFinish">Finish</button></div>
     <button class="btn ghost block" id="gDiscard" style="margin-top:8px">Discard</button>`;
 }
-function updGPS(){if(!GPS)return;const inner=$("#sheetInner");if(inner&&$("#gFinish")){const sc=inner.scrollTop;inner.innerHTML=gpsLiveHTML();bindGPSLive();inner.scrollTop=sc}}
+// refresh the numbers in place: the buttons are never rebuilt, so a tap on Finish or Pause can't be lost mid-redraw
+function updGPS(){
+  if(!GPS)return;const s=gpsStats(),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set("gpT",fmtT(s.el));set("gpK",r1(s.km));set("gpP",s.pace);set("gpC",s.kcal);set("gpS",r1(s.kmh));set("gpE","↑"+Math.round(GPS.elev));set("gMsg",s.msg);
+  const tn=(ACT_TYPES.find(t=>t[0]===GPS.type)||[,GPS.type])[1];set("gTitle",tn+(GPS.paused?" (paused)":""));set("gPause",GPS.paused?"Resume":"Pause");
+}
 function bindGPSLive(){
   on("gPause",()=>{GPS.paused=!GPS.paused;updGPS()});
   on("gFinish",finishGPS);
@@ -1355,60 +1593,53 @@ function finishGPS(){
   if(min<1){toast("Too short to save");stopGPS();return}
   const kmh=km/(el/3600),pace=km>0.05?(()=>{const p=(el/60)/km;return Math.floor(p)+":"+String(Math.round((p%1)*60)).padStart(2,"0")})():null;
   const kcal=kcalFor(GPS.type,min,trendNow()||P_().startWeight,kmh);
-  S.activity.push({id:uid(),d:iso(),kind:GPS.type,min,km:km||null,kcal,elev:GPS.elev||null,pace,src:"GPS"});
+  S.activity.push({id:uid(),d:iso(),kind:GPS.type,min,km:km||null,kcal,elev:Math.round(GPS.elev)||null,pace,src:"GPS"});
   commit();toast(`Saved: ${km} km, ${min} min, ${kcal} kcal`);stopGPS();if(km>=2)confetti();
 }
-/* ============ LOG ============ */
-let LOGSEG="weight";
-const SEGS=[["weight","Weight"],["measures","Body"],["glucose","Glucose"],["hba1c","HbA1c"],["activity","Activity"],["import","Import"]];
-function viewLog(){return `<div class="top"><h1>Log</h1></div><div class="seg" role="group">${SEGS.map(([k,l])=>`<button data-seg="${k}" aria-pressed="${LOGSEG===k}">${l}</button>`).join("")}</div>${segBody()}`}
-const delBtn=(a,id)=>`<button class="x" data-del="${a}:${id}" aria-label="Delete">×</button>`;
+/* ============ LOG: history. The forms live in the Add sheets; this screen is for looking back and deleting ============ */
+let LOGSEG="weight",LOGFROM="home";const LOGALL={};   // LOGFROM = the tab she came from (Back goes there and that tab stays highlighted)
+const SEGS=[["weight","Weight"],["measures","Body"],["glucose","Glucose"],["hba1c","HbA1c"],["import","Import"]];
+function openLog(seg,from){
+  LOGSEG=SEGS.some(s=>s[0]===seg)?seg:"weight";
+  const f=from||(TAB==="log"?LOGFROM:TAB);LOGFROM=TABS.some(x=>x[0]===f)?f:"home";
+  TAB="log";render();scrollTo(0,0);
+}
+function viewLog(){
+  const from=(TABS.find(x=>x[0]===LOGFROM)||TABS[0])[1];
+  return `<div class="top"><div><button class="backlink" id="logBack" aria-label="Back to ${from}">← ${from}</button><h1>Log</h1></div></div>
+  <div class="seg" role="group" aria-label="Log sections">${SEGS.map(([k,l])=>`<button data-seg="${k}" aria-pressed="${LOGSEG===k}">${l}</button>`).join("")}</div>${segBody()}`;
+}
+const delBtn=(a,id)=>`<button class="x" data-del="${a}:${id}" aria-label="Delete this entry">×</button>`;
 const srcChip=x=>x.src&&x.src!=="app"?` <span class="chip">${esc(x.src)}</span>`:"";
+// latest 10, with a Show all button
+function listCard(seg,items,row,empty){
+  const all=!!LOGALL[seg],arr=all?items:items.slice(0,10);
+  return `<section class="card"><ul class="list">${arr.map(row).join("")||`<li class="dim">${empty}</li>`}</ul>${items.length>10?`<button class="btn alt block" data-showall="${seg}" style="margin-top:8px">${all?"Show fewer":"Show all "+items.length}</button>`:""}</section>`;
+}
 function segBody(){
-  const t=iso();
-  if(LOGSEG==="weight")return `<section class="card"><div class="grid2"><div><label>Date</label><input id="wD" type="date" value="${t}"></div><div><label>Weight (kg)</label><input id="wKg" type="number" inputmode="decimal" step="0.1"></div></div>
-    <div class="grid2"><div><label>Body fat % (optional)</label><input id="wFat" type="number" inputmode="decimal" step="0.1"></div><div><label>Muscle kg (optional)</label><input id="wMus" type="number" inputmode="decimal" step="0.1"></div></div>
-    <button class="btn xl" id="addW" style="margin-top:12px">Save weight</button>
-    <p class="dim" style="font-size:.84rem;margin-top:8px">Weigh first thing, after the loo, before food. Daily is best: the trend line smooths out water and milk swings.</p></section>
-    <section class="card"><ul class="list">${sorted(S.weights).reverse().slice(0,40).map(w=>`<li><span class="grow">${fmtD(w.d)}</span><b class="num">${w.kg} kg</b>${w.fat?`<span class="dim">${w.fat}%</span>`:""}${srcChip(w)}${delBtn("weights",w.id)}</li>`).join("")||"<li class='dim'>No weights yet</li>"}</ul></section>`;
-  if(LOGSEG==="measures")return `<section class="card"><label>Date</label><input id="mD" type="date" value="${t}">
-    <div class="grid2">${[["waist","Waist (cm, at navel)"],["hips","Hips (cm)"],["chest","Chest (cm)"],["arm","Upper arm (cm)"],["thigh","Thigh (cm)"]].map(([k,l])=>`<div><label>${l}</label><input id="m_${k}" type="number" inputmode="decimal" step="0.1"></div>`).join("")}</div>
-    <button class="btn xl" id="addM" style="margin-top:12px">Save measurements</button>
-    <p class="dim" style="font-size:.84rem;margin-top:8px">Every 2 weeks, same time of day. Waist is the best home measure of fat loss.</p></section>
-    <section class="card"><ul class="list">${sorted(S.measures).reverse().map(m=>`<li><span>${fmtD(m.d)}</span><span class="grow dim" style="font-size:.86rem">${["waist","hips","chest","arm","thigh"].filter(k=>m[k]).map(k=>k+" "+m[k]).join(", ")}</span>${delBtn("measures",m.id)}</li>`).join("")||"<li class='dim'>No measurements yet</li>"}</ul></section>`;
-  if(LOGSEG==="glucose")return `<section class="card"><div class="grid2"><div><label>Date</label><input id="gD" type="date" value="${t}"></div><div><label>Time</label><input id="gT" type="time" value="${nowHM()}"></div></div>
-    <div class="grid2"><div><label>Reading (mmol/L)</label><input id="gV" type="number" inputmode="decimal" step="0.1"></div><div><label>When</label><select id="gC"><option value="fasting">Fasting</option><option value="before meal">Before meal</option><option value="1-2h after meal">1–2 h after meal</option><option value="pre-exercise">Before exercise</option><option value="post-exercise">After exercise</option><option value="other">Other</option></select></div></div>
-    <div id="mealWrap" style="display:none"><label>Which meal</label><select id="gM"><option value="b">Breakfast</option><option value="l">Lunch</option><option value="d">Dinner</option></select></div>
-    <button class="btn xl" id="addG" style="margin-top:12px">Save reading</button>
-    <p class="dim" style="font-size:.84rem;margin-top:8px">Tag after-meal readings with the meal and the app compares days you walked against days you didn't.</p></section>
-    <section class="card"><ul class="list">${sorted(S.glucose).reverse().slice(0,40).map(g=>`<li><span>${fmtD(g.d)} <span class="dim">${esc(g.t||"")}</span></span><span class="grow dim" style="font-size:.84rem">${esc(g.ctx)}${g.meal?" ("+{b:"breakfast",l:"lunch",d:"dinner"}[g.meal]+")":""}</span><b class="num" style="color:${g.mmol<3.9?"var(--bad)":"inherit"}">${g.mmol}</b>${delBtn("glucose",g.id)}</li>`).join("")||"<li class='dim'>No readings yet</li>"}</ul></section>`;
-  if(LOGSEG==="hba1c")return `<section class="card"><div class="grid2"><div><label>Test date</label><input id="hD" type="date" value="${t}"></div><div><label>HbA1c (mmol/mol)</label><input id="hV" type="number" inputmode="numeric"></div></div>
-    <button class="btn xl" id="addH" style="margin-top:12px">Save result</button>
-    <p class="dim" style="font-size:.84rem;margin-top:8px">NZ (from July 2026): under 42 is normal, 42–47 prediabetes, 48+ diabetes. It reflects about 3 months, so retest every 3 months. Results can read off soon after birth or with low iron, so mention both to your GP.</p></section>
-    <section class="card"><ul class="list">${sorted(S.hba1c).reverse().map(h=>`<li><span class="grow">${fmtD(h.d)}</span><span class="chip ${hbCat(h.v).c}">${hbCat(h.v).t}</span><b class="num">${h.v}</b>${delBtn("hba1c",h.id)}</li>`).join("")||"<li class='dim'>No results yet</li>"}</ul></section>`;
-  if(LOGSEG==="activity")return `<section class="card"><div class="grid2"><div><label>Date</label><input id="aD" type="date" value="${t}"></div><div><label>Type</label><select id="aK"><option value="walk">Walk</option><option value="postmeal">After-meal walk</option><option value="other">Other exercise</option><option value="steps">Steps only</option></select></div></div>
-    <div class="grid2"><div><label>Minutes</label><input id="aM" type="number" inputmode="numeric"></div><div><label>Steps (optional)</label><input id="aS" type="number" inputmode="numeric"></div></div>
-    <button class="btn xl" id="addA" style="margin-top:12px">Save activity</button></section>
-    <section class="card"><ul class="list">${sorted(S.activity).reverse().slice(0,40).map(a=>`<li><span>${fmtD(a.d)}</span><span class="grow dim" style="font-size:.86rem">${esc(a.kind==="postmeal"?"after-meal walk":a.kind)}</span><b class="num">${a.min?a.min+" min":""}${a.steps?" "+a.steps+" steps":""}</b>${srcChip(a)}${delBtn("activity",a.id)}</li>`).join("")||"<li class='dim'>Nothing yet</li>"}</ul></section>`;
+  const add=(k,txt)=>`<button class="btn block" data-add="${k}" style="margin-top:12px">${txt}</button>`;
+  if(LOGSEG==="weight")return add("weight","+ Add weight")+listCard("weight",sorted(S.weights).reverse(),w=>`<li><span class="grow">${fmtD(w.d)}</span><b class="num">${w.kg} kg</b>${w.fat?`<span class="dim">${w.fat}%</span>`:""}${srcChip(w)}${delBtn("weights",w.id)}</li>`,"No weights yet");
+  if(LOGSEG==="measures")return add("measures","+ Add measurements")+listCard("measures",sorted(S.measures).reverse(),m=>`<li><span>${fmtD(m.d)}</span><span class="grow dim" style="font-size:.9rem">${["waist","hips","chest","arm","thigh"].filter(k=>m[k]).map(k=>k+" "+m[k]+" cm").join(", ")}</span>${delBtn("measures",m.id)}</li>`,"No measurements yet");
+  if(LOGSEG==="glucose")return add("glucose","+ Add blood sugar reading")+listCard("glucose",sorted(S.glucose).reverse(),g=>`<li><span>${fmtD(g.d)} <span class="dim">${esc(g.t||"")}</span></span><span class="grow dim" style="font-size:.88rem">${esc(g.ctx)}${g.meal?" ("+{b:"breakfast",l:"lunch",d:"dinner"}[g.meal]+")":""}</span><b class="num" style="color:${g.mmol<3.9?"var(--bad)":"inherit"}">${g.mmol} mmol/L</b>${delBtn("glucose",g.id)}</li>`,"No readings yet");
+  if(LOGSEG==="hba1c")return add("hba1c","+ Add HbA1c result")+listCard("hba1c",sorted(S.hba1c).reverse(),h=>`<li><span class="grow">${fmtD(h.d)}</span><span class="chip ${hbCat(h.v).c}">${hbCat(h.v).t}</span><b class="num">${h.v}</b>${delBtn("hba1c",h.id)}</li>`,"No results yet");
   if(LOGSEG==="import")return importView();
+  return "";
 }
 function bindLog(){
+  on("logBack",()=>{TAB=TABS.some(x=>x[0]===LOGFROM)?LOGFROM:"home";render();scrollTo(0,0)});
   $$("[data-seg]").forEach(b=>b.onclick=()=>{LOGSEG=b.dataset.seg;render()});
-  on("addW",()=>{const kg=num($("#wKg").value);if(!kg||kg<30||kg>250)return toast("Enter a weight in kg");S.weights.push({id:uid(),d:$("#wD").value||iso(),kg,fat:num($("#wFat").value),muscle:num($("#wMus").value),src:"app"});commit();askPersist();toast("Weight saved");render()});
-  on("addM",()=>{const m={id:uid(),d:$("#mD").value||iso()};let any=false;["waist","hips","chest","arm","thigh"].forEach(k=>{const v=num($("#m_"+k).value);if(v){m[k]=v;any=true}});if(!any)return toast("Enter at least one measurement");S.measures.push(m);commit();toast("Measurements saved");render()});
-  const gc=$("#gC");if(gc)gc.onchange=()=>{$("#mealWrap").style.display=/after meal|before meal/.test(gc.value)?"block":"none"};
-  on("addG",()=>{const v=num($("#gV").value);if(!v||v>40)return toast("Enter a reading in mmol/L");const ctx=$("#gC").value;const g={id:uid(),d:$("#gD").value,t:$("#gT").value,mmol:v,ctx};if(/meal/.test(ctx))g.meal=$("#gM").value;S.glucose.push(g);commit();toast(v<3.9?"Saved. Under 3.9 is a low: treat it now.":"Reading saved");render()});
-  on("addH",()=>{const v=num($("#hV").value);if(!v||v<20||v>150)return toast("Enter HbA1c in mmol/mol, e.g. 52");S.hba1c.push({id:uid(),d:$("#hD").value,v});commit();toast("HbA1c saved");render()});
-  on("addA",()=>{const m=num($("#aM").value),s=num($("#aS").value);if(!m&&!s)return toast("Enter minutes or steps");S.activity.push({id:uid(),d:$("#aD").value,kind:$("#aK").value,min:m,steps:s,src:"app"});commit();toast("Activity saved");render()});
+  $$("[data-add]").forEach(b=>b.onclick=()=>addForm(b.dataset.add));
+  $$("[data-showall]").forEach(b=>b.onclick=()=>{LOGALL[b.dataset.showall]=!LOGALL[b.dataset.showall];render()});
   $$("[data-del]").forEach(b=>b.onclick=()=>{const[a,id]=b.dataset.del.split(":");dropWhere(a,x=>x.id===id);commit();render()});
   bindImport();
 }
 
 /* ============ Import / export ============ */
-function importView(){return `<section class="card"><h3>Apple Health & Apple Watch</h3>
+// The Apple Health card is shared: it shows on the Log > Import screen and in the Add sheet
+function healthBody(){return `
   <p class="dim" style="font-size:.9rem">Your Apple Watch, iPhone and Withings scale all feed Apple Health. A Shortcut copies today's numbers (steps, exercise minutes, weight, resting heart rate, sleep); then one tap here imports them.</p>
   <button class="btn xl" id="ahClip">Paste from clipboard</button>
-  <p class="dim" style="font-size:.82rem;margin:6px 0 10px">Run your Shortcut first, then tap this. iPhone asks you to allow the paste: tap it.</p>
+  <p class="dim" style="font-size:.84rem;margin:6px 0 10px">Run your Shortcut first, then tap this. iPhone asks you to allow the paste: tap it.</p>
   <label for="ahPaste">Or paste the numbers by hand</label>
   <textarea id="ahPaste" placeholder="weight=72.4&#10;steps=8231&#10;exercise=34&#10;heart rate=58&#10;sleep=6.5"></textarea>
   <button class="btn alt block" id="ahImport" style="margin-top:10px">Import pasted numbers</button>
@@ -1425,9 +1656,19 @@ function importView(){return `<section class="card"><h3>Apple Health & Apple Wat
     <li>Add <b>Copy to Clipboard</b> and choose that Text.</li>
     <li>Add the Shortcut to your Home Screen.</li>
   </ol>
-  <p style="font-size:.92rem"><b>Each day:</b> tap the Shortcut, then open this app from your Home Screen icon, go to Log → Import and tap <b>Paste from clipboard</b>.</p>
-  <p class="dim" style="font-size:.82rem">The first run asks permission for each Health item: tap Allow. Don't end the Shortcut with "Open URLs": that can open Safari instead of this app, and Safari keeps its own separate copy of the app with none of your data, so the numbers wouldn't land here. A web app can't read Apple Health directly, so the Shortcut is the bridge.</p>
-  </details></section>
+  <p style="font-size:.92rem"><b>Each day:</b> tap the Shortcut, then open this app from your Home Screen icon and tap <b>Paste from clipboard</b> (tap the + button, then Import from Apple Health).</p>
+  <p class="dim" style="font-size:.84rem">The first run asks permission for each Health item: tap Allow. Don't end the Shortcut with "Open URLs": that can open Safari instead of this app, and Safari keeps its own separate copy of the app with none of your data, so the numbers wouldn't land here. A web app can't read Apple Health directly, so the Shortcut is the bridge.</p>
+  </details>`}
+function bindHealth(inSheet){
+  on("ahImport",()=>{if(importHealthText($("#ahPaste").value)){if(inSheet)closeSheet()}else toast("Nothing recognised. Expected lines like weight=72.4")});
+  on("ahClip",async()=>{
+    let txt=null;
+    try{if(navigator.clipboard&&navigator.clipboard.readText)txt=await navigator.clipboard.readText()}catch(e){}   // iPhone shows a "Paste" prompt; denied or unsupported lands here
+    if(txt==null){const ta=$("#ahPaste");if(ta)ta.focus();return toast("Can't read the clipboard here. Long-press the box below, tap Paste, then Import.")}
+    if(importHealthText(txt)){if(inSheet)closeSheet()}else toast("The clipboard has no Health numbers yet. Run your Shortcut first.")});
+}
+
+function importView(){return `<section class="card"><h3>Apple Health & Apple Watch</h3>${healthBody()}</section>
   <section class="card"><h3>Withings history</h3><p class="dim" style="font-size:.9rem">Withings app: Profile, Settings, Download your data. Unzip and choose <b>weight.csv</b>. Duplicates are skipped.</p><input id="wiFile" type="file" accept=".csv,text/csv"></section>
   <section class="card"><h3>Backup</h3><p class="dim" style="font-size:.9rem">${S.lastBackup?"Last backup "+fmtD(S.lastBackup)+".":"No backup yet."} Save one weekly to iCloud Drive.</p>
     <div class="row"><button class="btn grow" id="exportJ">Save backup</button><button class="btn alt grow" id="exportC">Export CSV</button></div>
@@ -1445,7 +1686,8 @@ function parseKV(text){const o={};text.split(/[\n&;]+/).forEach(l=>{const m=l.ma
 function applyKV(o,date=iso()){
   let n=0;const w=o.weight??o.kg;
   if(w&&w>30&&w<250){dropWhere("weights",x=>x.d===date&&x.src==="Apple Health");S.weights.push({id:uid(),d:date,kg:r1(w),fat:o.fat??o["body fat"]??null,src:"Apple Health"});n++}
-  const steps=o.steps,ex=o.exercise??o["exercise minutes"]??o["active minutes"];
+  const steps0=o.steps,ex0=o.exercise??o["exercise minutes"]??o["active minutes"];
+  const steps=steps0>0&&steps0<=200000?steps0:null,ex=ex0>0&&ex0<=1440?ex0:null;   // implausible numbers are ignored
   if(steps||ex){dropWhere("activity",x=>x.d===date&&x.src==="Apple Health");S.activity.push({id:uid(),d:date,kind:"walk",min:ex?Math.round(ex):null,steps:steps?Math.round(steps):null,kcal:ex?kcalFor("walk",Math.round(ex),trendNow()||P_().startWeight):null,src:"Apple Health"});n++}
   if(o.glucose&&o.glucose<40){S.glucose.push({id:uid(),d:date,t:nowHM(),mmol:r1(o.glucose),ctx:"other"});n++}
   // vitals: resting heart rate + sleep hours
@@ -1483,28 +1725,30 @@ async function saveFile(name,data,type){
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);return true;
 }
 function bindImport(){
-  on("ahImport",()=>{if(!importHealthText($("#ahPaste").value))toast("Nothing recognised. Expected lines like weight=72.4")});
-  on("ahClip",async()=>{
-    let txt=null;
-    try{if(navigator.clipboard&&navigator.clipboard.readText)txt=await navigator.clipboard.readText()}catch(e){}   // iPhone shows a "Paste" prompt; denied or unsupported lands here
-    if(txt==null){const ta=$("#ahPaste");if(ta)ta.focus();return toast("Can't read the clipboard here. Long-press the box below, tap Paste, then Import.")}
-    if(!importHealthText(txt))toast("The clipboard has no Health numbers yet. Run your Shortcut first.")});
+  bindHealth(false);
   const wf=$("#wiFile");if(wf)wf.onchange=async()=>{const f=wf.files[0];if(!f)return;const n=importWithings(await f.text());commit();toast(n?"Imported "+n+" weigh-ins":"No new weigh-ins found");render()};
   on("exportJ",async()=>{if(await saveFile("indys-year-backup-"+iso()+".json",JSON.stringify(S),"application/json")){S.lastBackup=iso();commit();render()}});
   on("exportC",()=>saveFile("indys-year-"+iso()+".csv",toCSV(),"text/csv"));
-  const jf=$("#impFile");if(jf)jf.onchange=async()=>{try{const o=JSON.parse(await jf.files[0].text());if(!o.profile)throw 0;if(!confirm("Replace everything in the app with this backup?"))return;const old=S,nb=migrate(o);const inBk=new Set(ARR_KEYS.flatMap(k=>nb[k].map(x=>x.id)));
-    nb.deleted=Object.assign({},old.deleted,nb.deleted);ARR_KEYS.forEach(k=>old[k].forEach(x=>{if(!inBk.has(x.id))nb.deleted[x.id]=Date.now()}));
-    S=nb;S.profile.updatedAt=Date.now();commit();applyTheme();toast("Backup restored");render()}catch(e){toast("That file isn't a backup from this app")}};
+  const jf=$("#impFile");if(jf)jf.onchange=async()=>{
+    let o;try{o=JSON.parse(await jf.files[0].text())}catch(e){return toast("That file isn't a backup from this app")}
+    if(!o||typeof o!=="object"||!o.profile)return toast("That file isn't a backup from this app");
+    if(!confirm("Replace everything in the app with this backup?"))return;
+    const old=S,nb=migrate(o);
+    nb.deleted=Object.assign({},old.deleted,nb.deleted);
+    // a record that was deleted earlier would be killed again by its tombstone on the next sync, so it returns as a NEW record
+    ARR_KEYS.forEach(k=>nb[k].forEach(x=>{if(nb.deleted[x.id])x.id=uid()}));
+    const inBk=new Set(ARR_KEYS.flatMap(k=>nb[k].map(x=>x.id)));
+    ARR_KEYS.forEach(k=>old[k].forEach(x=>{if(!inBk.has(x.id))nb.deleted[x.id]=Date.now()}));
+    S=nb;S.profile.updatedAt=Date.now();commit();applyTheme();toast("Backup restored");render();
+  };
 }
 
 /* ============ INSIGHTS ============ */
 let EXSEL=null,INSEG="overview",RANGE=84; // days; 0 = all
 function rangeStart(){return RANGE?addDays(iso(),-RANGE):"1970-01-01"}
 function inRange(d){return d>=rangeStart()}
-function rangeLabel(){return RANGE?(RANGE/7)+" weeks":"All time"}
-function prevRangeStart(){return RANGE?addDays(iso(),-RANGE*2):"1970-01-01"}
 function viewInsights(){
-  const segs=[["overview","Overview"],["weight","Weight"],["sugar","Blood sugar"],["training","Training"]];
+  const segs=[["overview","Summary"],["weight","Weight"],["sugar","Sugar"],["training","Training"]];
   const ranges=[[28,"4 wk"],[56,"8 wk"],[84,"12 wk"],[168,"6 mo"],[0,"All"]];
   return `<div class="top"><h1>Insights</h1><button class="btn alt sm" id="pdfBtn">Report</button></div>
   <div class="seg">${segs.map(([k,l])=>`<button data-iseg="${k}" aria-pressed="${INSEG===k}">${l}</button>`).join("")}</div>
@@ -1512,13 +1756,13 @@ function viewInsights(){
     ({overview:insOverview,weight:insWeight,sugar:insSugar,training:insTraining}[INSEG])();
 }
 function insOverview(){
-  const ws=weekStart(iso()),lw=addDays(ws,-7),a=adherence(ws),la=adherence(lw);
+  const ws=weekStart(iso()),lw=addDays(ws,-7),wkParts=adherence(ws);
   const cmp=(x,y,u="")=>{const d=r1(x-y);return `<span class="chip ${d>0?"good":d<0?"warn":""}">${d>0?"+":""}${d}${u}</span>`};
   const tsAll=trendSeries().filter(x=>x.t!=null);const tAt=d=>{const s=tsAll.filter(x=>x.d<=d);return s.length?s[s.length-1].t:null};
   const tw=tAt(iso()),tl=tAt(addDays(ws,-1));
   const ins=insights();const lost=lostKg();
-  return `<section class="card hero"><div class="row between"><div><div class="lbl">This week's score</div><div class="score">${a.score}</div></div><div style="text-align:right"><div class="lbl">Last week</div><div style="font-size:1.6rem;font-weight:800">${la.score}</div></div></div>
-    ${a.parts.map(([l,f,w])=>`<div style="margin-top:10px"><div class="row between" style="font-size:.84rem"><span>${l}</span><span class="dim">${Math.round(f*w)}/${w}</span></div><div class="bar"><i style="width:${f*100}%"></i></div></div>`).join("")}</section>
+  return `<section class="card hero"><div class="lbl">This week</div>
+    ${wkParts.map(x=>`<div style="margin-top:12px"><div class="row between" style="font-size:.95rem"><span>${x.l}</span><span class="dim">${x.t}</span></div><div class="bar" role="progressbar" aria-label="${esc(x.l)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(x.f*100)}"><i style="width:${x.f*100}%"></i></div></div>`).join("")}</section>
   <section class="card"><h3>Week vs last week</h3><div class="grid2">
     <div class="tile"><b>${weekMinutes(ws)}</b><span>active min ${cmp(weekMinutes(ws),weekMinutes(lw))}</span></div>
     <div class="tile"><b>${weekStrength(ws)}</b><span>strength days ${cmp(weekStrength(ws),weekStrength(lw))}</span></div>
@@ -1540,7 +1784,7 @@ function insOverview(){
       <p class="dim" style="font-size:.82rem;margin-top:6px">From Apple Health. Short sleep can nudge next-day glucose and appetite up, so a rough night isn't a scale failure.</p></section>`;})()}
     <section class="card"><h3>Ask ChatGPT with your numbers</h3><p class="dim" style="font-size:.88rem">Copies your goals and latest numbers. Paste into ChatGPT, then ask your question.</p>
     <button class="btn block" id="copyCtx" style="margin-top:8px">Copy my summary</button><div id="ctxBox"></div></section>
-  ${TIPS.map(([h,b])=>`<details class="card"><summary>${h}</summary><p class="dim">${b}</p></details>`).join("")}
+  <details class="card sect"><summary>Learn: ${TIPS.length} short tips</summary>${TIPS.map(([h,b])=>`<h3 style="margin-top:14px">${h}</h3><p class="dim" style="margin-top:4px">${b}</p>`).join("")}</details>
   <p class="dim" style="font-size:.8rem">This app supports, not replaces, your GP and diabetes team.</p>`;
 }
 function insWeight(){
@@ -1563,9 +1807,10 @@ function insWeight(){
   <section class="card"><div class="grid2">
     <div class="tile"><b>${r&&r.ok?r2(r.perWeek):"–"}</b><span>kg per week (4 wk)</span></div>
     <div class="tile"><b>${deficitPerDay()??"–"}</b><span>kcal/day average deficit</span></div></div>
+    <p class="dim" style="font-size:.84rem;margin-top:8px">The deficit is a rough estimate from how fast your trend line is falling (about 7,700 kcal per kg). It is not a calorie target.</p>
     <div class="list" style="margin-top:8px"><div class="toggle"><span>${p.goal1||5} kg goal</span><span>${etaRow(e1)}</span></div><div class="toggle"><span>${p.goal2||15} kg goal</span><span>${etaRow(e2)}</span></div></div>
     ${p.breastfeeding?`<p class="dim" style="font-size:.82rem;margin-top:6px">Breastfeeding-safe pace is about 0.5 kg a week. Breastfeeding uses roughly 500 kcal a day, so the deficit above is net, not what you're eating.</p>`:""}</section>
-  <section class="card"><h3>Waist and hips</h3><div class="chart">${lineChart({label:"Measurements",series:[{pts:meas.filter(m=>m.waist).map(m=>[ms(m.d),m.waist]),color:"var(--accent)"},{pts:meas.filter(m=>m.hips).map(m=>[ms(m.d),m.hips]),color:"var(--info)"}],empty:"Add measurements in Log, Body."})}</div>
+  <section class="card"><h3>Waist and hips</h3><div class="chart">${lineChart({label:"Measurements",series:[{pts:meas.filter(m=>m.waist).map(m=>[ms(m.d),m.waist]),color:"var(--accent)"},{pts:meas.filter(m=>m.hips).map(m=>[ms(m.d),m.hips]),color:"var(--info)"}],empty:"Add measurements with the + button."})}</div>
     <div class="legend"><span><i style="background:var(--accent)"></i>Waist</span><span><i style="background:var(--info)"></i>Hips</span></div>
     ${wh?`<div class="row between" style="margin-top:10px"><span>Waist-to-height ${wh.v}</span><span class="chip ${wh.band[1]}">${wh.band[0]}</span></div><p class="dim" style="font-size:.82rem">Under 0.5 is the healthy target.</p>`:""}</section>
   ${fatPts.length>1?`<section class="card"><h3>Body fat (scale estimate)</h3><div class="chart">${lineChart({label:"Body fat",series:[{pts:fatPts,color:"var(--accent)"}]})}</div><p class="dim" style="font-size:.82rem">Scale body-fat is directional only. Watch the trend, not the number.</p></section>`:""}`;
@@ -1574,10 +1819,10 @@ function insSugar(){
   const ms=s=>parseD(s).getTime(),hb=sorted(S.hba1c).filter(h=>inRange(h.d)),last=(sorted(S.hba1c).slice(-1)[0]);
   const hbChart=lineChart({label:"HbA1c",ymin:35,ymax:60,series:[{pts:hb.map(h=>[ms(h.d),h.v]),color:"var(--text)",step:true,r:4}],
     bands:[{y0:0,y1:42,color:"var(--good)"},{y0:42,y1:48,color:"var(--warn)"},{y0:48,y1:200,color:"var(--bad)"}],
-    refs:[{y:42,label:"42 normal",color:"var(--good)"},{y:48,label:"48 diabetes",color:"var(--dim)"}],empty:"Add HbA1c results in Log."});
+    refs:[{y:42,label:"42 normal",color:"var(--good)"},{y:48,label:"48 diabetes",color:"var(--dim)"}],empty:"Add HbA1c results with the + button."});
   const fast=sorted(S.glucose.filter(g=>g.ctx==="fasting"&&inRange(g.d))),post=sorted(S.glucose.filter(g=>isPost(g)&&inRange(g.d)));
   const gChart=lineChart({label:"Glucose",series:[{pts:fast.map(g=>[ms(g.d),g.mmol]),color:"var(--accent)"},{pts:post.map(g=>[ms(g.d),g.mmol]),color:"var(--info)",line:false}],
-    bands:[{y0:6.1,y1:7,color:"var(--warn)"}],refs:[{y:7.8,label:"7.8 after-meal",color:"var(--dim)"}],empty:"Log glucose readings to see patterns."});
+    bands:[{y0:6.1,y1:7,color:"var(--warn)"}],refs:[{y:7.8,label:"7.8 after-meal",color:"var(--dim)"}],empty:"Add glucose readings with the + button to see patterns."});
   const wc=walkCompare(),tc=trainCompare(),f7=fastingAvg(7),f28=fastingAvg(28);
   const cmpCard=(title,c,a,b)=>{const ready=c.yes>=5&&c.no>=5;return `<section class="card"><h3>${title}</h3>${ready?`<div class="grid2"><div class="tile"><b>${c.my.toFixed(1)}</b><span>${a} (n=${c.yes})</span></div><div class="tile"><b>${c.mn.toFixed(1)}</b><span>${b} (n=${c.no})</span></div></div>
     <p style="margin-top:8px">${c.mn>c.my?`<b>${r1(c.mn-c.my)} mmol/L lower</b> ${a.toLowerCase()}.`:`No benefit showing yet.`}</p>`:
@@ -1629,33 +1874,38 @@ function bindInsights(){
     const box=$("#ctxBox");box.innerHTML=`<label>Select all and copy</label><textarea readonly style="min-height:160px">${esc(txt)}</textarea>`;const ta=box.querySelector("textarea");ta.focus();ta.select();try{if(document.execCommand("copy"))toast("Copied. Paste it into ChatGPT.")}catch(e){}});
 }
 
-/* ============ YOU ============ */
+/* ============ YOU: collapsible sections; goals and safety save themselves ============ */
+const YOUOPEN={};   // which sections are open: kept across re-renders so a tap doesn't snap the page shut
+const sect=(k,title,body)=>`<details class="card sect" data-sec="${k}" ${YOUOPEN[k]?"open":""}><summary>${title}</summary>${body}</details>`;
 function viewYou(){
   const p=P_(),th=applyTheme();
   return `<div class="top"><h1>You</h1></div>
-  <section class="card"><h3>Colour theme</h3>
+  ${sect("sync","Account &amp; sync",`<div id="syncCard"></div><div id="shareCard" style="margin-top:14px"></div>`)}
+  ${sect("goals","Goals",goalsFields(false))}
+  ${sect("safety","Safety",safetyFields())}
+  ${sect("look","Look &amp; feel",`
+    <h3 style="margin-top:6px">Colour theme</h3>
     <div class="swatches" style="margin-top:8px">${THEMES.map(([k,l,dk,lt])=>`<button class="sw" data-theme="${k}" aria-pressed="${(p.theme||"volt")===k}"><i style="background:${currentMode()==="light"?lt:dk}"></i>${l}</button>`).join("")}</div>
-    <label>Or pick any colour</label><div class="row"><input type="color" id="custom" value="${p.custom||"#C6FF3D"}" class="grow" style="width:auto"><button class="btn alt" id="useCustom">Use it</button></div>
-    <p class="dim" style="font-size:.82rem;margin-top:6px">Contrast ${th.ratio}:1 ${th.ratio>=4.5?"passes":th.ratio>=3?"OK for big things only":"is too low, pick a stronger colour"}.</p>
-    <label>Light or dark</label><div class="seg">${[["auto","Match phone"],["dark","Dark"],["light","Light"]].map(([k,l])=>`<button data-mode="${k}" aria-pressed="${(p.mode||"auto")===k}">${l}</button>`).join("")}</div></section>
-  ${viewSetup(false)}
-  <section class="card" id="syncCard"></section>
-  <section class="card" id="shareCard"></section>
-  <section class="card"><div class="toggle"><div><h3 style="margin:0">Keep screen on</h3><span class="lbl">Stops the screen sleeping while the app is open</span></div><input type="checkbox" id="keepAwake" ${keepAwakeOn?"checked":""}></div>
-    <p class="dim" style="font-size:.82rem;margin-top:4px">Handy during a workout or walk. iPhone still sleeps if you lock it or switch apps.</p></section>
-  <section class="card"><h3>Storage</h3><p class="dim" style="font-size:.88rem">${persisted?"Protected: iOS won't clear this app's data.":"Not protected yet. Open the app from your Home Screen icon and save a backup weekly."} ${S.lastBackup?"Last backup "+fmtD(S.lastBackup)+".":""}</p>
+    <label for="custom">Or pick any colour</label><div class="row"><input type="color" id="custom" value="${esc(p.custom||"#C6FF3D")}" class="grow" style="width:auto"><button class="btn alt" id="useCustom">Use it</button></div>
+    <p class="dim" style="font-size:.84rem;margin-top:6px">Contrast ${th.ratio}:1 ${th.ratio>=4.5?"passes":th.ratio>=3?"OK for big things only":"is too low, pick a stronger colour"}.</p>
+    <label>Light or dark</label><div class="seg">${[["auto","Match phone"],["dark","Dark"],["light","Light"]].map(([k,l])=>`<button data-mode="${k}" aria-pressed="${(p.mode||"auto")===k}">${l}</button>`).join("")}</div>
+    <label class="toggle" style="margin-top:10px"><div><h3 style="margin:0">Keep screen on</h3><span class="lbl">Stops the screen sleeping while the app is open</span></div><input type="checkbox" id="keepAwake" ${keepAwakeOn?"checked":""}></label>
+    <p class="dim" style="font-size:.84rem;margin-top:4px">Handy during a workout or walk. iPhone still sleeps if you lock it or switch apps.</p>`)}
+  ${sect("data","Data &amp; backup",`
+    <p class="dim" style="font-size:.9rem;margin-top:6px">${persisted?"Protected: iOS won't clear this app's data.":"Not protected yet. Open the app from your Home Screen icon and save a backup weekly."} ${S.lastBackup?"Last backup "+fmtD(S.lastBackup)+".":""}</p>
     <button class="btn alt block" data-golog="1" style="margin-top:8px">Open all logs</button>
-    <button class="btn alt block" data-gobackup="1" style="margin-top:8px">Backup, import and export</button></section>
-  <section class="card"><h3>About</h3><p class="dim" style="font-size:.86rem">Built for one mum and her goals. Thresholds from NZSSD, ADA Standards of Care 2026, the 2025 Canadian postpartum activity guideline and the DiRECT trial. Exercise figures are original animations. Food data: USDA FoodData Central (public domain) and AUSNUT 2023, © Food Standards Australia New Zealand, CC BY 4.0 AU, converted to per 100 g. Barcode lookups: Open Food Facts contributors (ODbL). Not medical advice.</p>
-    <button class="btn danger block" id="wipe" style="margin-top:10px">Erase all data</button></section>`;
+    <button class="btn alt block" data-gobackup="1" style="margin-top:8px">Backup, import and export</button>
+    <button class="btn danger block" id="wipe" style="margin-top:14px">Erase all data</button>`)}
+  ${sect("about","About",`<p class="dim" style="font-size:.9rem;margin-top:6px">Built for one mum and her goals. Thresholds from NZSSD, ADA Standards of Care 2026, the 2025 Canadian postpartum activity guideline and the DiRECT trial. Exercise figures are original animations. Food data: USDA FoodData Central (public domain) and AUSNUT 2023, © Food Standards Australia New Zealand, CC BY 4.0 AU, converted to per 100 g. Barcode lookups: Open Food Facts contributors (ODbL). Not medical advice.</p>`)}`;
 }
 function bindYou(){
+  $$("details[data-sec]").forEach(d=>d.addEventListener("toggle",()=>{YOUOPEN[d.dataset.sec]=d.open}));
   $$("[data-theme]").forEach(b=>b.onclick=()=>{S.profile.theme=b.dataset.theme;S.profile.updatedAt=Date.now();commit();applyTheme();render()});
   on("useCustom",()=>{S.profile.custom=$("#custom").value;S.profile.theme="custom";S.profile.updatedAt=Date.now();commit();applyTheme();render()});
   $$("button[data-mode]").forEach(b=>b.onclick=()=>{S.profile.mode=b.dataset.mode;   /* buttons only: <html data-mode> also matched, so every click re-rendered */S.profile.updatedAt=Date.now();commit();applyTheme();render()});
-  $$("[data-gobackup]").forEach(b=>b.onclick=()=>{TAB="log";LOGSEG="import";render()});
+  $$("[data-gobackup]").forEach(b=>b.onclick=()=>openLog("import","you"));
+  $$("[data-golog]").forEach(b=>b.onclick=()=>openLog("weight","you"));
   const ka=document.getElementById("keepAwake");if(ka)ka.onchange=()=>{keepAwakeOn=ka.checked;if(keepAwakeOn)wake(true);else if(!W&&!GPS&&!walkTimer)wake(false);toast(keepAwakeOn?"Screen will stay on":"Screen can sleep again")};
-  $$("[data-golog]").forEach(b=>b.onclick=()=>{TAB="log";LOGSEG="weight";render()});
   on("wipe",()=>{if(!confirm("Erase every entry"+(SYNC.user?" here and in your cloud backup":"")+"? Save a backup first if unsure."))return;
     const old=S;S=blank();S.deleted=Object.assign({},old.deleted);ARR_KEYS.forEach(k=>old[k].forEach(x=>{S.deleted[x.id]=Date.now()}));S.profileCleared=Date.now();
     persistNow();scheduleSync();applyTheme();render()});
@@ -1663,48 +1913,64 @@ function bindYou(){
   bindSetup(false);
 }
 
-/* ============ Setup / goals & safety (used in onboarding and You) ============ */
-function viewSetup(first){
+/* ============ Goals & safety fields (onboarding shows them with a Start button; in You they save themselves) ============ */
+function goalsFields(first){
   const p=S.profile||{},t=iso(),v=(k,d="")=>esc(p[k]??d);
-  return `${first?`<section style="padding:34px 4px 6px"><div class="figbox" style="max-width:220px;margin:0 auto">${figSVG("squat")}</div>
-    <h1 style="font-size:2.4rem;font-weight:800;margin-top:12px">Indy's Year</h1><p class="dim">Your goals, your numbers, one place. Set your starting point once.</p></section>`:""}
-  <section class="card"><h3>${first?"Your starting point":"Goals"}</h3>
-    <label>Your name</label><input id="sName" value="${v("name")}" autocomplete="given-name">
-    <div class="grid2"><div><label>Start date</label><input id="sStart" type="date" value="${v("startDate",t)}"></div><div><label>Indy's first birthday</label><input id="sBday" type="date" value="${v("indyBday")}"></div></div>
-    <div class="grid2"><div><label>Height (cm)</label><input id="sH" type="number" inputmode="decimal" value="${v("height")}"></div><div><label>Age</label><input id="sAge" type="number" inputmode="numeric" value="${v("age")}"></div></div>
-    <label>Starting weight (kg)</label><input id="sW" type="number" inputmode="decimal" step="0.1" value="${v("startWeight")}">
-    <div class="grid3"><div><label>First goal kg</label><input id="sG1" type="number" inputmode="decimal" value="${v("goal1",5)}"></div><div><label>In months</label><input id="sG1m" type="number" inputmode="numeric" value="${v("goal1Months",3)}"></div><div><label>Big goal kg</label><input id="sG2" type="number" inputmode="decimal" value="${v("goal2",15)}"></div></div>
-    <label>Weekly active minutes target</label><select id="sMin"><option value="120" ${minTarget()===120?"selected":""}>120 (postpartum guideline)</option><option value="150" ${minTarget()===150?"selected":""}>150 (diabetes guideline)</option></select>
-    ${first?`<div class="grid2"><div><label>Waist cm (optional)</label><input id="sWaist" type="number" inputmode="decimal"></div><div><label>Hips cm (optional)</label><input id="sHips" type="number" inputmode="decimal"></div></div>
-    <div class="grid2"><div><label>Latest HbA1c (mmol/mol)</label><input id="sHb" type="number" inputmode="numeric"></div><div><label>Test date</label><input id="sHbD" type="date" value="${t}"></div></div>`:""}</section>
-  <section class="card"><h3>Safety</h3>
-    <label>Diabetes medication</label><select id="sMeds">
+  return `<div id="goalsFields">
+    <label for="sName">Your name</label><input id="sName" value="${v("name")}" autocomplete="given-name">
+    <div class="grid2"><div><label for="sStart">Start date</label><input id="sStart" type="date" value="${v("startDate",t)}"></div><div><label for="sBday">Indy's first birthday</label><input id="sBday" type="date" value="${v("indyBday")}"></div></div>
+    <div class="grid2"><div><label for="sH">Height (cm)</label><input id="sH" type="number" inputmode="decimal" value="${v("height")}"></div><div><label for="sAge">Age (years)</label><input id="sAge" type="number" inputmode="numeric" value="${v("age")}"></div></div>
+    <label for="sW">Starting weight (kg)</label><input id="sW" type="number" inputmode="decimal" step="0.1" value="${v("startWeight")}">
+    <div class="grid3"><div><label for="sG1">First goal (kg to lose)</label><input id="sG1" type="number" inputmode="decimal" value="${v("goal1",5)}"></div><div><label for="sG1m">In (months)</label><input id="sG1m" type="number" inputmode="numeric" value="${v("goal1Months",3)}"></div><div><label for="sG2">Big goal (kg to lose)</label><input id="sG2" type="number" inputmode="decimal" value="${v("goal2",15)}"></div></div>
+    <label for="sMin">Weekly active minutes target</label><select id="sMin"><option value="120" ${minTarget()===120?"selected":""}>120 minutes (postpartum guideline)</option><option value="150" ${minTarget()===150?"selected":""}>150 minutes (diabetes guideline)</option></select>
+    ${first?`<div class="grid2"><div><label for="sWaist">Waist (cm, optional)</label><input id="sWaist" type="number" inputmode="decimal"></div><div><label for="sHips">Hips (cm, optional)</label><input id="sHips" type="number" inputmode="decimal"></div></div>
+    <div class="grid2"><div><label for="sHb">Latest HbA1c (mmol/mol)</label><input id="sHb" type="number" inputmode="numeric"></div><div><label for="sHbD">Test date</label><input id="sHbD" type="date" value="${t}"></div></div>`:`<p class="dim" style="font-size:.84rem;margin-top:8px">Changes save by themselves.</p>`}</div>`;
+}
+function safetyFields(){
+  const p=S.profile||{};
+  return `<div id="safetyFields">
+    <label for="sMeds">Diabetes medication</label><select id="sMeds">
       ${[["none","None / diet only"],["metformin","Metformin or other low-risk"],["insulin","Insulin or gliclazide (sulfonylurea)"],["unsure","Not sure"]].map(([k,l])=>`<option value="${k}" ${p.meds===k?"selected":""}>${l}</option>`).join("")}</select>
-    <label>Breastfeeding?</label><select id="sBf"><option value="">No</option><option value="1" ${p.breastfeeding?"selected":""}>Yes</option></select>
-    <label>Tummy gap (diastasis) or pelvic floor symptoms?</label><select id="sDia"><option value="">No</option><option value="1" ${p.diastasis?"selected":""}>Yes</option></select>
-    <label>Low-impact swaps</label><select id="sLow">${[["auto","Automatic"],["on","Always on"],["off","Off"]].map(([k,l])=>`<option value="${k}" ${(p.lowImpact||"auto")===k?"selected":""}>${l}</option>`).join("")}</select>
-    <p class="dim" style="font-size:.82rem;margin-top:10px">Automatic swaps to low-impact moves before 12 weeks postpartum or when you report symptoms. Check with your GP or midwife first if you've had a caesarean with ongoing symptoms or any pregnancy complications.</p></section>
-  <button class="btn xl" id="saveSetup">${first?"Start tracking":"Save goals and safety"}</button>
-  ${first?`<p class="dim" style="text-align:center;font-size:.84rem;margin-top:12px">Moving from the old version? Save a backup there, then restore it here from Log, Import.</p>
-  <section class="card" id="syncCard"></section>`:""}`;
+    <label for="sBf">Breastfeeding?</label><select id="sBf"><option value="">No</option><option value="1" ${p.breastfeeding?"selected":""}>Yes</option></select>
+    <label for="sDia">Tummy gap (diastasis) or pelvic floor symptoms?</label><select id="sDia"><option value="">No</option><option value="1" ${p.diastasis?"selected":""}>Yes</option></select>
+    <label for="sLow">Low-impact swaps</label><select id="sLow">${[["auto","Automatic"],["on","Always on"],["off","Off"]].map(([k,l])=>`<option value="${k}" ${(p.lowImpact||"auto")===k?"selected":""}>${l}</option>`).join("")}</select>
+    <p class="dim" style="font-size:.84rem;margin-top:10px">Automatic swaps to low-impact moves before 12 weeks postpartum or when you report symptoms. Check with your GP or midwife first if you've had a caesarean with ongoing symptoms or any pregnancy complications. Changes save by themselves.</p></div>`;
+}
+function viewSetup(first){   // onboarding only (no profile yet)
+  return `<section style="padding:34px 4px 6px"><div class="figbox" style="max-width:220px;margin:0 auto">${figSVG("squat")}</div>
+    <h1 style="font-size:2.4rem;font-weight:800;margin-top:12px">Indy's Year</h1><p class="dim">Your goals, your numbers, one place. Set your starting point once.</p></section>
+  <section class="card"><h3>Your starting point</h3>${goalsFields(true)}</section>
+  <section class="card"><h3>Safety</h3>${safetyFields()}</section>
+  <button class="btn xl" id="saveSetup">Start tracking</button>
+  <p class="dim" style="text-align:center;font-size:.9rem;margin-top:12px">Moving from the old version? Save a backup there, then restore it here from Log, Import.</p>
+  <section class="card" id="syncCard"></section>`;
+}
+// reads the goals + safety fields; returns null (with a toast) if the starting weight is missing or silly
+function profilePatch(){
+  const sw=num($("#sW").value);if(!sw||sw<30||sw>250){toast("Enter your starting weight in kg, like 72.4");return null}
+  return {name:$("#sName").value.trim(),startDate:$("#sStart").value||iso(),indyBday:$("#sBday").value||null,height:num($("#sH").value),age:num($("#sAge").value),startWeight:sw,
+    goal1:num($("#sG1").value)||5,goal1Months:num($("#sG1m").value)||3,goal2:num($("#sG2").value)||15,minTarget:+$("#sMin").value,
+    meds:$("#sMeds").value,breastfeeding:!!$("#sBf").value,diastasis:!!$("#sDia").value,lowImpact:$("#sLow").value};
 }
 function bindSetup(first){
-  if(first)renderSyncCard();
-  on("saveSetup",()=>{
-    const sw=num($("#sW").value);if(!sw||sw<30||sw>250)return toast("Enter your starting weight in kg");
-    const isFirst=!S.profile;
-    S.profile=Object.assign(S.profile||{theme:"volt",mode:"auto"},{
-      name:$("#sName").value.trim(),startDate:$("#sStart").value||iso(),indyBday:$("#sBday").value||null,height:num($("#sH").value),age:num($("#sAge").value),startWeight:sw,
-      goal1:num($("#sG1").value)||5,goal1Months:num($("#sG1m").value)||3,goal2:num($("#sG2").value)||15,minTarget:+$("#sMin").value,
-      meds:$("#sMeds").value,breastfeeding:!!$("#sBf").value,diastasis:!!$("#sDia").value,lowImpact:$("#sLow").value,updatedAt:Date.now()});
-    if(isFirst){
-      S.weights.push({id:uid(),d:S.profile.startDate,kg:sw,src:"app"});
+  if(first){
+    renderSyncCard();
+    on("saveSetup",()=>{
+      const pat=profilePatch();if(!pat)return;
+      S.profile=Object.assign({theme:"volt",mode:"auto",createdAt:Date.now()},pat,{updatedAt:Date.now()});
+      S.weights.push({id:uid(),d:S.profile.startDate,kg:pat.startWeight,src:"app"});
       const wa=num($("#sWaist")?.value),hi=num($("#sHips")?.value);if(wa||hi)S.measures.push({id:uid(),d:S.profile.startDate,waist:wa,hips:hi});
       const hb=num($("#sHb")?.value);if(hb)S.hba1c.push({id:uid(),d:$("#sHbD").value||iso(),v:hb});
-      askPersist();
-    }
-    commit();applyTheme();toast(isFirst?"All set":"Saved");TAB="home";render();
-  });
+      askPersist();commit();applyTheme();toast("All set");TAB="home";render();
+    });
+    return;
+  }
+  // in You: every change saves itself (and stamps updatedAt so the newest profile wins when syncing)
+  const save=()=>{
+    const sw=num($("#sW").value);
+    if(!sw||sw<30||sw>250){$("#sW").value=S.profile.startWeight??"";toast("Starting weight needs to be in kg, like 72.4. I kept your old one.");return}   // put it back so it can't block the other fields
+    const pat=profilePatch();if(!pat)return;Object.assign(S.profile,pat,{updatedAt:Date.now()});commit();toast("Saved")};
+  $$("#goalsFields input,#goalsFields select,#safetyFields select").forEach(el=>el.addEventListener("change",save));
 }
 
 /* ============ PDF report ============ */
@@ -1748,8 +2014,8 @@ h1{font-size:22px;margin:0 0 2px}h2{font-size:14px;margin:18px 0 6px;text-transf
 .tile{border:1px solid #D8E0DC;border-radius:10px;padding:10px}
 .tile b{display:block;font-size:20px}.tile span{font-size:11px;color:#5E6E69}
 .acc{color:${acc}}
-table{width:100%;border-collapse:collapse}td{padding:5px 0;
-td{border-bottom:1px solid #EEF1EF}
+table{width:100%;border-collapse:collapse}
+td{padding:5px 0;border-bottom:1px solid #EEF1EF}
 .chart{border:1px solid #D8E0DC;border-radius:10px;padding:8px;margin:6px 0}
 .bar{height:9px;background:#EEF1EF;border-radius:9px;overflow:hidden;margin:3px 0}
 .bar i{display:block;height:100%;background:${acc}}
@@ -1828,10 +2094,16 @@ function mergeStates(a,b){
 const normState=x=>canon(mergeStates(x,x));
 
 function sbLoad(){return new Promise((res,rej)=>{if(window.supabase)return res();const s=document.createElement("script");s.src=SB_SRC;s.integrity=SB_SRI;s.crossOrigin="anonymous";s.onload=res;s.onerror=()=>{s.remove();rej(new Error("Can't reach the cloud right now"))};document.head.appendChild(s)})}
+let sbMaking=null;
 async function sbClient(){
   if(sb)return sb;
   if(!SUPABASE_URL||!SUPABASE_KEY)throw new Error("Cloud sync isn't set up in this build");
+  if(!sbMaking)sbMaking=sbMake().finally(()=>{sbMaking=null});
+  return sbMaking;
+}
+async function sbMake(){
   await sbLoad();
+  if(sb)return sb;
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:"indy-sb-auth"}});
   sb.auth.onAuthStateChange((ev,sess)=>{setTimeout(()=>{if(ev==="SIGNED_OUT")signedOutLocal();else if(sess&&sess.user)SYNC.user=sess.user},0)});
   return sb;
@@ -1985,6 +2257,8 @@ function viewYouRO(){return `<div class="top"><h1>You</h1></div><section class="
 function bindYouRO(){renderSyncCard()}
 
 /* ============ Boot ============ */
+$("#fab").onclick=openAddSheet;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#sheet").classList.contains("on")&&!walkTimer&&!GPS)closeSheet()});   // desktop/keyboard nicety
 (async()=>{
   await loadState();applyTheme();render();
   initSync();setTimeout(()=>{if(SYNC.booting){SYNC.booting=false;render()}},6000);
