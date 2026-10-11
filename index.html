@@ -39,10 +39,17 @@
 }
 :root{color-scheme:dark}
 :root[data-mode="light"]{
-  color-scheme:light;--glowon:0;--bg:#F4F5F7;--surface:#FFFFFF;--surface-2:#EDEFF3;--line:#DDE1E7;
-  --text:#0B0D10;--dim:#4B5563;
+  color-scheme:light;--glowon:0;--bg:#F4F5F3;--surface:#FFFFFF;--surface-2:#EEF0EC;--line:#E2E5DF;
+  --text:#14201A;--dim:#5A6560;
   --good:#047857;--warn:#AD4F08;--bad:#B91C1C;--info:#0369A1;
 }
+/* Clean light look (Forge-style): crisp dark numbers, soft shadowed cards, no neon — scoped to light, dark mode unchanged */
+:root[data-mode="light"] .card{box-shadow:0 1px 2px rgba(16,24,20,.05),0 4px 14px rgba(16,24,20,.045);border-color:#E6E9E3}
+:root[data-mode="light"] .card.hero{background:var(--surface)}
+:root[data-mode="light"] .tile{background:var(--surface);border-color:#E6E9E3}
+:root[data-mode="light"] .big,:root[data-mode="light"] .tile b,:root[data-mode="light"] .ringleg b{color:var(--text);text-shadow:none}
+:root[data-mode="light"] .btn{box-shadow:none}
+:root[data-mode="light"] nav.tabs{background:rgba(255,255,255,.88)}
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
@@ -373,6 +380,7 @@ P("Final day",2,[["squat",60,"a"],["pushup",60,"a"],["lunge",60,"a"],["plank",60
 
 /* ============ Themes: dark accent / light accent ============ */
 const THEMES=[
+  ["forest","Forest","#3FCF7E","#1F9E5A"],
   ["volt","Volt","#C6FF3D","#4D7C0F"],
   ["pohutukawa","Pōhutukawa","#FF4D5E","#B91C1C"],
   ["kowhai","Kōwhai","#FFC93C","#92400E"],
@@ -521,8 +529,8 @@ async function askPersist(){try{if(navigator.storage&&navigator.storage.persist)
 /* ============ Theme engine ============ */
 function lum(hex){const c=hex.replace("#","");const v=[0,2,4].map(i=>parseInt(c.slice(i,i+2),16)/255).map(x=>x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2]}
 function contrast(a,b){const A=lum(a),B=lum(b);return (Math.max(A,B)+.05)/(Math.min(A,B)+.05)}
-function currentMode(){const m=P_().mode||"auto";if(m!=="auto")return m;return matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}
-function accentFor(mode){const p=P_();if(p.theme==="custom"&&p.custom)return p.custom;const t=THEMES.find(x=>x[0]===(p.theme||"volt"))||THEMES[0];return mode==="light"?t[3]:t[2]}
+function currentMode(){const m=P_().mode||"light";if(m!=="auto")return m;return matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}
+function accentFor(mode){const p=P_();if(p.theme==="custom"&&p.custom)return p.custom;const t=THEMES.find(x=>x[0]===(p.theme||"forest"))||THEMES[0];return mode==="light"?t[3]:t[2]}
 function applyTheme(){
   const mode=currentMode(),acc=accentFor(mode),bg=mode==="light"?"#F4F5F7":"#0B0D10";
   const root=document.documentElement;root.setAttribute("data-mode",mode);
@@ -2003,7 +2011,7 @@ function bindSetup(first){
     renderSyncCard();
     on("saveSetup",()=>{
       const pat=profilePatch();if(!pat)return;
-      S.profile=Object.assign({theme:"volt",mode:"auto",createdAt:Date.now()},pat,{updatedAt:Date.now()});
+      S.profile=Object.assign({theme:"forest",mode:"light",createdAt:Date.now()},pat,{updatedAt:Date.now()});
       S.weights.push({id:uid(),d:S.profile.startDate,kg:pat.startWeight,src:"app"});
       const wa=num($("#sWaist")?.value),hi=num($("#sHips")?.value);if(wa||hi)S.measures.push({id:uid(),d:S.profile.startDate,waist:wa,hips:hi});
       const hb=num($("#sHb")?.value);if(hb)S.hba1c.push({id:uid(),d:$("#sHbD").value||iso(),v:hb});
