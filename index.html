@@ -453,7 +453,7 @@ function cleanDate(v){
 }
 // a date typed into a form: empty = today; anything silly is refused with a message
 function formDate(id){const v=($("#"+id)||{}).value||"";if(!v)return iso();const c=cleanDate(v);if(!c||c!==v.slice(0,10)){toast("That date looks wrong. Please check it.");return null}return c}
-const NUMSPEC={weights:{kg:[20,400],fat:[0,100],muscle:[0,300]},measures:{waist:[10,400],hips:[10,400],chest:[10,400],arm:[3,150],thigh:[10,300]},glucose:{mmol:[0.5,60]},hba1c:{v:[10,200]},
+const NUMSPEC={weights:{kg:[20,400],fat:[0,100],muscle:[0,300],water:[0,100]},measures:{waist:[10,400],hips:[10,400],chest:[10,400],arm:[3,150],thigh:[10,300]},glucose:{mmol:[0.5,60]},hba1c:{v:[10,200]},
   activity:{min:[0,1440],steps:[0,200000],km:[0,500],kcal:[0,20000],elev:[0,10000]},meals:{g:[0,10000],kcal:[0,20000],p:[0,2000],c:[0,2000],f:[0,2000],fb:[0,1000]},
   vitals:{hr:[20,250],sleep:[0,24]},sessions:{day:[0,200],cycle:[0,1000],dur:[0,86400],rpe:[0,10]}};
 const NEED={weights:r=>r.kg!=null,glucose:r=>r.mmol!=null,hba1c:r=>r.v!=null,measures:r=>["waist","hips","chest","arm","thigh"].some(k=>r[k]!=null),meals:r=>r.kcal!=null,vitals:r=>r.hr!=null||r.sleep!=null};
@@ -1725,10 +1725,10 @@ function importWithings(text){
   const lines=text.trim().split(/\r?\n/);if(lines.length<2)return 0;
   const split=l=>(l.match(/("([^"]|"")*"|[^,]*)(,|$)/g)||[]).map(s=>s.replace(/,$/,"").replace(/^"|"$/g,"").trim());
   const head=split(lines[0]).map(h=>h.toLowerCase());
-  const di=head.findIndex(h=>h.includes("date")),wi=head.findIndex(h=>h.startsWith("weight")),fi=head.findIndex(h=>h.startsWith("fat mass")),mi=head.findIndex(h=>h.startsWith("muscle"));
+  const di=head.findIndex(h=>h.includes("date")),wi=head.findIndex(h=>h.startsWith("weight")),fi=head.findIndex(h=>h.startsWith("fat mass")),mi=head.findIndex(h=>h.startsWith("muscle")),hi=head.findIndex(h=>h.startsWith("hydration"));
   if(di<0||wi<0)return 0;const have=new Set(S.weights.map(w=>w.d+"|"+r1(w.kg)));let n=0;
   lines.slice(1).forEach(l=>{const c=split(l),kg=num(c[wi]),d=(c[di]||"").slice(0,10);if(!kg||!/^\d{4}-\d{2}-\d{2}$/.test(d))return;const k=d+"|"+r1(kg);if(have.has(k))return;have.add(k);
-    const fm=fi>=0?num(c[fi]):null;S.weights.push({id:uid(),d,kg:r1(kg),fat:fm?r1(fm/kg*100):null,muscle:mi>=0?num(c[mi]):null,src:"Withings"});n++});
+    const fm=fi>=0?num(c[fi]):null,hy=hi>=0?num(c[hi]):null;S.weights.push({id:uid(),d,kg:r1(kg),fat:fm?r1(fm/kg*100):null,muscle:mi>=0?num(c[mi]):null,water:hy?r1(hy/kg*100):null,src:"Withings"});n++});
   return n;
 }
 function toCSV(){
@@ -1809,6 +1809,29 @@ function insOverview(){
   <details class="card sect"><summary>Learn: ${TIPS.length} short tips</summary>${TIPS.map(([h,b])=>`<h3 style="margin-top:14px">${h}</h3><p class="dim" style="margin-top:4px">${b}</p>`).join("")}</details>
   <p class="dim" style="font-size:.8rem">This app supports, not replaces, your GP and diabetes team.</p>`;
 }
+function bcTile(label,arr,field,unit,lowerBetter){
+  const a=arr.filter(x=>x[field]!=null);
+  if(!a.length)return `<div class="tile"><b>–</b><span>${label}</span></div>`;
+  const last=a[a.length-1][field];let d="";
+  if(a.length>1){const diff=r1(last-a[0][field]);const good=lowerBetter?diff<0:diff>0;const col=diff===0?"var(--dim)":good?"var(--good)":"var(--warn)";
+    d=`<span style="display:block;color:${col};font-size:.76rem;margin-top:3px">${diff>0?"▲":diff<0?"▼":"■"} ${Math.abs(diff)} ${unit} since day 1</span>`;}
+  return `<div class="tile"><b>${last}${unit==="%"?"%":""}</b><span>${label}</span>${d}</div>`;
+}
+function bodyCompCard(){
+  const W=sorted(S.weights),M=sorted(S.measures);
+  const lean=W.filter(w=>w.fat!=null).map(w=>({d:w.d,lean:r1(w.kg*(1-w.fat/100))}));
+  const has=W.some(w=>w.fat!=null||w.muscle!=null||w.water!=null);
+  if(!has)return "";
+  return `<section class="card"><h3>Body composition</h3>
+    <p class="dim" style="font-size:.82rem;margin:-2px 0 8px">Latest reading, with change since your first. Green means moving the right way. Scale body-fat and water are directional only — watch the trend.</p>
+    <div class="grid2">
+      ${bcTile("Body fat",W,"fat","%",true)}
+      ${bcTile("Muscle",W,"muscle","kg",false)}
+      ${bcTile("Lean mass",lean,"lean","kg",false)}
+      ${bcTile("Water",W,"water","%",false)}
+      ${bcTile("Waist",M,"waist","cm",true)}
+    </div></section>`;
+}
 function insWeight(){
   const p=P_(),ms=s=>parseD(s).getTime(),ts=trendSeries().filter(x=>x.t!=null&&inRange(x.d)),r=regression();
   let cone=[],proj=[];const end=ts[ts.length-1];
@@ -1824,7 +1847,8 @@ function insWeight(){
   const fatPts=sorted(S.weights.filter(w=>w.fat&&inRange(w.d))).map(w=>[ms(w.d),w.fat]);
   const e1=etaFor(p.startWeight-(p.goal1||5)),e2=etaFor(p.startWeight-(p.goal2||15));
   const etaRow=(e,g)=>e.done?`<b>Reached</b>`:e.mid?`<b>${fmtD(e.mid)}</b><span class="dim" style="font-size:.8rem"> (${e.fast?fmtD(e.fast):"?"}–${e.slow?fmtD(e.slow):"later"})</span>`:`<span class="dim">${e.need!=null?"Needs 10 weigh-ins over 2 weeks":"Not trending down"}</span>`;
-  return `<section class="card"><h3>Trend and forecast</h3><div class="chart">${chart}</div>
+  return `${bodyCompCard()}
+  <section class="card"><h3>Trend and forecast</h3><div class="chart">${chart}</div>
     <div class="legend"><span><i style="background:var(--accent)"></i>Trend</span><span><i style="background:var(--good)"></i>Below trend</span><span><i style="background:var(--warn)"></i>Above trend (water)</span><span><i style="background:var(--a40)"></i>Forecast range</span></div></section>
   <section class="card"><div class="grid2">
     <div class="tile"><b>${r&&r.ok?r2(r.perWeek):"–"}</b><span>kg per week (4 wk)</span></div>
