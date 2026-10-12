@@ -514,6 +514,12 @@ async function loadState(){
   try{const raw=localStorage.getItem(LS_KEY);if(raw)b=JSON.parse(raw)}catch(e){}
   const pick=(a&&(!b||a.updatedAt>=b.updatedAt))?a:b;
   if(pick)S=migrate(pick);
+  // One-time redesign: move untouched stock profiles (old "volt" neon on auto/dark) onto the clean light + forest look
+  // that new installs already get. A theme the user deliberately picked is left alone, and the r2 flag stops it re-flipping.
+  if(S.profile&&!S.profile.r2){
+    if(S.profile.theme==="volt"&&(S.profile.mode==="auto"||S.profile.mode==="dark")){S.profile.theme="forest";S.profile.mode="light"}
+    S.profile.r2=1;persistNow();
+  }
   if(S.profile&&!S.profile.createdAt){S.profile.createdAt=Date.now();persistNow()}   // not commit(): no updatedAt bump, no sync churn
 }
 let saveT=null;
