@@ -405,7 +405,9 @@ const TIPS=[
 /* ============ Utilities ============ */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const iso=(d=new Date())=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+// iso() with no argument = today in Pacific/Auckland (all day grouping). With a Date it formats that (local-midnight) date, as the date maths below expects.
+const NZ_DAY=new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"});
+const iso=d=>{if(d===undefined)return NZ_DAY.format(new Date());const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
 const parseD=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
 const dbt=(a,b)=>Math.round((parseD(b)-parseD(a))/864e5); // days between
 const addDays=(s,n)=>{const d=parseD(s);d.setDate(d.getDate()+n);return iso(d)};
@@ -445,7 +447,25 @@ function migrate(o){
   s.deleted=s.deleted&&typeof s.deleted==="object"&&!Array.isArray(s.deleted)?s.deleted:{};
   // records without an id (very old backups) get a deterministic one so two devices don't duplicate them
   ARR_KEYS.forEach(k=>{s[k]=Array.isArray(s[k])?s[k]:[];s[k].forEach(x=>{if(x&&typeof x==="object"&&!x.id)x.id="L"+hashStr(JSON.stringify(x))})});
-  return sanitizeState(s);
+  return dedupeState(sanitizeState(s));
+}
+/* One-off + ongoing cleanup: collapse exact duplicates (same source, same day, same value) to a single row, keeping the lowest id
+   so every device picks the same survivor, and tombstone the rest so a sync can't bring them back. Weights: any source.
+   Apple Health activity and vitals: those are one-per-day imports, so an identical repeat is always a duplicate. */
+let DEDUPED=0;
+const DEDUPE_KEYS={
+  weights:x=>[x.d,x.src||"",x.kg!=null?r1(x.kg):""].join("|"),
+  activity:x=>x.src==="Apple Health"?[x.d,x.kind,x.min??"",x.steps??"",x.km??""].join("|"):null,
+  vitals:x=>x.src==="Apple Health"?[x.d,x.hr??"",x.sleep??""].join("|"):null};
+function dedupeState(s){
+  const now=Date.now();
+  for(const k in DEDUPE_KEYS){
+    const seen=new Map(),drop=new Set();
+    s[k].forEach(x=>{const key=DEDUPE_KEYS[k](x);if(key==null)return;const cur=seen.get(key);
+      if(!cur)seen.set(key,x);else if(x.id<cur.id){drop.add(cur.id);seen.set(key,x)}else drop.add(x.id)});
+    if(drop.size){s[k]=s[k].filter(x=>!drop.has(x.id));drop.forEach(id=>{s.deleted[id]=s.deleted[id]||now});DEDUPED+=drop.size}
+  }
+  return s;
 }
 /* Everything that enters from storage, a backup file or the cloud (including someone else's shared state) is cleaned in sanitizeState():
    numbers are numbers, ids and tokens are plain, dates are sane and no text can smuggle markup into the page. */
@@ -513,7 +533,8 @@ async function loadState(){
   let a=await idb.get("state"),b=null;
   try{const raw=localStorage.getItem(LS_KEY);if(raw)b=JSON.parse(raw)}catch(e){}
   const pick=(a&&(!b||a.updatedAt>=b.updatedAt))?a:b;
-  if(pick)S=migrate(pick);
+  DEDUPED=0;if(pick)S=migrate(pick);
+  if(DEDUPED&&S.profile&&!RO){S.updatedAt=Date.now();persistNow();scheduleSync()}   // one-off cleanup of existing duplicates: save it and let the cloud copy follow
   // One-time redesign: move untouched stock profiles (old "volt" neon on auto/dark) onto the clean light + forest look
   // that new installs already get. A theme the user deliberately picked is left alone, and the r2 flag stops it re-flipping.
   if(S.profile&&!S.profile.r2){
@@ -523,7 +544,13 @@ async function loadState(){
   if(S.profile&&!S.profile.createdAt){S.profile.createdAt=Date.now();persistNow()}   // not commit(): no updatedAt bump, no sync churn
 }
 let saveT=null;
-function commit(){if(RO)return;S.updatedAt=Date.now();clearTimeout(saveT);saveT=setTimeout(persistNow,250);scheduleSync()}
+function commit(){if(RO)return;S.updatedAt=Date.now();clearTimeout(saveT);saveT=setTimeout(persistNow,250);scheduleSync();
+  // Any mutation refreshes Home from the live store. Callers that render() themselves clear RENDER_PENDING first, so this is only a safety net.
+  RENDER_PENDING=true;setTimeout(()=>{if(RENDER_PENDING&&TAB==="home")refreshView()},0)}
+let RENDER_PENDING=false,VIEW_DIRTY=false;
+// Re-render the current screen from S as it is NOW. Held back (not dropped) while a field is being typed in or a workout is running.
+function refreshView(){if(W||typing()){VIEW_DIRTY=true;return}VIEW_DIRTY=false;render()}
+document.addEventListener("focusout",()=>{if(VIEW_DIRTY)setTimeout(()=>{if(VIEW_DIRTY)refreshView()},60)});
 // the save is debounced 250 ms; flush it the moment the app is hidden or closed so a quick tap-then-leave can't lose data
 function flushSave(){if(saveT){clearTimeout(saveT);saveT=null;persistNow()}}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushSave();else if(S.profile&&iso()!==RENDER_DAY&&!typing()&&!W)render()});   // and refresh "today" after a night in the background
@@ -566,6 +593,8 @@ function trendSeries(){
   }
   return out;
 }
+// Latest logged weigh-in from the same S.weights the trend uses (already de-duplicated). Same day: a manual entry beats Apple Health.
+function latestWeight(){const w=sorted(S.weights);if(!w.length)return null;const d=w[w.length-1].d,day=w.filter(x=>x.d===d);return [...day].reverse().find(x=>x.src!=="Apple Health")||day[day.length-1]}
 function trendNow(){const s=trendSeries();return s.length?s[s.length-1].t:P_().startWeight}
 function regression(days=28){
   const w=sorted(S.weights);if(!w.length)return null;const today=iso();
@@ -615,7 +644,13 @@ function trainCompare(){
 function dayMinutes(d){let m=0;S.sessions.forEach(s=>{if(s.d===d)m+=s.dur/60});S.activity.forEach(a=>{if(a.d===d&&a.min)m+=a.min});return m}
 function weekMinutes(ws=weekStart(iso())){let m=0;for(let i=0;i<7;i++)m+=dayMinutes(addDays(ws,i));return Math.round(m)}
 const isStrength=s=>!/Recovery/.test(s.focus||"");
+const STRENGTH_TARGET={min:2,max:3};   // one source of truth: two or three non-consecutive days a week
+const strengthTxt=n=>n+" of "+STRENGTH_TARGET.min+"–"+STRENGTH_TARGET.max+" days";
+const strengthFill=n=>clamp(n/STRENGTH_TARGET.min,0,1);
 function weekStrength(ws=weekStart(iso())){return new Set(S.sessions.filter(s=>weekStart(s.d)===ws&&isStrength(s)).map(s=>s.d)).size}
+// Steps (Apple Health) summed per NZ calendar day; null = none recorded (shown as "—", never 0)
+function daySteps(d){let n=0,any=false;S.activity.forEach(a=>{if(a.d===d&&a.steps>0){n+=a.steps;any=true}});return any?n:null}
+const fmtSteps=n=>n==null?"—":n.toLocaleString("en-NZ");
 function weekWalks(ws=weekStart(iso())){return S.activity.filter(a=>a.kind==="postmeal"&&weekStart(a.d)===ws).length}
 function minTarget(){return P_().minTarget||120}
 function programCount(){return S.sessions.filter(s=>s.day).length}
@@ -637,7 +672,7 @@ function adherence(ws=weekStart(iso())){   // plain progress for the week: no sc
   const m=weekMinutes(ws),st=weekStrength(ws),wk=weekWalks(ws),wi=S.weights.filter(w=>weekStart(w.d)===ws).length;
   return [
     {l:"Active minutes",f:clamp(m/minTarget(),0,1),t:m+" of "+minTarget()+" min"},
-    {l:"Strength days",f:clamp(st/2,0,1),t:st+" of 2 days"},
+    {l:"Strength days",f:strengthFill(st),t:strengthTxt(st)},
     {l:"After-meal walks",f:clamp(wk/14,0,1),t:wk+" of 14"},
     {l:"Weighed in "+wi+" time"+(wi===1?"":"s")+" this week",f:clamp(wi/3,0,1),t:""}];
 }
@@ -676,7 +711,7 @@ function insights(){
   if(wc.yes>=5&&wc.no>=5){const d=r1(wc.mn-wc.my);if(d>0)out.push({c:"good",t:`After-meal readings are ${d} mmol/L lower when you walk (${wc.yes} walked vs ${wc.no} not). Keep walking.`})}
   const wk=weekMinutes(),dow=(new Date().getDay()+6)%7;
   if(wk<minTarget()&&dow>=3)out.push({c:"warn",t:`${wk} of ${minTarget()} active minutes this week. A few 15-minute walks after meals would close the gap.`});
-  const st=weekStrength();if(st<2&&dow>=4)out.push({c:"warn",t:`${st} strength day${st===1?"":"s"} this week. Two or three non-consecutive days is the target.`});
+  const st=weekStrength();if(st<STRENGTH_TARGET.min&&dow>=4)out.push({c:"warn",t:`${st} strength day${st===1?"":"s"} this week. Two or three non-consecutive days is the target.`});
   const lows=S.glucose.filter(g=>g.mmol<3.9&&dbt(g.d,today)<14).length;
   if(lows)out.push({c:"bad",t:`${lows} reading${lows>1?"s":""} under 3.9 in the last two weeks. Tell your GP or diabetes nurse: medication may need adjusting as you lose weight.`});
   if(hypoRisk()&&lost>=3)out.push({c:"warn",t:`You've lost ${lost} kg on insulin or a sulfonylurea. Ask your GP whether your dose needs reviewing.`});
@@ -809,7 +844,7 @@ function renderTabs(){
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){TAB=b.dataset.tab;render();scrollTo(0,0)}});
 function render(){
-  RENDER_DAY=iso();
+  RENDER_DAY=iso();RENDER_PENDING=false;VIEW_DIRTY=false;
   if(RO&&!RO_TABS.includes(TAB))TAB="home";
   renderTabs();
   if(!S.profile){
@@ -872,6 +907,7 @@ function weightSheet(){
   bindForm();
   const k=$("#wKg");if(k){k.focus();k.select()}   // her last weight is filled in; typing replaces it
   on("addW",()=>{const kg=num($("#wKg").value);if(!kg||kg<30||kg>250)return toast("Enter your weight in kg, like 72.4");const dd=formDate("wD");if(!dd)return;
+    if(S.weights.some(x=>x.d===dd&&x.src==="app"&&r1(x.kg)===r1(kg))){closeSheet();return toast("Already logged: "+r1(kg)+" kg on "+fmtD(dd))}
     S.weights.push({id:uid(),d:dd,kg,fat:num($("#wFat").value),muscle:num($("#wMus").value),src:"app"});
     commit();askPersist();closeSheet();toast("Weight saved");render()});
 }
@@ -970,7 +1006,9 @@ function viewHome(){
     {pts:ts.filter(x=>x.w!=null).map(x=>[ms(x.d),x.w,x.w>x.t?"var(--warn)":"var(--good)"]),line:false,r:2.2,op:.8},
     {pts:ts.map(x=>[ms(x.d),x.t]),dots:false,w:3,color:"var(--accent)",glow:true},
     {pts:proj,dots:false,dash:"4 4",color:"var(--accent)",w:2}],cone,empty:"Log a weigh-in to start the trend line."});
-  const etaTxt=(e,g)=>e.done?`${g} kg goal reached`:e.mid?`${g} kg by ~${fmtD(e.mid)}`:e.need!=null?`Forecast after 10 weigh-ins (${e.need}/10)`:"Trend not heading down yet";
+  const etaTxt=(e,g)=>e.done?`${g} kg goal reached`:e.mid?`${g} kg by ~${fmtD(e.mid)}`:"Trend not heading down yet";
+  const fcNeed=e1.need!=null?e1:e2.need!=null?e2:null;   // "not enough data yet" is one message about the trend, not one per goal
+  const fcLine=fcNeed?(fcNeed.need>=10?"Forecast needs weigh-ins over 2 weeks":`Forecast after 10 weigh-ins (${fcNeed.need}/10)`):null;
   const d=nextDay(),day=buildDay(d),done=S.sessions.find(s=>s.d===t);
   const wm=weekMinutes(),st=weekStrength(),walksToday=S.activity.filter(a=>a.d===t&&a.kind==="postmeal");
   const hb=lastOf(S.hba1c),cat=hbCat(hb?.v),fa=fastingAvg(7);
@@ -989,16 +1027,18 @@ function viewHome(){
         <span class="chip acc">${lost>0?"−"+lost:lost===0?"0":"+"+(-lost)} kg</span>
         ${r&&r.ok?`<span class="chip ${r.perWeek<0?"good":"warn"}">${r.perWeek<0?"":"+"}${r2(r.perWeek)} kg/wk</span>`:""}
       </div></div>
+    <div class="dim" style="font-size:.9rem;margin-top:2px">${(()=>{const a=latestWeight();return a?`Actual ${r1(a.kg)} kg · ${fmtD(a.d)}`:"Actual —"})()}</div>
     <div class="chart">${mini}</div>
-    <div class="row between" style="margin-top:6px;font-size:.9rem"><span>${etaTxt(e1,g1)}</span><span class="dim">${etaTxt(e2,g2)}</span></div>
+    ${fcLine?`<div style="margin-top:6px;font-size:.9rem">${fcLine}</div>`:`<div class="row between" style="margin-top:6px;font-size:.9rem"><span>${etaTxt(e1,g1)}</span><span class="dim">${etaTxt(e2,g2)}</span></div>`}
     ${p.indyBday&&dbt(t,p.indyBday)>=0?`<div class="lbl" style="margin-top:8px">${dbt(t,p.indyBday)} days until Indy turns 1</div>`:""}
   </section>
 
-  <section class="card"><div class="rings">${ringsSVG([{f:wm/minTarget()},{f:st/3},{f:walksToday.length/3}])}
+  <section class="card"><div class="rings">${ringsSVG([{f:wm/minTarget()},{f:strengthFill(st)},{f:walksToday.length/3}])}
     <div class="ringleg">
       <div><span><i class="dot" style="background:var(--accent)"></i>Move</span><b>${wm}/${minTarget()} min</b></div>
-      <div><span><i class="dot" style="background:var(--a70)"></i>Strength</span><b>${st}/3 days</b></div>
+      <div><span><i class="dot" style="background:var(--a70)"></i>Strength</span><b>${strengthTxt(st)}</b></div>
       <div><span><i class="dot" style="background:var(--a40)"></i>Walks today</span><b>${walksToday.length}/3</b></div>
+      <div><span><i class="dot" style="background:var(--dim)"></i>Steps today</span><b>${fmtSteps(daySteps(t))}</b></div>
     </div></div></section>
 
   <section class="card"><div class="row">
@@ -1720,19 +1760,21 @@ function cleanHealthText(raw){let t=String(raw==null?"":raw).trim();
 function importHealthText(raw){const n=applyKV(parseKV(cleanHealthText(raw)));if(n){commit();toast("Imported "+n+" item"+(n>1?"s":""));render()}return n}
 function parseKV(text){const o={};text.split(/[\n&;]+/).forEach(l=>{const m=l.match(/^\s*([a-z %]+?)\s*[:=]\s*([-\d.,]+)/i);if(m){const v=num(m[2]);if(v!=null)o[m[1].trim().toLowerCase()]=v}});return o}
 function applyKV(o,date=iso()){
-  let n=0;const w=o.weight??o.kg;
-  if(w&&w>30&&w<250){dropWhere("weights",x=>x.d===date&&x.src==="Apple Health");S.weights.push({id:uid(),d:date,kg:r1(w),fat:o.fat??o["body fat"]??null,src:"Apple Health"});n++}
+  let n=0;const w=o.weight??o.kg,AH="Apple Health";
+  // Idempotent: one Apple Health row per type per NZ day. An existing row is updated in place (same id), never re-inserted.
+  if(w&&w>30&&w<250){const kg=r1(w),fat=o.fat??o["body fat"]??null,ex=S.weights.find(x=>x.d===date&&x.src===AH);
+    if(ex){ex.kg=kg;if(fat!=null)ex.fat=fat}else S.weights.push({id:uid(),d:date,kg,fat,src:AH});n++}
   const steps0=o.steps,ex0=o.exercise??o["exercise minutes"]??o["active minutes"];
   const steps=steps0>0&&steps0<=200000?steps0:null,ex=ex0>0&&ex0<=1440?ex0:null;   // implausible numbers are ignored
-  if(steps||ex){dropWhere("activity",x=>x.d===date&&x.src==="Apple Health");S.activity.push({id:uid(),d:date,kind:"walk",min:ex?Math.round(ex):null,steps:steps?Math.round(steps):null,kcal:ex?kcalFor("walk",Math.round(ex),trendNow()||P_().startWeight):null,src:"Apple Health"});n++}
-  if(o.glucose&&o.glucose<40){S.glucose.push({id:uid(),d:date,t:nowHM(),mmol:r1(o.glucose),ctx:"other"});n++}
+  if(steps||ex){const kg=trendNow()||P_().startWeight,rec=S.activity.find(x=>x.d===date&&x.src===AH);
+    if(rec){if(ex){rec.min=Math.round(ex);rec.kcal=kcalFor("walk",rec.min,kg)}if(steps)rec.steps=Math.round(steps)}
+    else S.activity.push({id:uid(),d:date,kind:"walk",min:ex?Math.round(ex):null,steps:steps?Math.round(steps):null,kcal:ex?kcalFor("walk",Math.round(ex),kg):null,src:AH});n++}
+  if(o.glucose&&o.glucose<40){const mmol=r1(o.glucose);if(!S.glucose.some(x=>x.d===date&&x.mmol===mmol&&x.src===AH))S.glucose.push({id:uid(),d:date,t:nowHM(),mmol,ctx:"other",src:AH});n++}
   // vitals: resting heart rate + sleep hours
   const hr0=o["resting heart rate"]??o["heart rate"]??o.hr??o.rhr, sl0=o.sleep??o["sleep hours"]??o["time asleep"];
   const hr=hr0&&hr0>25&&hr0<160?Math.round(hr0):null, sl=sleepHours(sl0);   // each value checked on its own so one bad number can't ride in with a good one
-  if(hr||sl){
-    dropWhere("vitals",x=>x.d===date&&x.src==="Apple Health");
-    S.vitals.push({id:uid(),d:date,hr,sleep:sl,src:"Apple Health"});n++;
-  }
+  if(hr||sl){const rec=S.vitals.find(x=>x.d===date&&x.src===AH);
+    if(rec){if(hr)rec.hr=hr;if(sl)rec.sleep=sl}else S.vitals.push({id:uid(),d:date,hr,sleep:sl,src:AH});n++}
   return n;
 }
 function importWithings(text){
@@ -1780,34 +1822,88 @@ function bindImport(){
 }
 
 /* ============ INSIGHTS ============ */
-let EXSEL=null,INSEG="overview",RANGE=84; // days; 0 = all
-function rangeStart(){return RANGE?addDays(iso(),-RANGE):"1970-01-01"}
+let EXSEL=null,INSEG="overview",RANGE=1,CRANGE=84; // days; RANGE = Summary (1 = Today default), CRANGE = Weight/Sugar/Training charts (12 wk default); 0 = all
+// Summary and the chart tabs have separate ranges. Today / 1wk exist only on Summary, so the charts always have 4 weeks or more to draw.
+const onSummary=()=>INSEG==="overview"||INSEG==="day";
+const curRange=()=>onSummary()?RANGE:CRANGE;
+function rangeStart(){return INSEG==="overview"?winStart():curRange()?addDays(iso(),-curRange()):"1970-01-01"}
+// Summary window: RANGE days ending today (NZ), inclusive. All = since the first record.
+function allStart(){let m=iso();[S.weights,S.activity,S.sessions,S.glucose,S.meals,S.vitals].forEach(a=>a.forEach(x=>{if(x.d<m)m=x.d}));return m}
+function winStart(){return RANGE?addDays(iso(),-(RANGE-1)):allStart()}
+function winDays(){return dbt(winStart(),iso())+1}
+function winStats(a,b){
+  const inW=x=>x.d>=a&&x.d<=b;let min=0;
+  S.sessions.forEach(x=>{if(inW(x))min+=x.dur/60});S.activity.forEach(x=>{if(inW(x)&&x.min)min+=x.min});
+  return {min:Math.round(min),str:new Set(S.sessions.filter(x=>inW(x)&&isStrength(x)).map(x=>x.d)).size,walks:S.activity.filter(x=>inW(x)&&x.kind==="postmeal").length,wi:S.weights.filter(inW).length}}
+const WIN_LABEL={1:"Today",7:"Last 7 days",28:"Last 4 weeks",56:"Last 8 weeks",84:"Last 12 weeks",168:"Last 6 months",0:"All time"};
+// Weekly targets scaled to the window length n (days). Strength has no scaled target under a week.
+function winTargets(n){
+  const wk=n/7,smin=Math.round(STRENGTH_TARGET.min*wk),smax=Math.round(STRENGTH_TARGET.max*wk);
+  return {min:Math.max(1,Math.round(minTarget()*wk)),walks:3*n,wi:Math.max(1,Math.round(3*wk)),str:n>=7?{min:smin,max:smax}:null}}
+function winBars(n,st){
+  const T=winTargets(n),v=x=>x||"—";
+  return [
+    {l:"Active minutes",f:clamp(st.min/T.min,0,1),t:v(st.min)+" of "+T.min+" min"},
+    {l:"Strength days",f:T.str?clamp(st.str/T.str.min,0,1):(st.str?1:0),t:T.str?v(st.str)+" of "+(T.str.min===T.str.max?T.str.min:T.str.min+"–"+T.str.max)+" days":v(st.str)},
+    {l:"After-meal walks",f:clamp(st.walks/T.walks,0,1),t:v(st.walks)+" of "+T.walks},
+    {l:"Weigh-ins",f:clamp(st.wi/T.wi,0,1),t:v(st.wi)+" of "+T.wi}]}
 function inRange(d){return d>=rangeStart()}
 function viewInsights(){
-  const segs=[["overview","Summary"],["weight","Weight"],["sugar","Sugar"],["training","Training"]];
-  const ranges=[[28,"4 wk"],[56,"8 wk"],[84,"12 wk"],[168,"6 mo"],[0,"All"]];
+  const segs=[["overview","Summary"],["day","Day"],["weight","Weight"],["sugar","Sugar"],["training","Training"]];
+  const ranges=[...(INSEG==="overview"?[[1,"Today"],[7,"1 wk"]]:[]),[28,"4 wk"],[56,"8 wk"],[84,"12 wk"],[168,"6 mo"],[0,"All"]];
   return `<div class="top"><h1>Insights</h1><button class="btn alt sm" id="pdfBtn">Report</button></div>
   <div class="seg">${segs.map(([k,l])=>`<button data-iseg="${k}" aria-pressed="${INSEG===k}">${l}</button>`).join("")}</div>
-  <div class="seg" style="margin-top:8px">${ranges.map(([d,l])=>`<button data-range="${d}" aria-pressed="${RANGE===d}">${l}</button>`).join("")}</div>`+
-    ({overview:insOverview,weight:insWeight,sugar:insSugar,training:insTraining}[INSEG])();
+  ${INSEG==="day"?"":`<div class="seg" style="margin-top:8px">${ranges.map(([d,l])=>`<button data-range="${d}" aria-pressed="${curRange()===d}">${l}</button>`).join("")}</div>`}`+
+    ({overview:insOverview,day:insDay,weight:insWeight,sugar:insSugar,training:insTraining}[INSEG])();
+}
+/* Day view: one NZ calendar day, straight from the logged data. Defaults to today; the picker steps back through earlier days. */
+let INDAY=null;
+function insDay(){
+  const t=iso(),d=INDAY&&INDAY<=t?INDAY:t,isToday=d===t;
+  const wts=sorted(S.weights.filter(w=>w.d===d)),steps=daySteps(d),mins=Math.round(dayMinutes(d));
+  const walks=S.activity.filter(a=>a.d===d&&a.kind==="postmeal"),gl=sorted(S.glucose.filter(g=>g.d===d)),prot=Math.min(3,S.protein[d]||0);
+  const ses=S.sessions.filter(x=>x.d===d),lows=gl.filter(g=>g.mmol<3.9).length;
+  const mealName=k=>(MEALS.find(m=>m[0]===k)||[,""])[1];
+  const yes=(ok,txt)=>`<span class="chip ${ok?"good":""}">${txt}</span>`;
+  return `<section class="card"><div class="row between" style="gap:8px">
+      <button class="btn alt sm" id="dayPrev" aria-label="Previous day" style="min-width:44px;min-height:44px">←</button>
+      <div style="text-align:center"><div class="lbl">${isToday?"Today":""}</div><h3 style="margin:0">${parseD(d).toLocaleDateString("en-NZ",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}</h3></div>
+      <button class="btn alt sm" id="dayNext" aria-label="Next day" style="min-width:44px;min-height:44px" ${isToday?"disabled":""}>→</button></div>
+    <label for="dayPick">Pick a date</label><input id="dayPick" type="date" value="${d}" max="${t}">
+    ${isToday?"":`<button class="btn ghost block" id="dayToday" style="margin-top:8px">Back to today</button>`}</section>
+  <section class="card"><div class="grid2">
+    <div class="tile"><b>${wts.length?wts.map(w=>r1(w.kg)).join(" / "):"—"}</b><span>weight kg${wts.length>1?" (each weigh-in)":""}</span></div>
+    <div class="tile"><b>${fmtSteps(steps)}</b><span>steps</span></div>
+    <div class="tile"><b>${mins}</b><span>active min</span></div>
+    <div class="tile"><b>${new Set(walks.map(w=>w.meal)).size}/3</b><span>after-meal walks</span></div></div>
+    ${walks.length?`<p class="dim" style="font-size:.88rem;margin-top:8px">${walks.map(w=>mealName(w.meal)+" "+w.min+" min").join(", ")}</p>`:""}</section>
+  <section class="card"><div class="row between"><h3>Glucose</h3>${lows?`<span class="chip bad">${lows} low (under 3.9)</span>`:""}</div>
+    ${gl.length?`<ul class="list">${gl.map(g=>`<li><span class="grow">${esc(g.t||"")} <span class="dim">${esc(g.ctx||"")}${g.meal?", "+esc(mealName(g.meal)):""}</span></span><b ${g.mmol<3.9?'style="color:var(--bad)"':""}>${g.mmol} mmol/L${g.mmol<3.9?" · LOW":""}</b></li>`).join("")}</ul>
+    ${lows?`<p style="margin-top:8px"><b>Under 3.9 is a low: treat it now.</b> Tell your GP or diabetes nurse.</p>`:""}`:`<p class="dim">No readings logged.</p>`}</section>
+  <section class="card"><h3>Habits</h3>
+    <div class="row between" style="margin-top:6px"><span>Protein with meals</span><b>${prot}/3</b></div>
+    <div class="row between" style="margin-top:6px"><span>Pelvic floor</span>${yes(S.pf[d],S.pf[d]?"Done":"Not done")}</div>
+    <div class="row between" style="margin-top:6px"><span>Session</span>${ses.length?yes(true,ses.map(x=>(x.day?"Day "+x.day+" · ":"")+fmtT(x.dur)).join(", ")):yes(false,"None")}</div></section>`;
 }
 function insOverview(){
-  const ws=weekStart(iso()),lw=addDays(ws,-7),wkParts=adherence(ws);
-  const cmp=(x,y,u="")=>{const d=r1(x-y);return `<span class="chip ${d>0?"good":d<0?"warn":""}">${d>0?"+":""}${d}${u}</span>`};
+  const end=iso(),ws=winStart(),n=winDays(),st=winStats(ws,end),wkParts=winBars(n,st);
+  const pe=addDays(ws,-1),prev=RANGE?winStats(addDays(ws,-n),pe):null;   // previous window of the same length; none for All
+  const prevName=RANGE===1?"yesterday":RANGE===7?"the previous 7 days":"the previous "+WIN_LABEL[RANGE].replace("Last ","");
+  const cmp=(x,y,u="")=>{if(y==null||(!x&&!y))return "";const d=r1(x-y);return `<span class="chip ${d>0?"good":d<0?"warn":""}">${d>0?"+":""}${d}${u}</span>`};
   const tsAll=trendSeries().filter(x=>x.t!=null);const tAt=d=>{const s=tsAll.filter(x=>x.d<=d);return s.length?s[s.length-1].t:null};
-  const tw=tAt(iso()),tl=tAt(addDays(ws,-1));
+  const tw=tAt(end),tl=RANGE?tAt(pe):(tsAll.length?tsAll[0].t:null),V=x=>x||"—";
   const ins=insights();const lost=lostKg();
-  return `<section class="card hero"><div class="lbl">This week</div>
+  return `<section class="card hero"><div class="lbl">${WIN_LABEL[RANGE]}</div>
     ${wkParts.map(x=>`<div style="margin-top:12px"><div class="row between" style="font-size:.95rem"><span>${x.l}</span><span class="dim">${x.t}</span></div><div class="bar" role="progressbar" aria-label="${esc(x.l)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(x.f*100)}"><i style="width:${x.f*100}%"></i></div></div>`).join("")}</section>
   <section class="card"><h3>Diabetes remission evidence</h3>
     <p class="dim" style="font-size:.88rem">In the DiRECT trial, the share of people in remission at one year rose with weight lost. You're at ${lost>0?lost:0} kg.</p>
     ${[[0,5,7],[5,10,34],[10,15,57],[15,99,86]].map(([a,b,pc])=>{const here=lost>=a&&lost<b;return `<div style="margin-top:8px;${here?"":"opacity:.55"}"><div class="row between" style="font-size:.86rem"><span>${b===99?"15+ kg":a+"–"+b+" kg"}${here?" ← you":""}</span><b>${pc}%</b></div><div class="bar"><i style="width:${pc}%"></i></div></div>`}).join("")}
     <p class="dim" style="font-size:.78rem;margin-top:8px">Trial evidence, not a promise. Remission is confirmed by your GP with HbA1c tests.</p></section>
-  <section class="card"><h3>Week vs last week</h3><div class="grid2">
-    <div class="tile"><b>${weekMinutes(ws)}</b><span>active min ${cmp(weekMinutes(ws),weekMinutes(lw))}</span></div>
-    <div class="tile"><b>${weekStrength(ws)}</b><span>strength days ${cmp(weekStrength(ws),weekStrength(lw))}</span></div>
-    <div class="tile"><b>${weekWalks(ws)}</b><span>meal walks ${cmp(weekWalks(ws),weekWalks(lw))}</span></div>
-    <div class="tile"><b>${tw&&tl?(tw-tl>0?"+":"")+r1(tw-tl):"–"}</b><span>kg trend change</span></div></div></section>
+  <section class="card"><h3>${RANGE?WIN_LABEL[RANGE]+" vs "+prevName:"All time"}</h3><div class="grid2">
+    <div class="tile"><b>${V(st.min)}</b><span>active min ${prev?cmp(st.min,prev.min):""}</span></div>
+    <div class="tile"><b>${V(st.str)}</b><span>strength days ${prev?cmp(st.str,prev.str):""}</span></div>
+    <div class="tile"><b>${V(st.walks)}</b><span>meal walks ${prev?cmp(st.walks,prev.walks):""}</span></div>
+    <div class="tile"><b>${tw!=null&&tl!=null&&r1(tw-tl)!==0?(tw-tl>0?"+":"")+r1(tw-tl):"—"}</b><span>kg trend change</span></div></div></section>
   <section class="card"><h3>What the data says</h3>${ins.length?ins.map(i=>`<div class="insight ${i.c}">${i.t}</div>`).join(""):`<p class="dim">Log a couple of weeks of weigh-ins and workouts and personal insights appear here.</p>`}</section>
   ${(()=>{const v=sorted((S.vitals||[]).filter(x=>inRange(x.d)));if(!v.length)return "";
     const sl=v.filter(x=>x.sleep),hr=v.filter(x=>x.hr);
@@ -1897,7 +1993,7 @@ function insSugar(){
   <p class="dim" style="font-size:.8rem">Fingerstick averages can't estimate HbA1c reliably, so this app doesn't guess it. Lab tests every 3 months are the real scoreboard.</p>`;
 }
 function insTraining(){
-  const nw=RANGE?Math.max(4,Math.round(RANGE/7)):24;const weeks=[];for(let i=nw-1;i>=0;i--){const ws=addDays(weekStart(iso()),-7*i);weeks.push({l:fmtD(ws).split(" ")[0],v:weekMinutes(ws),s:weekStrength(ws)})}
+  const nw=curRange()?Math.max(4,Math.round(curRange()/7)):24;const weeks=[];for(let i=nw-1;i>=0;i--){const ws=addDays(weekStart(iso()),-7*i);weeks.push({l:fmtD(ws).split(" ")[0],v:weekMinutes(ws),s:weekStrength(ws)})}
   const {best,prs}=allPRs();const keys=Object.keys(best);if(!EXSEL||!keys.includes(EXSEL))EXSEL=keys[0];
   const ms=s=>parseD(s).getTime();
   const exPts=sorted(S.sessions).map(s=>{const st=s.sets.filter(x=>x.ex===EXSEL);return st.length?[ms(s.d),Math.max(...st.map(x=>x.v))]:null}).filter(Boolean);
@@ -1907,7 +2003,7 @@ function insTraining(){
   return `<section class="card"><div class="grid3"><div class="tile"><b>${S.sessions.length}</b><span>sessions</span></div><div class="tile"><b>${total}</b><span>workout min</span></div><div class="tile"><b>${streak()}</b><span>day streak</span></div></div></section>
   <section class="card"><h3>Active minutes per week</h3><div class="chart">${barChart({bars:weeks,ref:minTarget(),refLabel:minTarget()+" min",label:"Weekly minutes"})}</div>
     <p class="dim" style="font-size:.84rem">Workouts plus walks. Postpartum target 120, diabetes target 150. Change it in You.</p></section>
-  <section class="card"><h3>Strength days per week</h3><div class="chart">${barChart({h:120,bars:weeks.map(w=>({l:w.l,v:w.s})),ref:2,refLabel:"2–3 target",label:"Strength days"})}</div></section>
+  <section class="card"><h3>Strength days per week</h3><div class="chart">${barChart({h:120,bars:weeks.map(w=>({l:w.l,v:w.s})),ref:STRENGTH_TARGET.min,refLabel:STRENGTH_TARGET.min+"–"+STRENGTH_TARGET.max+" target",label:"Strength days"})}</div></section>
   <section class="card"><div class="row between"><h3>Consistency</h3><span class="lbl">12 weeks</span></div><div class="chart">${heatmap()}</div></section>
   <section class="card"><h3>Exercise progression</h3>${keys.length?`<select id="exSel">${keys.map(k=>`<option value="${k}" ${k===EXSEL?"selected":""}>${esc(EX[k]?.n||k)} (best ${best[k]})</option>`).join("")}</select>
     <div class="row" style="margin-top:10px"><div class="thumb figbox" style="width:80px;height:80px">${figSVG(EXSEL)}</div><div class="grow"><div class="lbl">Personal best</div><div class="big" style="font-size:2.4rem">${best[EXSEL]}<small>${hold?"sec":"reps"}</small></div></div></div>
@@ -1927,7 +2023,10 @@ My question: `;
 }
 function bindInsights(){
   $$("[data-iseg]").forEach(b=>b.onclick=()=>{INSEG=b.dataset.iseg;render()});
-  $$("[data-range]").forEach(b=>b.onclick=()=>{RANGE=+b.dataset.range;render()});
+  $$("[data-range]").forEach(b=>b.onclick=()=>{if(onSummary())RANGE=+b.dataset.range;else CRANGE=+b.dataset.range;render()});
+  const dayTo=d=>{INDAY=d>=iso()?null:d;render()},curDay=()=>INDAY||iso();
+  on("dayPrev",()=>dayTo(addDays(curDay(),-1)));on("dayNext",()=>dayTo(addDays(curDay(),1)));on("dayToday",()=>dayTo(null));
+  const dp=$("#dayPick");if(dp)dp.onchange=()=>{const c=cleanDate(dp.value);if(c)dayTo(c)};
   on("pdfBtn",()=>openReport());
   const s=$("#exSel");if(s)s.onchange=()=>{EXSEL=s.value;render()};
   on("copyCtx",async()=>{const txt=coachContext();try{await navigator.clipboard.writeText(txt);toast("Copied. Paste it into ChatGPT.");return}catch(e){}
@@ -2108,7 +2207,7 @@ ${st.hb.length?`<table>${st.hb.map(h=>row(fmtD(h.d),h.v+" mmol/mol · "+hbCat(h.
 }
 function rangeFmt(days){const map={28:"Last 4 weeks",56:"Last 8 weeks",84:"Last 12 weeks",168:"Last 6 months"};return map[days]||"Last "+Math.round(days/7)+" weeks"}
 function openReport(){
-  const days=RANGE||84;const html=reportHTML(days);
+  const rr=curRange(),days=rr>=28?rr:84;const html=reportHTML(days);
   const w=window.open("","_blank");
   if(w){w.document.open();w.document.write(html);w.document.close();}
   else{ // popup blocked: offer as a file
@@ -2149,7 +2248,7 @@ function mergeStates(a,b){
   m.profileCleared=Math.max(a.profileCleared||0,b.profileCleared||0);
   m.lastBackup=[a.lastBackup,b.lastBackup].filter(Boolean).sort().pop()||null;
   m.updatedAt=Math.max(a.updatedAt||0,b.updatedAt||0);
-  return m;
+  return dedupeState(m);
 }
 const normState=x=>canon(mergeStates(x,x));
 
@@ -2212,13 +2311,13 @@ async function syncNow(){
         if(mine){
           const {data:u,error:e3}=await c.from("app_state").update({state:body,updated_at:new Date().toISOString()}).eq("user_id",me).eq("updated_at",mine.updated_at).select("user_id");
           if(e3)throw e3;
-          if(!u||!u.length){if(changed&&!typing()&&!W)render();continue}   // someone else wrote first: merge again
+          if(!u||!u.length){if(changed)refreshView();continue}   // someone else wrote first: merge again
         }else{
           const {error:e4}=await c.from("app_state").insert({user_id:me,state:body});
           if(e4){if(e4.code==="23505")continue;throw e4}
         }
       }
-      if(changed&&!typing()&&!W)render();
+      if(changed)refreshView();
       ok=true;
     }
     if(!ok)throw new Error("Cloud was busy. Will retry shortly.");

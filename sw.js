@@ -1,5 +1,5 @@
 // Offline cache. Bump VERSION whenever index.html changes so phones pick up the update.
-const VERSION = "indys-year-v2.16.0";
+const VERSION = "indys-year-v2.16.1";
 // Runtime cache for jsDelivr files fetched on demand (the barcode-scanner polyfill and its WASM engine). It is NOT tied to VERSION,
 // so a new release does not throw away the offline scanner. Every URL is pinned to an exact version, so cached copies never go stale.
 const CDN_CACHE = "indys-year-cdn";
